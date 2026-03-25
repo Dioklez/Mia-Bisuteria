@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mía Bisutería — Accesorios hechos con el corazón</title>
+  <meta name="description" content="Accesorios únicos hechos a mano con mostacillas, cristales y componentes gold filled. Pulseras, argollas, collares y más. Pedidos por WhatsApp."/>
+  <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    #hero {
+      height:100vh; min-height:580px;
+      position:relative; overflow:hidden;
+    }
+    .hero-pattern {
+      position:absolute; inset:0;
+      background-color:#fdf7f0;
+      background-image:
+        radial-gradient(ellipse 65% 85% at 88% 55%, rgba(200,222,176,.55) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 45% at 5%  90%, rgba(200,222,176,.2)  0%, transparent 55%),
+        radial-gradient(ellipse 25% 25% at 88% 8%,  rgba(184,134,46,.07)  0%, transparent 50%);
+    }
+    .hero-deco { position:absolute; inset:0; pointer-events:none; overflow:hidden }
+    .hero-deco::before {
+      content:''; position:absolute; right:-80px; top:10%;
+      width:480px; height:480px; border-radius:50%;
+      border:1.5px solid rgba(200,222,176,.5);
+    }
+    .hero-deco::after {
+      content:''; position:absolute; right:-160px; top:5%;
+      width:640px; height:640px; border-radius:50%;
+      border:1px solid rgba(200,222,176,.3);
+    }
+    .hero-inner {
+      position:relative; z-index:2;
+      height:100%; display:flex; align-items:center; padding-top:80px;
+    }
+    .hero-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:60px; align-items:center;
+    }
+    .hero-tag {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(30,45,8,.07); border:1px solid rgba(30,45,8,.15);
+      color:var(--v3); padding:5px 16px; border-radius:50px;
+      font-size:.72rem; letter-spacing:.15em; text-transform:uppercase;
+      margin-bottom:24px;
+    }
+    .hero-dot { width:6px; height:6px; background:var(--oro); border-radius:50%; animation:pulse 1.8s infinite }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(1.5)} }
+
+    .hero-titulo {
+      font-family:var(--fn);
+      font-size:clamp(3rem,5.5vw,5.2rem);
+      font-weight:700; line-height:1.02;
+      color:var(--v); margin-bottom:20px; letter-spacing:-.01em;
+    }
+    .hero-titulo em   { font-style:italic; color:var(--oro) }
+    .hero-titulo .line-out {
+      -webkit-text-stroke:2px var(--vmenta);
+      color:transparent; display:block;
+    }
+    .hero-sub {
+      font-family:var(--fs); font-size:1.15rem;
+      color:var(--txt2); margin-bottom:36px;
+      max-width:420px; line-height:1.8; font-style:italic;
+    }
+    .hero-btns { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:48px }
+    .hero-stats {
+      display:flex; gap:36px;
+      padding-top:32px; border-top:1px solid var(--cborde);
+    }
+    .hstat-n { font-family:var(--fn); font-size:2rem; color:var(--v); line-height:1 }
+    .hstat-l { font-size:.75rem; color:var(--txt3); margin-top:3px; letter-spacing:.06em }
+    .hero-img-side { position:relative }
+    .hero-img-frame {
+      aspect-ratio:3/4; border-radius:4px 28px 4px 28px;
+      overflow:hidden; background:var(--vfondo);
+      border:1px solid var(--cborde); box-shadow:var(--sh2);
+    }
+    .hero-img-frame img { width:100%; height:100%; object-fit:cover }
+    .hero-ph {
+      width:100%; height:100%; min-height:280px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:12px; color:var(--v4);
+      font-family:var(--fs); font-style:italic; font-size:1rem;
+    }
+    .hero-ph:has(img) > i,
+    .hero-ph:has(img) > span { display:none }
+    .hero-ph:has(img) { padding:0 }
+    .hero-ph img { width:100%; height:100%; object-fit:cover }
+    .hero-fcard {
+      position:absolute; bottom:-20px; left:-32px;
+      background:rgba(249,244,236,.97); backdrop-filter:blur(12px);
+      border-radius:4px 18px 4px 18px;
+      padding:18px 22px; box-shadow:var(--sh);
+      border:1px solid var(--cborde); min-width:210px;
+    }
+    .hfc-label { font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--txt3); margin-bottom:6px }
+    .hfc-name  { font-family:var(--fn); font-size:1.05rem; color:var(--v); margin-bottom:2px }
+    .hfc-price { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--oro); font-style:italic }
+    .hero-fbadge {
+      position:absolute; top:28px; right:-20px;
+      background:var(--oro); color:#fff;
+      padding:10px 16px; border-radius:4px 14px 4px 14px;
+      font-size:.78rem; font-weight:500;
+      box-shadow:0 8px 24px rgba(184,134,46,.4); white-space:nowrap;
+    }
+
+    @keyframes floatHint { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+    #historia { padding:100px 0; background:#fff }
+    .hist-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center }
+    .hist-img-wrap { position:relative }
+    .hist-img {
+      aspect-ratio:4/5; border-radius:28px 4px 28px 4px;
+      overflow:hidden; background:var(--vfondo);
+    }
+    .hist-img img { width:100%; height:100%; object-fit:cover }
+    .hist-ph {
+      width:100%; height:100%; min-height:300px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:12px; color:var(--v4); font-family:var(--fs); font-style:italic;
+    }
+    .hist-ph:has(img) > i,
+    .hist-ph:has(img) > span { display:none }
+    .hist-ph:has(img) { padding:0 }
+    .hist-ph img { width:100%; height:100%; object-fit:cover }
+    .hist-quote {
+      position:absolute; bottom:-24px; right:-24px;
+      background:var(--v); color:#fff;
+      padding:22px 24px; border-radius:4px 18px 4px 18px;
+      max-width:210px; box-shadow:var(--sh2);
+    }
+    .hist-quote p    { font-family:var(--fs); font-style:italic; font-size:1rem; line-height:1.55; opacity:.9 }
+    .hist-quote span { display:block; margin-top:10px; font-size:.7rem; opacity:.5; letter-spacing:.1em; text-transform:uppercase }
+    .hist-txt h2     { font-family:var(--fn); font-size:clamp(2rem,3.5vw,2.8rem); color:var(--v); margin-bottom:20px }
+    .hist-txt p      { color:var(--txt2); line-height:1.9; margin-bottom:16px; font-size:.97rem }
+    .hist-checks     { display:flex; flex-direction:column; gap:14px; margin:28px 0 }
+    .hck             { display:flex; align-items:center; gap:12px; font-size:.9rem; color:var(--txt2) }
+    .hck-bola {
+      width:22px; height:22px; border-radius:50%;
+      background:var(--vfondo); border:2px solid var(--vmenta);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--v); font-size:.6rem; flex-shrink:0;
+    }
+
+    #colecciones { padding:100px 0; background:var(--c) }
+    .col-header  { text-align:center; margin-bottom:56px }
+    .col-header h2 { font-family:var(--fn); font-size:clamp(2rem,3.5vw,3rem); color:var(--v) }
+    .col-header p  { color:var(--txt3); margin-top:12px; font-size:.95rem }
+
+    .col-grid { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:16px; height:480px }
+    .col-card {
+      position:relative; border-radius:20px;
+      overflow:hidden; cursor:pointer; transition:var(--e);
+      text-decoration:none;
+    }
+    .col-card:hover { transform:scale(1.01) }
+    .col-bg { width:100%; height:100%; object-fit:cover; transition:transform .6s ease }
+    .col-card:hover .col-bg { transform:scale(1.06) }
+
+    .col-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center }
+    .col-ph:has(img) > i { display:none }
+    .col-ph img { width:100%; height:100%; object-fit:cover }
+    .col-flores   { background:linear-gradient(160deg,#1e2d08,#2e440f,#4a6b22) }
+    .col-mariposa { background:linear-gradient(160deg,#2a1a3a,#4a2a6b,#7a4aa0) }
+    .col-girasol  { background:linear-gradient(160deg,#3a2800,#6b4800,#b87800) }
+    .col-cherry   { background:linear-gradient(160deg,#3d1a1a,#6b2a2a,#a85a5a) }
+    .col-caracoles{ background:linear-gradient(160deg,#1a2a3a,#2a3d52,#4a6a84) }
+
+    .col-overlay  {
+      position:absolute; inset:0;
+      background:linear-gradient(to top,rgba(30,45,8,.88) 0%,transparent 55%);
+      transition:background var(--e);
+    }
+    .col-card:hover .col-overlay { background:linear-gradient(to top,rgba(30,45,8,.94) 0%,rgba(30,45,8,.2) 55%) }
+    .col-info {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:24px 22px; color:#fff;
+      transform:translateY(4px); transition:transform var(--e);
+    }
+    .col-card:hover .col-info { transform:translateY(0) }
+    .col-nombre { font-family:var(--fn); font-size:1.4rem; display:block; margin-bottom:5px }
+    .col-cant   { font-size:.8rem; opacity:.6; display:block; margin-bottom:12px }
+    .col-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--orop); opacity:0; transition:opacity var(--e);
+    }
+    .col-card:hover .col-btn { opacity:1 }
+
+    #destacados { padding:100px 0; background:#fff }
+    .dest-header {
+      display:flex; justify-content:space-between;
+      align-items:flex-end; margin-bottom:48px; gap:20px; flex-wrap:wrap;
+    }
+    .dest-header h2 { font-family:var(--fn); font-size:clamp(1.8rem,3vw,2.6rem); color:var(--v) }
+    .dest-header p  { color:var(--txt3); font-size:.9rem; max-width:260px; line-height:1.7 }
+    .dest-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px }
+
+    #como-funciona { padding:100px 0; background:var(--c2) }
+    .proceso-header { text-align:center; margin-bottom:60px }
+    .proceso-header h2 { font-family:var(--fn); font-size:clamp(1.8rem,3vw,2.6rem); color:var(--v) }
+    .proceso-header p  { color:var(--txt3); margin-top:10px; font-size:.95rem }
+    .proceso-grid {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:32px; position:relative;
+    }
+    .proceso-grid::before {
+      content:''; position:absolute;
+      top:36px; left:calc(12.5% + 16px); right:calc(12.5% + 16px);
+      height:2px; background:var(--vmenta); z-index:0;
+    }
+    .paso {
+      text-align:center; position:relative; z-index:1;
+    }
+    .paso-num {
+      width:72px; height:72px; border-radius:50%;
+      background:var(--v); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--fn); font-size:1.5rem;
+      margin:0 auto 20px; position:relative;
+      box-shadow:0 8px 24px rgba(30,45,8,.2);
+    }
+    .paso-num i { font-size:1.2rem }
+    .paso h3 { font-family:var(--fn); font-size:1.05rem; color:var(--v); margin-bottom:8px }
+    .paso p  { font-size:.85rem; color:var(--txt3); line-height:1.7 }
+
+    #testimonios { padding:100px 0; background:var(--c) }
+    .test-header { text-align:center; margin-bottom:52px }
+    .test-header h2 { font-family:'Dancing Script',cursive; font-size:clamp(2rem,3.5vw,3rem); color:var(--v) }
+    .test-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px }
+    .tcard {
+      background:#fff; border-radius:20px; padding:28px 24px;
+      border:1px solid var(--cborde); position:relative; transition:var(--e);
+    }
+    .tcard:hover { transform:translateY(-4px); box-shadow:var(--sh) }
+    .tcard::before {
+      content:'"'; position:absolute; top:14px; right:22px;
+      font-family:var(--fn); font-size:5rem; line-height:1;
+      color:var(--orofondo); font-style:italic;
+    }
+    .tcard-stars { display:flex; gap:3px; margin-bottom:14px }
+    .tcard-stars i { color:var(--oro); font-size:.82rem }
+    .tcard-txt  { font-size:.88rem; color:var(--txt2); font-style:italic; line-height:1.8; margin-bottom:20px }
+    .tcard-author { display:flex; align-items:center; gap:12px }
+    .t-av {
+      width:36px; height:36px; border-radius:50%;
+      background:var(--vfondo); display:flex; align-items:center; justify-content:center;
+      font-family:var(--fn); font-weight:700; font-size:.9rem; color:var(--v); flex-shrink:0;
+    }
+    .t-nombre { font-weight:500; font-size:.87rem }
+    .t-ciudad { font-size:.74rem; color:var(--txt3) }
+
+    #cta-final {
+      padding:100px 0; background:var(--v);
+      position:relative; overflow:hidden; text-align:center;
+    }
+    #cta-final::before {
+      content:''; position:absolute;
+      top:-100px; left:50%; transform:translateX(-50%);
+      width:600px; height:600px; border-radius:50%;
+      background:rgba(255,255,255,.03); pointer-events:none;
+    }
+    .cta-inner { position:relative; z-index:1; max-width:580px; margin:0 auto }
+    .cta-inner h2 {
+      font-family:var(--fn); font-size:clamp(2rem,3.5vw,3rem);
+      color:#fff; margin-bottom:18px; line-height:1.2;
+    }
+    .cta-inner h2 em { font-style:italic; color:var(--orop) }
+    .cta-inner p { color:rgba(255,255,255,.6); font-size:1rem; line-height:1.8; margin-bottom:36px }
+    .cta-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap }
+
+    @media(max-width:1024px) {
+      .col-grid  { grid-template-columns:1fr 1fr; height:auto }
+      .col-card:nth-child(1) { grid-column:1/3 }
+      .dest-grid { grid-template-columns:repeat(2,1fr) }
+      .proceso-grid { grid-template-columns:repeat(2,1fr); gap:40px }
+      .proceso-grid::before { display:none }
+    }
+    @media(max-width:768px) {
+      .hero-grid { grid-template-columns:1fr; gap:0 }
+      .hero-img-side { display:none }
+      .hero-inner { align-items:flex-end; padding-bottom:60px }
+      .hero-titulo { font-size:clamp(2.6rem,8vw,4rem) }
+      .hero-btns { flex-direction:column; align-items:flex-start }
+      .hist-grid { grid-template-columns:1fr; gap:48px }
+      .hist-img  { aspect-ratio:3/2 }
+      .hist-quote { right:0; bottom:-16px; max-width:185px; padding:16px 18px }
+      .col-grid  { grid-template-columns:1fr; height:auto }
+      .col-card:nth-child(1) { grid-column:auto }
+      .dest-grid { grid-template-columns:1fr 1fr }
+      .proceso-grid { grid-template-columns:1fr 1fr }
+      .test-grid { grid-template-columns:1fr }
+    }
+    @media(max-width:480px) {
+      .dest-grid { grid-template-columns:1fr }
+      .proceso-grid { grid-template-columns:1fr }
+      #hero { height:95vh }
+    }
+  </style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="index.html" class="logo t-logo">
+      <img src="images/logos/logo-mia.jpg" alt="Mía Bisutería" class="logo-img"/>
+      Mía<sup>Bisutería</sup>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="personalizado.html">Pedido especial</a></li>
+      <li><a href="#historia">Sobre Mía</a></li>
+    </ul>
+    <div class="nav-r">
+      <div class="nav-r-icons">
+        <a href="https://www.instagram.com/miabisuteria.ar/" target="_blank" aria-label="Instagram">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/5491137742189" target="_blank" aria-label="WhatsApp">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+      <button class="nav-pedido" onclick="abrirPanel()" aria-label="Ver mi pedido">
+        <i class="fa-solid fa-bag-shopping" style="font-size:.85rem"></i>
+        Mi pedido
+        <span class="pedido-count" id="pedido-count">0</span>
+      </button>
+      <button class="ham" id="ham" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mnav-over" id="mnav-over" onclick="cerrarMnav()"></div>
+<nav class="mnav" id="mnav">
+  <ul>
+    <li><a href="index.html"         onclick="cerrarMnav()">Inicio</a></li>
+    <li><a href="catalogo.html"      onclick="cerrarMnav()">Catálogo</a></li>
+    <li><a href="personalizado.html" onclick="cerrarMnav()">Pedido especial</a></li>
+    <li><a href="#historia"          onclick="cerrarMnav()">Sobre Mía</a></li>
+  </ul>
+</nav>
+<div class="panel-over" id="panel-over" onclick="cerrarPanel()"></div>
+
+<aside class="pedido-panel" id="pedido-panel" aria-label="Mi pedido">
+  <div class="pp-header">
+    <div class="pp-titulo">Mi pedido</div>
+    <button class="pp-close" onclick="cerrarPanel()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="pp-items" id="pp-items">
+    <div class="pp-empty" id="pp-empty">
+      <i class="fa-regular fa-heart"></i>
+      <p>Tu pedido está vacío</p>
+      <small>Agrega piezas y envíalas todas juntas a Mía por WhatsApp</small>
+    </div>
+  </div>
+  <div class="pp-footer">
+    <div class="pp-total">
+      <span class="pp-total-lbl">Total estimado</span>
+      <span class="pp-total-val" id="pp-total">$0</span>
+    </div>
+    <button class="btn btn-wa" style="width:100%;font-size:.95rem;padding:15px" onclick="enviarPedidoWA()">
+      <i class="fa-brands fa-whatsapp"></i> Enviar pedido por WhatsApp
+    </button>
+    <p class="pp-nota">
+      Los precios son orientativos. Mía confirmará disponibilidad y total exacto.
+      <strong>Respuesta en menos de 24 h.</strong>
+    </p>
+  </div>
+</aside>
+
+<main>
+
+<section id="hero">
+  <div class="hero-pattern"></div>
+  <div class="hero-deco"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-tag">
+          <span class="hero-dot"></span> Hecho a mano con amor
+        </div>
+        <h1 class="hero-titulo">
+          Accesorios que<br/>cuentan tu<br/><em>historia</em>
+          <span class="line-out">única</span>
+        </h1>
+        <p class="hero-sub">
+          Cada pieza nace de la naturaleza, vive en tus manos y cuenta algo que solo tú puedes decir.
+        </p>
+        <div class="hero-btns">
+          <a href="catalogo.html" class="btn btn-oro">
+            <i class="fa-solid fa-sparkles"></i> Ver catálogo completo
+          </a>
+          <a href="personalizado.html" class="btn btn-ghost">
+            Pedido especial
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="hstat-n">26+</div><div class="hstat-l">Piezas únicas</div></div>
+          <div><div class="hstat-n">100%</div><div class="hstat-l">A mano</div></div>
+          <div><div class="hstat-n">5★</div><div class="hstat-l">Calificación</div></div>
+        </div>
+      </div>
+      <div class="hero-img-side">
+        <div class="hero-img-frame">
+          <div class="hero-ph">
+            <img id="hero-img" src="images/pulsera-alma-girasol-1.jpeg" alt="Pulsera destacada"/>
+            <i class="fa-regular fa-image" style="font-size:2.5rem;opacity:.3"></i>
+            <span>Foto principal</span>
+          </div>
+        </div>
+        <div class="hero-fcard">
+          <div class="hfc-label">Más vendida esta semana</div>
+          <div class="hfc-name" id="dest-nombre">Cargando...</div>
+          <div class="hfc-price" id="dest-precio"></div>
+        </div>
+        <div class="hero-fbadge">✦ Envíos en persona o por Uber</div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+<section id="historia">
+  <div class="wrap">
+    <div class="hist-grid">
+      <div class="hist-img-wrap reveal">
+        <div class="hist-img">
+          <div class="hist-ph">
+            <img src="images/logos/mia.jpeg" alt="Mía trabajando"/>
+            <i class="fa-regular fa-image" style="font-size:2rem;opacity:.3;color:var(--v4)"></i>
+            <span>Foto de Mía</span>
+          </div>
+        </div>
+        <div class="hist-quote">
+          <p>"Cada pieza nace de un instante de inspiración y mucho, mucho amor."</p>
+          <span>— Mía, fundadora</span>
+        </div>
+      </div>
+      <div class="hist-txt reveal d1">
+        <span class="t-etiq">Nuestra historia</span>
+        <h2 class="t-disp">
+          Detrás de cada pieza: el corazón de <em style="color:var(--oro)">Mía</em>
+        </h2>
+        <p>
+          Mía Bisutería nació de la pasión por capturar la belleza de la naturaleza en accesorios que duran.
+          Cada pulsera, argolla y collar es creado a mano con mostacillas checas, cristales y componentes gold filled,
+          garantizando una pieza única que llevarás por años.
+        </p>
+        <p>
+          Creemos que los accesorios deben ser más que un adorno — deben contar tu historia y reflejar tu esencia.
+        </p>
+        <div class="hist-checks">
+          <div class="hck"><div class="hck-bola"><i class="fa-solid fa-check"></i></div>Mostacillas checas, Miyuki y cristales de roca</div>
+          <div class="hck"><div class="hck-bola"><i class="fa-solid fa-check"></i></div>Componentes gold filled de calidad</div>
+          <div class="hck"><div class="hck-bola"><i class="fa-solid fa-check"></i></div>Cada pieza es única e irrepetible</div>
+          <div class="hck"><div class="hck-bola"><i class="fa-solid fa-check"></i></div>Pedidos personalizados para cualquier ocasión</div>
+        </div>
+        <a href="https://wa.me/5491137742189?text=Hola+Mía!+Me+encantó+tu+historia+y+quiero+conocer+más+🌿"
+           target="_blank" class="btn btn-v">
+          <i class="fa-brands fa-whatsapp"></i> Escribinos
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+<section id="colecciones">
+  <div class="wrap">
+    <div class="col-header reveal">
+      <span class="t-etiq">Nuestro universo</span>
+      <h2>Explora cada colección</h2>
+      <p>Cinco mundos distintos, una sola pasión artesanal.</p>
+    </div>
+    <div class="col-grid reveal d1">
+      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('flores')">
+        <img src="images/pulsera-suspiro-lila.jpeg" class="col-bg" alt="Flores"/>
+        <div class="col-ph col-flores">
+          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-info">
+          <span class="col-nombre">🌸 Colección Flores</span>
+          <span class="col-cant">La más completa — 16 piezas</span>
+          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('mariposa')">
+        <img src="images/collar-mariposa-lila-1.jpeg" class="col-bg" alt="Mariposa"/>
+        <div class="col-ph col-mariposa">
+          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-info">
+          <span class="col-nombre">🦋 Mariposa</span>
+          <span class="col-cant">3 piezas</span>
+          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('girasol')">
+        <img src="images/pulsera-alma-girasol-1.jpeg" class="col-bg" alt="Girasol"/>
+        <div class="col-ph col-girasol">
+          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-info">
+          <span class="col-nombre">🌻 Girasol</span>
+          <span class="col-cant">2 piezas</span>
+          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('cherry')">
+        <img src="images/pulsera-cherry-margaritas-1.jpeg" class="col-bg" alt="Cherry"/>
+        <div class="col-ph col-cherry">
+          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-info">
+          <span class="col-nombre">🍒 Cherry</span>
+          <span class="col-cant">1 pieza</span>
+          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('caracoles')">
+        <img src="images/tobillera-caracoles-1.jpeg" class="col-bg" alt="Caracoles"/>
+        <div class="col-ph col-caracoles">
+          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-info">
+          <span class="col-nombre">🐚 Caracoles</span>
+          <span class="col-cant">1 pieza</span>
+          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+<section id="destacados">
+  <div class="wrap">
+    <div class="dest-header reveal">
+      <div>
+        <span class="t-etiq">Favoritos del momento</span>
+        <h2 class="t-disp">Piezas que no puedes perderte</h2>
+      </div>
+      <div>
+        <p>Solo una muestra de lo que te espera en el catálogo completo.</p>
+        <a href="catalogo.html" class="btn btn-ghost" style="margin-top:12px">
+          Ver las 26 piezas <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    <div class="dest-grid reveal d1" id="dest-grid"></div>
+  </div>
+</section>
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="proceso-header reveal">
+      <span class="t-etiq">Así de fácil</span>
+      <h2>¿Cómo hago mi pedido?</h2>
+      <p>Sin apps, sin cuentas, sin complicaciones. Solo WhatsApp.</p>
+    </div>
+    <div class="proceso-grid">
+      <div class="paso reveal">
+        <div class="paso-num"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h3>Explorá el catálogo</h3>
+        <p>Navegá todas las piezas disponibles con sus precios y descripción.</p>
+      </div>
+      <div class="paso reveal d1">
+        <div class="paso-num"><i class="fa-solid fa-bag-shopping"></i></div>
+        <h3>Armá tu pedido</h3>
+        <p>Agregá todo lo que quieras al panel "Mi pedido". Podés agregar varias piezas.</p>
+      </div>
+      <div class="paso reveal d2">
+        <div class="paso-num"><i class="fa-brands fa-whatsapp"></i></div>
+        <h3>Enviá por WhatsApp</h3>
+        <p>Con un clic se abre WhatsApp con tu pedido completo ya escrito. ¡Sin escribir nada!</p>
+      </div>
+      <div class="paso reveal d3">
+        <div class="paso-num"><i class="fa-solid fa-heart"></i></div>
+        <h3>Mía te responde</h3>
+        <p>En menos de 24 horas te confirma disponibilidad y coordina el pago y entrega.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="testimonios">
+  <div class="wrap">
+    <div class="test-header reveal">
+      <span class="t-etiq">Amor de clientas</span>
+      <h2>Lo que dicen de Mía ✨</h2>
+    </div>
+    <div class="test-grid">
+      <div class="tcard reveal">
+        <div class="tcard-stars">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <p class="tcard-txt">"La calidad es increíble y se nota que está hecha con amor. Recibo cumplidos cada vez que uso mi pulsera. ¡Ya encargué la segunda!"</p>
+        <div class="tcard-author">
+          <div class="t-av">SG</div>
+          <div><div class="t-nombre">Sol G.</div><div class="t-ciudad">Buenos Aires</div></div>
+        </div>
+      </div>
+      <div class="tcard reveal d1">
+        <div class="tcard-stars">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <p class="tcard-txt">"El collar Mariposa Lila es una joya. Super liviano y delicado. El empaque también fue muy cuidado. Cien por ciento recomendable."</p>
+        <div class="tcard-author">
+          <div class="t-av">VM</div>
+          <div><div class="t-nombre">Vale M.</div><div class="t-ciudad">Rosario</div></div>
+        </div>
+      </div>
+      <div class="tcard reveal d2">
+        <div class="tcard-stars">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <p class="tcard-txt">"Compré un pedido personalizado para el cumple de mi amiga y quedó fascinada. Mía fue súper atenta y entregó en tiempo. ¡La mejor!"</p>
+        <div class="tcard-author">
+          <div class="t-av">LC</div>
+          <div><div class="t-nombre">Lu C.</div><div class="t-ciudad">Córdoba</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="cta-final">
+  <div class="wrap">
+    <div class="cta-inner reveal">
+      <span class="t-etiq" style="color:var(--orop)">¿Lista para elegir la tuya?</span>
+      <h2>Encontrá la pieza que <em>te representa</em></h2>
+      <p>Explorá el catálogo completo o contanos tu idea para crear algo único para vos.</p>
+      <div class="cta-btns">
+        <a href="catalogo.html" class="btn btn-oro">
+          <i class="fa-solid fa-sparkles"></i> Ver catálogo completo
+        </a>
+        <a href="personalizado.html" class="btn" style="background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.3)">
+          <i class="fa-solid fa-pencil"></i> Pedido especial
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <span class="ft-logo t-logo">Mía Bisutería</span>
+        <p>Accesorios hechos a mano con pasión, calidad y mucho corazón. Cada pieza cuenta tu historia.</p>
+        <div class="ft-socials">
+          <a href="https://www.instagram.com/miabisuteria.ar/" class="ft-soc" target="_blank" aria-label="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="https://wa.me/5491137742189" class="ft-soc" target="_blank" aria-label="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h5>Páginas</h5>
+        <ul class="ft-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="personalizado.html">Pedido especial</a></li>
+          <li><a href="#historia">Sobre Mía</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Colecciones</h5>
+        <ul class="ft-links">
+          <li><a href="catalogo.html">🌸 Flores</a></li>
+          <li><a href="catalogo.html">🦋 Mariposa</a></li>
+          <li><a href="catalogo.html">🌻 Girasol</a></li>
+          <li><a href="catalogo.html">🍒 Cherry</a></li>
+          <li><a href="catalogo.html">🐚 Caracoles</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Contacto</h5>
+        <ul class="ft-contact">
+          <li>
+            <i class="fa-brands fa-whatsapp"></i>
+            <a href="https://wa.me/5491137742189" target="_blank">+54 9 11 3774-2189</a>
+          </li>
+          <li>
+            <i class="fa-brands fa-instagram"></i>
+            <a href="https://www.instagram.com/miabisuteria.ar/" target="_blank">@miabisuteria.ar</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
+      <p>Diseñado por <span style="color:var(--oro2);font-weight:500">Aarón Rosas</span></p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5491137742189?text=Hola+Mía!+Vi+tu+sitio+y+me+interesa+🌿"
+   target="_blank" class="wa-fab" aria-label="WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/app.js"></script>
+<script>
+
+function cargarDestacado() {
+  if (typeof firebase === 'undefined' || !firebase.apps.length) return;
+  firebase.firestore().collection('config').doc('site').get().then(snap => {
+    const dest = snap.exists ? (snap.data().destacado || {}) : {};
+    if (!dest.nombre && PRODUCTOS.length > 0) {
+      dest.nombre = PRODUCTOS[0].nombre;
+      dest.precio = PRODUCTOS[0].precio;
+      dest.img    = (PRODUCTOS[0].imgs && PRODUCTOS[0].imgs[0]) || '';
+    }
+    const elNombre = document.getElementById('dest-nombre');
+    const elPrecio = document.getElementById('dest-precio');
+    const elImg    = document.getElementById('hero-img');
+    if (elNombre) elNombre.textContent = dest.nombre || '';
+    if (elPrecio) elPrecio.textContent = dest.precio ? '$' + parseInt(dest.precio).toLocaleString('es-AR') + ' ARS' : '';
+    if (elImg && dest.img) elImg.src = dest.img;
+  }).catch(() => {});
+}
+
+function renderDestacados() {
+  const grid = document.getElementById('dest-grid');
+  if (!grid) return;
+  const TIPO_LABEL = { pulsera:'Pulsera', argolla:'Aritos', collar:'Collar', anillo:'Anillo', tobillera:'Tobillera' };
+
+  function _render(ids) {
+    grid.innerHTML = ids.map(id => {
+      const p = PRODUCTOS.find(pr => pr.id === id);
+      if (!p) return '';
+      return `
+        <article class="pcard reveal">
+          ${crearCarrusel(p, p.id)}
+          <div class="pcard-badges">
+            <span class="pcard-badge">${TIPO_LABEL[p.tipo] || p.tipo}</span>
+          </div>
+          <div class="pcard-body">
+            <h3 class="pcard-nombre">${p.nombre}</h3>
+            <p class="pcard-desc">${p.desc}</p>
+            <div class="pcard-footer">
+              <div class="pcard-precio"><small>Precio</small>$${p.precio.toLocaleString('es-AR')}</div>
+              <div class="pcard-ctrl">
+                <div class="qty">
+                  <button class="qty-btn" onclick="cambiarQty(this,-1)">−</button>
+                  <input class="qty-num" type="number" value="1" min="1" max="10" readonly/>
+                  <button class="qty-btn" onclick="cambiarQty(this,1)">+</button>
+                </div>
+                <button class="add-btn" onclick="agregarAlPedido(this,${p.id})">
+                  <i class="fa-solid fa-bag-shopping"></i> Agregar
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>`;
+    }).join('');
+    grid.querySelectorAll('.reveal').forEach(el => el.classList.add('vis'));
+    if (typeof initCarruseles === 'function') initCarruseles();
+  }
+
+  if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    firebase.firestore().collection('config').doc('site').get()
+      .then(snap => _render(snap.exists ? (snap.data().favoritos || [6,10,17,7]) : [6,10,17,7]))
+      .catch(() => _render([6,10,17,7]));
+  } else {
+    _render([6,10,17,7]);
+  }
+}
+
+function seleccionarColeccion(col) {
+  try { sessionStorage.setItem('mia-filtro-col', col); } catch {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarDestacado();
+  renderDestacados();
+});
+</script>
+</body>
+</html>

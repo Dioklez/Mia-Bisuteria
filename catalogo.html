@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo — Mía Bisutería</title>
+  <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .page-hero {
+      padding:140px 0 60px; background:#fdf7f0;
+      background-image:
+        radial-gradient(ellipse 50% 80% at 95% 50%, rgba(200,222,176,.4) 0%, transparent 60%),
+        radial-gradient(ellipse 30% 40% at 5%  80%, rgba(200,222,176,.2) 0%, transparent 55%);
+      border-bottom:1px solid var(--cborde);
+    }
+    .page-hero-inner { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap }
+    .page-hero h1 { font-family:var(--fn); font-size:clamp(2.2rem,4vw,3.5rem); color:var(--v); line-height:1.1 }
+    .page-hero p  { color:var(--txt3); font-size:.95rem; max-width:380px; line-height:1.75; margin-top:10px }
+    .prod-count   { font-family:var(--fs); font-size:1rem; color:var(--txt3); font-style:italic; white-space:nowrap }
+    .filtros-area {
+      background:#fff; border-bottom:1px solid var(--cborde);
+      position:sticky; top:72px; z-index:50;
+      padding:18px 0; box-shadow:0 4px 20px rgba(30,45,8,.04);
+    }
+    .filtros-inner { display:flex; flex-direction:column; gap:12px }
+    .filtros-fila  { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+    .catalogo-body { padding:52px 0 100px }
+    .prod-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:22px }
+    #sin-resultados {
+      display:none; grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--txt3);
+    }
+    #sin-resultados i { font-size:2.5rem; color:var(--vmenta); display:block; margin-bottom:16px }
+    #sin-resultados p { font-family:var(--fs); font-style:italic; font-size:1.1rem; color:var(--txt2) }
+    @media(max-width:1200px) { .prod-grid { grid-template-columns:repeat(3,1fr) } }
+    @media(max-width:900px)  { .prod-grid { grid-template-columns:repeat(2,1fr) } }
+    @media(max-width:640px)  {
+      .filtros-fila { gap:7px }
+      .prod-grid    { grid-template-columns:repeat(2,1fr); gap:14px }
+      .page-hero    { padding:120px 0 40px }
+    }
+    @media(max-width:420px) { .prod-grid { grid-template-columns:1fr } }
+  </style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="index.html" class="logo t-logo">
+      <img src="images/logos/logo-mia.jpg" alt="Mía Bisutería" class="logo-img"/>
+      Mía<sup>Bisutería</sup>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="personalizado.html">Pedido especial</a></li>
+      <li><a href="index.html#historia">Sobre Mía</a></li>
+    </ul>
+    <div class="nav-r">
+      <div class="nav-r-icons">
+        <a href="https://www.instagram.com/miabisuteria.ar/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://wa.me/5491137742189" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      </div>
+      <button class="nav-pedido" onclick="abrirPanel()" aria-label="Ver mi pedido">
+        <i class="fa-solid fa-bag-shopping" style="font-size:.85rem"></i>
+        Mi pedido
+        <span class="pedido-count" id="pedido-count">0</span>
+      </button>
+      <button class="ham" id="ham" aria-label="Menú"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="mnav-over" id="mnav-over" onclick="cerrarMnav()"></div>
+<nav class="mnav" id="mnav">
+  <ul>
+    <li><a href="index.html"          onclick="cerrarMnav()">Inicio</a></li>
+    <li><a href="catalogo.html"       onclick="cerrarMnav()">Catálogo</a></li>
+    <li><a href="personalizado.html"  onclick="cerrarMnav()">Pedido especial</a></li>
+    <li><a href="index.html#historia" onclick="cerrarMnav()">Sobre Mía</a></li>
+  </ul>
+</nav>
+<div class="panel-over" id="panel-over" onclick="cerrarPanel()"></div>
+
+<aside class="pedido-panel" id="pedido-panel" aria-label="Mi pedido">
+  <div class="pp-header">
+    <div class="pp-titulo">Mi pedido</div>
+    <button class="pp-close" onclick="cerrarPanel()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="pp-items" id="pp-items">
+    <div class="pp-empty" id="pp-empty">
+      <i class="fa-regular fa-heart"></i>
+      <p>Tu pedido está vacío</p>
+      <small>Agrega piezas y envíalas todas juntas a Mía por WhatsApp</small>
+    </div>
+  </div>
+  <div class="pp-footer">
+    <div class="pp-total">
+      <span class="pp-total-lbl">Total estimado</span>
+      <span class="pp-total-val" id="pp-total">$0</span>
+    </div>
+    <button class="btn btn-wa" style="width:100%;font-size:.95rem;padding:15px" onclick="enviarPedidoWA()">
+      <i class="fa-brands fa-whatsapp"></i> Enviar pedido por WhatsApp
+    </button>
+    <p class="pp-nota">Los precios son orientativos. Mía confirmará disponibilidad y total exacto. <strong>Respuesta en menos de 24 h.</strong></p>
+  </div>
+</aside>
+
+<main>
+
+<section class="page-hero">
+  <div class="wrap page-hero-inner">
+    <div>
+      <span class="t-etiq">Todos los accesorios</span>
+      <h1 class="t-disp">Catálogo completo</h1>
+      <p>Cada pieza hecha a mano con amor. Agrega lo que quieras y envía tu pedido por WhatsApp.</p>
+    </div>
+    <div class="prod-count" id="prod-count">Cargando...</div>
+  </div>
+</section>
+
+<div class="filtros-area">
+  <div class="wrap filtros-inner">
+    <div class="filtros-fila">
+      <span class="filtros-label" style="margin-bottom:0;white-space:nowrap">Tipo:</span>
+      <button class="filtro filtro-tipo activo" onclick="filtrarTipo(this,'todos')">Todos</button>
+      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'pulsera')">Pulseras</button>
+      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'argolla')">Aritos</button>
+      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'collar')">Collares</button>
+      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'anillo')">Anillos</button>
+      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'tobillera')">Tobilleras</button>
+    </div>
+    <div class="filtros-fila">
+      <span class="filtros-label" style="margin-bottom:0;white-space:nowrap">Colección:</span>
+      <button class="filtro filtro-col activo-col" onclick="filtrarCol(this,'todas')">Todas</button>
+      <button class="filtro filtro-col" onclick="filtrarCol(this,'flores')">🌸 Flores</button>
+      <button class="filtro filtro-col" onclick="filtrarCol(this,'mariposa')">🦋 Mariposa</button>
+      <button class="filtro filtro-col" onclick="filtrarCol(this,'girasol')">🌻 Girasol</button>
+      <button class="filtro filtro-col" onclick="filtrarCol(this,'cherry')">🍒 Cherry</button>
+      <button class="filtro filtro-col" onclick="filtrarCol(this,'caracoles')">🐚 Caracoles</button>
+    </div>
+  </div>
+</div>
+
+<section class="catalogo-body">
+  <div class="wrap">
+    <div class="prod-grid" id="prod-grid">
+      <div id="sin-resultados">
+        <i class="fa-regular fa-face-sad-tear"></i>
+        <p>No hay piezas con esa combinación.</p>
+        <small>Prueba cambiando el tipo o la colección.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <span class="ft-logo t-logo">Mía Bisutería</span>
+        <p>Accesorios hechos a mano con pasión, calidad y mucho corazón. Cada pieza cuenta tu historia.</p>
+        <div class="ft-socials">
+          <a href="https://www.instagram.com/miabisuteria.ar/" class="ft-soc" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://wa.me/5491137742189" class="ft-soc" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h5>Páginas</h5>
+        <ul class="ft-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="personalizado.html">Pedido especial</a></li>
+          <li><a href="index.html#historia">Sobre Mía</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Colecciones</h5>
+        <ul class="ft-links">
+          <li><a href="catalogo.html">🌸 Flores</a></li>
+          <li><a href="catalogo.html">🦋 Mariposa</a></li>
+          <li><a href="catalogo.html">🌻 Girasol</a></li>
+          <li><a href="catalogo.html">🍒 Cherry</a></li>
+          <li><a href="catalogo.html">🐚 Caracoles</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Contacto</h5>
+        <ul class="ft-contact">
+          <li><i class="fa-brands fa-whatsapp"></i><a href="https://wa.me/5491137742189" target="_blank">+54 9 11 3774-2189</a></li>
+          <li><i class="fa-brands fa-instagram"></i><a href="https://www.instagram.com/miabisuteria.ar/" target="_blank">@miabisuteria.ar</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
+      <p>Diseñado por <span style="color:var(--oro2);font-weight:500">Aarón Rosas</span></p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5491137742189?text=Hola+Mía!+Vi+tu+catálogo+y+me+interesa+🌿"
+   target="_blank" class="wa-fab" aria-label="WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

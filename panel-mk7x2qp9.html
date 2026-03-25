@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Mía Bisutería</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root{--v:#1e2d08;--v2:#2e440f;--vmenta:#c8deb0;--vfondo:#e8f0d8;--c:#f9f4ec;--c2:#f2e8d4;--cborde:#d8c9aa;--oro:#b8862e;--oro2:#d4a84a;--orofondo:#faf3de;--txt:#1c1408;--txt2:#5a4228;--txt3:#8a7060;--rojo:#c04040;--verde:#25a35a;--fn:'Playfair Display',serif;--fb:'Jost',sans-serif;--e:0.28s cubic-bezier(.4,0,.2,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--c);color:var(--txt);font-family:var(--fb);line-height:1.6;min-height:100vh}
+    #login-screen{position:fixed;inset:0;z-index:999;background:var(--v);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px}
+    #login-screen h1{font-family:var(--fn);color:#fff;font-size:2rem;text-align:center}
+    #login-screen p{color:rgba(255,255,255,.55);font-size:.9rem}
+    .login-box{background:#fff;border-radius:20px;padding:36px 32px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+    .login-box label{display:block;font-size:.72rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:8px}
+    .login-box input{width:100%;background:var(--c);border:1.5px solid var(--cborde);border-radius:10px;padding:12px 15px;font-family:var(--fb);font-size:.95rem;color:var(--txt);outline:none;transition:border-color var(--e)}
+    .login-box input:focus{border-color:var(--v)}
+    .login-error{color:var(--rojo);font-size:.82rem;margin-top:8px;display:none}
+    .btn-login{width:100%;margin-top:18px;padding:13px;background:var(--v);color:#fff;border:none;border-radius:50px;font-family:var(--fb);font-size:.9rem;font-weight:500;cursor:pointer;transition:var(--e)}
+    .btn-login:hover{background:var(--v2)}
+    #admin-app{display:none}
+    .admin-header{background:var(--v);color:#fff;padding:16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.2)}
+    .admin-header-inner{width:95%;max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .admin-logo{font-family:var(--fn);font-size:1.4rem;color:#fff}
+    .admin-logo span{color:var(--oro2);font-size:.7rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:-4px}
+    .admin-nav{display:flex;gap:8px;flex-wrap:wrap}
+    .admin-nav-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:7px 16px;border-radius:50px;font-family:var(--fb);font-size:.78rem;cursor:pointer;transition:var(--e)}
+    .admin-nav-btn:hover,.admin-nav-btn.activo{background:var(--oro);border-color:var(--oro)}
+    .admin-nav-btn.danger{background:rgba(192,64,64,.3);border-color:rgba(192,64,64,.4)}
+    .admin-nav-btn.danger:hover{background:var(--rojo)}
+    .admin-body{width:95%;max-width:1300px;margin:0 auto;padding:32px 0 80px}
+    .tab{display:none}.tab.activo{display:block}
+    .admin-section{background:#fff;border-radius:16px;padding:28px;border:1px solid var(--cborde);margin-bottom:24px}
+    .admin-section h2{font-family:var(--fn);font-size:1.3rem;color:var(--v);margin-bottom:4px;display:flex;align-items:center;gap:10px}
+    .admin-section h2 i{font-size:1rem;color:var(--oro)}
+    .admin-section>p{font-size:.85rem;color:var(--txt3);margin-bottom:20px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .fg{display:flex;flex-direction:column;gap:6px}
+    .fg.full{grid-column:1/-1}
+    .fg label{font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3)}
+    .fg input,.fg select,.fg textarea{background:var(--c);border:1.5px solid var(--cborde);border-radius:10px;padding:10px 13px;font-family:var(--fb);font-size:.9rem;color:var(--txt);outline:none;transition:border-color var(--e);resize:none;-webkit-appearance:none;appearance:none}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--v)}
+    .fg textarea{height:76px}
+    .fg .hint{font-size:.72rem;color:var(--txt3);margin-top:2px}
+    .upload-area{border:2px dashed var(--cborde);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;transition:var(--e);background:var(--c);position:relative;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+    .upload-area:hover,.upload-area.drag{border-color:var(--v);background:var(--vfondo)}
+    .upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .upload-area i{font-size:2rem;color:#7a9c52}
+    .upload-area p{font-size:.85rem;color:var(--txt3);margin:0}
+    .upload-area strong{font-size:.9rem;color:var(--v)}
+    .imgs-preview{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .img-thumb{position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:2px solid var(--cborde)}
+    .img-thumb img{width:100%;height:100%;object-fit:cover}
+    .img-thumb-rm{position:absolute;top:3px;right:3px;background:rgba(192,64,64,.9);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .upload-progress{width:100%;height:4px;background:var(--vfondo);border-radius:2px;margin-top:8px;overflow:hidden;display:none}
+    .upload-progress-bar{height:100%;background:var(--v);border-radius:2px;transition:width .3s ease;width:0}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:50px;border:none;font-family:var(--fb);font-size:.85rem;font-weight:500;cursor:pointer;transition:var(--e)}
+    .btn-v{background:var(--v);color:#fff}.btn-v:hover{background:var(--v2)}
+    .btn-oro{background:var(--oro);color:#fff}.btn-oro:hover{background:#9a7022}
+    .btn-ghost{background:transparent;border:1.5px solid var(--cborde);color:var(--txt2)}.btn-ghost:hover{border-color:var(--v);color:var(--v)}
+    .btn-red{background:var(--rojo);color:#fff}.btn-red:hover{background:#a03030}
+    .btn-green{background:var(--verde);color:#fff}.btn-green:hover{background:#1a7d42}
+    .btn-sm{padding:7px 14px;font-size:.76rem}
+    .form-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .tabla-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:.85rem}
+    thead th{text-align:left;padding:10px 12px;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);border-bottom:2px solid var(--cborde);white-space:nowrap}
+    tbody tr{border-bottom:1px solid var(--c2);transition:background var(--e)}
+    tbody tr:hover{background:var(--c)}
+    tbody td{padding:10px 12px;vertical-align:middle}
+    .td-nombre{font-weight:500;color:var(--v);max-width:180px}
+    .badge{display:inline-block;padding:2px 10px;border-radius:50px;font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+    .badge-tipo{background:var(--vfondo);color:var(--v)}
+    .badge-col{background:var(--orofondo);color:var(--oro)}
+    .badge-dest{background:var(--oro);color:#fff}
+    .td-acciones{display:flex;gap:6px;align-items:center}
+    .td-img{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid var(--cborde)}
+    .buscar-wrap{position:relative;margin-bottom:18px}
+    .buscar-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:.9rem}
+    .buscar-wrap input{width:100%;padding:10px 13px 10px 36px;border-radius:50px}
+    .destacado-preview{background:var(--orofondo);border:2px solid var(--oro2);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:18px;margin-bottom:20px}
+    .destacado-preview i{font-size:2rem;color:var(--oro)}
+    .destacado-preview-txt .nombre{font-family:var(--fn);font-size:1.1rem;color:var(--v)}
+    .destacado-preview-txt .precio{font-size:.9rem;color:var(--oro)}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .stat-card{background:#fff;border:1px solid var(--cborde);border-radius:14px;padding:20px;text-align:center}
+    .stat-n{font-family:var(--fn);font-size:2.2rem;color:var(--v);line-height:1}
+    .stat-l{font-size:.75rem;color:var(--txt3);margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+    .firebase-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,167,38,.15);border:1px solid rgba(255,167,38,.4);color:#e65100;padding:6px 14px;border-radius:50px;font-size:.75rem;font-weight:500;margin-bottom:20px}
+    #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--v);color:#fff;padding:12px 24px;border-radius:50px;font-size:.85rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.2);transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:500;white-space:nowrap}
+    #toast.show{transform:translateX(-50%) translateY(0)}
+    #toast.exito{background:var(--verde)}
+    #toast.error{background:var(--rojo)}
+    .modal-over{display:none;position:fixed;inset:0;background:rgba(30,45,8,.4);z-index:400;backdrop-filter:blur(4px);align-items:center;justify-content:center}
+    .modal-over.open{display:flex}
+    .modal{background:#fff;border-radius:20px;padding:32px;max-width:480px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+    .modal h3{font-family:var(--fn);font-size:1.3rem;color:var(--v);margin-bottom:8px}
+    .modal p{font-size:.9rem;color:var(--txt2);margin-bottom:20px;line-height:1.7}
+    .modal-btns{display:flex;gap:10px;justify-content:flex-end}
+    @media(max-width:768px){.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.admin-section{padding:18px}}
+  </style>
+</head>
+<body>
+
+<div id="login-screen">
+  <h1>Mía Bisutería</h1>
+  <p>Panel de administración</p>
+  <div class="login-box">
+    <label for="pass-input">Contraseña</label>
+    <input type="password" id="pass-input" placeholder="••••••••"/>
+    <p class="login-error" id="login-error"><i class="fa-solid fa-circle-exclamation"></i> Contraseña incorrecta</p>
+    <button class="btn-login" onclick="verificarPass()"><i class="fa-solid fa-lock-open"></i> Ingresar</button>
+  </div>
+</div>
+
+<div id="admin-app">
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div class="admin-logo">Panel Admin <span>Mía Bisutería</span></div>
+      <div class="admin-nav">
+        <button class="admin-nav-btn activo" onclick="mostrarTab('productos',this)"><i class="fa-solid fa-box"></i> Productos</button>
+        <button class="admin-nav-btn" onclick="mostrarTab('destacado',this)"><i class="fa-solid fa-star"></i> Destacado</button>
+        <button class="admin-nav-btn" onclick="mostrarTab('galeria',this)"><i class="fa-solid fa-images"></i> Galería</button>
+        <button class="admin-nav-btn danger" onclick="confirmarReset()"><i class="fa-solid fa-rotate-left"></i> Resetear</button>
+        <a href="catalogo.html" target="_blank" class="admin-nav-btn" style="text-decoration:none"><i class="fa-solid fa-eye"></i> Ver sitio</a>
+      </div>
+    </div>
+  </header>
+  <div class="admin-body">
+    <div class="tab activo" id="tab-productos">
+      <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-plus"></i> Agregar producto nuevo</h2>
+        <p>Completá los campos y subí las fotos. Al guardar aparece en el catálogo para todos.</p>
+        <div class="form-grid">
+          <div class="fg"><label>Nombre *</label><input type="text" id="np-nombre" placeholder="Ej. Pulsera Flor de Verano"/></div>
+          <div class="fg"><label>Precio ARS *</label><input type="number" id="np-precio" placeholder="8500" min="0"/></div>
+          <div class="fg"><label>Tipo *</label>
+            <select id="np-tipo">
+              <option value="">Seleccioná...</option>
+              <option value="pulsera">Pulsera</option>
+              <option value="argolla">Argolla / Arito</option>
+              <option value="collar">Collar</option>
+              <option value="anillo">Anillo</option>
+              <option value="tobillera">Tobillera</option>
+            </select>
+          </div>
+          <div class="fg"><label>Colección *</label>
+            <select id="np-col">
+              <option value="">Seleccioná...</option>
+              <option value="flores">🌸 Flores</option>
+              <option value="mariposa">🦋 Mariposa</option>
+              <option value="girasol">🌻 Girasol</option>
+              <option value="cherry">🍒 Cherry</option>
+              <option value="caracoles">🐚 Caracoles</option>
+            </select>
+          </div>
+          <div class="fg full"><label>Descripción *</label><textarea id="np-desc" placeholder="Hecha a mano con Miyuki y componentes gold filled..."></textarea></div>
+          <div class="fg full">
+            <label>Fotos del producto (podés subir varias)</label>
+            <div class="upload-area" id="upload-area"
+                 ondragover="event.preventDefault();this.classList.add('drag')"
+                 ondragleave="this.classList.remove('drag')"
+                 ondrop="handleDrop(event)">
+              <input type="file" id="np-fotos" accept="image/*" multiple onchange="handleFileSelect(this.files)"/>
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <strong>Tocá para elegir fotos o arrastrá acá</strong>
+              <p>JPG, PNG, WEBP — podés subir varias a la vez</p>
+            </div>
+            <div class="upload-progress" id="upload-progress"><div class="upload-progress-bar" id="upload-bar"></div></div>
+            <div class="imgs-preview" id="imgs-preview"></div>
+            <span class="hint" id="upload-status"></span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-v" onclick="agregarProducto()" id="btn-guardar"><i class="fa-solid fa-floppy-disk"></i> Guardar producto</button>
+          <button class="btn btn-ghost" onclick="limpiarFormulario()"><i class="fa-solid fa-xmark"></i> Limpiar</button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-list"></i> Todos los productos</h2>
+        <p>Editá el precio y presioná Enter o ✓. El botón rojo elimina. Cambios instantáneos.</p>
+        <div class="buscar-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="buscar-input" placeholder="Buscar por nombre..." oninput="filtrarTabla()"/>
+        </div>
+        <div class="tabla-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Foto</th><th>Nombre</th><th>Tipo</th><th>Col.</th><th>Precio</th><th>Acción</th></tr></thead>
+            <tbody id="tabla-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="tab" id="tab-destacado">
+      <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-star"></i> Destacado de la semana</h2>
+        <p>Aparece en la tarjeta flotante del hero y como imagen principal del index.</p>
+        <div id="destacado-preview-wrap"></div>
+        <div class="form-grid">
+          <div class="fg full"><label>Elegir del catálogo</label>
+            <select id="dest-select" onchange="previsualizarDestacado()"><option value="">Seleccioná...</option></select>
+          </div>
+        </div>
+        <div class="form-actions"><button class="btn btn-oro" onclick="guardarDestacado()"><i class="fa-solid fa-star"></i> Guardar destacado</button></div>
+        <hr style="border:none;border-top:1px solid var(--cborde);margin:24px 0"/>
+        <h2 style="margin-bottom:8px"><i class="fa-solid fa-pencil"></i> O escribir manualmente</h2>
+        <p>Si el producto todavía no está en el catálogo.</p>
+        <div class="form-grid">
+          <div class="fg"><label>Nombre</label><input type="text" id="dest-nombre-manual" placeholder="Pulsera..."/></div>
+          <div class="fg"><label>Precio</label><input type="text" id="dest-precio-manual" placeholder="8.500"/></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-v" onclick="guardarDestacadoManual()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button></div>
+      </div>
+
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-fire"></i> Favoritos del momento</h2>
+        <p>Los 4 productos en la sección "Piezas que no puedes perderte". Elegí exactamente 4.</p>
+        <div id="favoritos-preview" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px"></div>
+        <div class="form-grid">
+          <div class="fg"><label>Producto 1</label><select id="fav-0" onchange="previsualizarFavoritos()"><option value="">Seleccioná...</option></select></div>
+          <div class="fg"><label>Producto 2</label><select id="fav-1" onchange="previsualizarFavoritos()"><option value="">Seleccioná...</option></select></div>
+          <div class="fg"><label>Producto 3</label><select id="fav-2" onchange="previsualizarFavoritos()"><option value="">Seleccioná...</option></select></div>
+          <div class="fg"><label>Producto 4</label><select id="fav-3" onchange="previsualizarFavoritos()"><option value="">Seleccioná...</option></select></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-v" onclick="guardarFavoritos()"><i class="fa-solid fa-floppy-disk"></i> Guardar favoritos</button>
+          <button class="btn btn-ghost" onclick="resetearFavoritos()"><i class="fa-solid fa-rotate-left"></i> Restaurar por defecto</button>
+        </div>
+      </div>
+    </div>
+    <div class="tab" id="tab-galeria">
+      <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-table-cells"></i> Agregar desde el catálogo</h2>
+        <p>Elegí un producto y sus fotos se agregan al carrusel de la página de pedidos personalizados.</p>
+        <div class="form-grid">
+          <div class="fg full"><label>Elegir producto</label>
+            <select id="galeria-prod-select" onchange="previsualizarGaleriaProd()"><option value="">Seleccioná un producto...</option></select>
+          </div>
+        </div>
+        <div id="galeria-prod-preview" style="display:flex;flex-wrap:wrap;gap:10px;margin:12px 0"></div>
+        <div class="form-actions">
+          <button class="btn btn-v" onclick="agregarFotosDesdeCatalogo()"><i class="fa-solid fa-plus"></i> Agregar fotos al carrusel</button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-cloud-arrow-up"></i> Subir foto nueva</h2>
+        <p>Para fotos de pedidos personalizados que no están en el catálogo.</p>
+        <div class="upload-area" id="galeria-upload-area"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleGaleriaDrop(event)">
+          <input type="file" id="galeria-fotos" accept="image/*" multiple onchange="handleGaleriaFileSelect(this.files)"/>
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <strong>Tocá para elegir fotos o arrastrá acá</strong>
+          <p>JPG, PNG, WEBP — podés subir varias a la vez</p>
+        </div>
+        <div class="upload-progress" id="galeria-progress"><div class="upload-progress-bar" id="galeria-bar"></div></div>
+        <span class="hint" id="galeria-status" style="margin-top:8px;display:block"></span>
+      </div>
+
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-grip"></i> Fotos en el carrusel</h2>
+        <p>Hacé clic en ✕ para quitar una foto.</p>
+        <div id="galeria-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin-top:8px"></div>
+        <div class="form-actions" style="margin-top:20px">
+          <button class="btn btn-red" onclick="confirmarLimpiarGaleria()"><i class="fa-solid fa-trash"></i> Vaciar galería</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-over" id="modal-over">
+  <div class="modal">
+    <h3 id="modal-titulo"></h3><p id="modal-texto"></p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-red" id="modal-ok-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+const PASS_ADMIN        = 'miabisuteria2025';
+const CLOUDINARY_NAME   = 'dygllvybq';
+const CLOUDINARY_PRESET = 'Mia Bisuteria';
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDJPxQ-L4XiWmGuNi2XYKnuEhhidnHnIhI",
+  authDomain: "mia-bisuteria.firebaseapp.com",
+  projectId: "mia-bisuteria",
+  storageBucket: "mia-bisuteria.firebasestorage.app",
+  messagingSenderId: "406918365058",
+  appId: "1:406918365058:web:b444d55e4983c1ec99999b"
+};
+
+const PRODUCTOS_DEFAULT = [
+  {id:0,  nombre:'Anillo de Flores Rosa',           precio:2500,  tipo:'anillo',    col:'flores',    desc:'Hecho a mano con mostacillas checas y componentes gold filled.',imgs:['images/anillo-flores-rosa.jpeg']},
+  {id:1,  nombre:'Anillo de Flores Blanco',         precio:2500,  tipo:'anillo',    col:'flores',    desc:'Hecho a mano con mostacillas checas y componentes gold filled.',imgs:['images/anillo-flores-blanco.jpeg']},
+  {id:2,  nombre:'Argollas Alas en Flor',           precio:11999, tipo:'argolla',   col:'mariposa',  desc:'Base de aro gold filled con dijes de flores hechos a mano.',imgs:['images/argollas-alas-flor-1.jpeg','images/argollas-alas-flor-2.jpeg','images/argollas-alas-flor-3.jpeg']},
+  {id:3,  nombre:'Argollas Alma de Girasoles',      precio:11999, tipo:'argolla',   col:'girasol',   desc:'Base de aro gold filled con dijes de flores hechos a mano.',imgs:['images/argollas-alma-girasol-1.jpeg','images/argollas-alma-girasol-2.jpeg']},
+  {id:4,  nombre:'Argollas Lluvia de Margaritas',   precio:13900, tipo:'argolla',   col:'flores',    desc:'Base de aro gold filled con dijes de flores hechos a mano.',imgs:['images/argollas-lluvia-margaritas.jpeg']},
+  {id:5,  nombre:'Argollas Flor de Nieve',          precio:9900,  tipo:'argolla',   col:'flores',    desc:'Base de aro gold filled con dijes de flores hechos a mano.',imgs:['images/argollas-flor-nieve.jpeg']},
+  {id:6,  nombre:'Collar Mariposa Lila',            precio:10500, tipo:'collar',    col:'mariposa',  desc:'Hecho a mano con mostacillas Miyuki, cristal de roca y componentes gold filled. Fino, femenino y muy liviano.',imgs:['images/collar-mariposa-lila-1.jpeg','images/collar-mariposa-lila-2.jpeg']},
+  {id:7,  nombre:'Gargantilla Lluvia de Margaritas',precio:13490, tipo:'collar',    col:'flores',    desc:'Diseño delicado con mostacillas y componentes gold filled. 37 cm de largo con 5 cm de extensión.',imgs:['images/gargantilla-lluvia-margaritas-1.jpeg','images/gargantilla-lluvia-margaritas-2.jpeg','images/gargantilla-lluvia-margaritas-3.jpeg','images/gargantilla-lluvia-margaritas-4.jpeg']},
+  {id:8,  nombre:'Tobillera de Caracoles',          precio:4000,  tipo:'tobillera', col:'caracoles', desc:'El accesorio que vuelve todos los veranos. Caracoles naturales, detalles en Miyuki, gold filled y cierre regulable.',imgs:['images/tobillera-caracoles-1.jpeg','images/tobillera-caracoles-2.jpeg','images/tobillera-caracoles-3.jpeg','images/tobillera-caracoles-4.jpeg']},
+  {id:9,  nombre:'Pulsera Alma de Girasoles',       precio:6499,  tipo:'pulsera',   col:'girasol',   desc:'Hecha a mano con mostacillas checas, cristales checos y componentes gold filled.',imgs:['images/pulsera-alma-girasol-1.jpeg','images/pulsera-alma-girasol-2.jpeg','images/pulsera-alma-girasol-3.jpeg']},
+  {id:10, nombre:'Pulsera Flor de Nieve',           precio:8700,  tipo:'pulsera',   col:'flores',    desc:'Diseño delicado con mostacillas y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-flor-nieve.jpeg']},
+  {id:11, nombre:'Pulsera Margaritas de Amor Rosa', precio:8800,  tipo:'pulsera',   col:'flores',    desc:'Diseño delicado con mostacillas, cristales y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/margaritas-amor-rosa-1.jpeg','images/margaritas-amor-rosa-2.jpeg']},
+  {id:12, nombre:'Pulsera Patria de Flores',        precio:9900,  tipo:'pulsera',   col:'flores',    desc:'Un accesorio que representa identidad, amor y raíces. Mostacillas, cristales y gold filled. 16 cm con 5 cm de extensión.',imgs:['images/pulsera-patria-flores-1.jpeg','images/pulsera-patria-flores-2.jpeg','images/pulsera-patria-flores-3.jpeg']},
+  {id:13, nombre:'Pulsera Flor Amapola Rosa',       precio:9500,  tipo:'pulsera',   col:'flores',    desc:'Diseño delicado con mostacillas, cristales y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-flor-amapola-rosa-1.jpeg','images/pulsera-flor-amapola-rosa-2.jpeg']},
+  {id:14, nombre:'Pulsera Tierra Floral',           precio:8700,  tipo:'pulsera',   col:'flores',    desc:'Diseño delicado con mostacillas, cristales y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-tierra-flor-1.jpeg','images/pulsera-tierra-flor-2.jpeg']},
+  {id:15, nombre:'Pulsera Margaritas',              precio:9000,  tipo:'pulsera',   col:'flores',    desc:'Hecha a mano con Miyuki rocalla 8/0 y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-margaritas-1.jpeg','images/pulsera-margaritas-2.jpeg']},
+  {id:16, nombre:'Pulsera Cherry con Margaritas',   precio:8650,  tipo:'pulsera',   col:'cherry',    desc:'Diseño delicado con mostacillas, cristales y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-cherry-margaritas-1.jpeg','images/pulsera-cherry-margaritas-2.jpeg']},
+  {id:17, nombre:'Pulsera Mariposa Mía',            precio:8500,  tipo:'pulsera',   col:'mariposa',  desc:'Hecha a mano con Miyuki, cristal de roca y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-mariposa-mia.jpeg']},
+  {id:18, nombre:'Pulsera Suspiro Lila',            precio:8500,  tipo:'pulsera',   col:'flores',    desc:'Hecha a mano con mostacillas, cristales y componentes gold filled.',imgs:['images/pulsera-suspiro-lila.jpeg']},
+  {id:19, nombre:'Daisy Bracelet con Cristales',    precio:6900,  tipo:'pulsera',   col:'flores',    desc:'Hecha a mano con Miyuki, cristal de roca y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/daisy-bracelet-cristales-1.jpeg','images/daisy-bracelet-cristales-2.jpeg','images/daisy-bracelet-cristales-3.jpeg']},
+  {id:20, nombre:'Pulsera Rapunzel',                precio:6900,  tipo:'pulsera',   col:'flores',    desc:'Hecha a mano con Miyuki, cristal de roca, mostacillas checas y componentes gold filled. 16 cm con 5 cm de extensión.',imgs:['images/pulsera-rapunzel.jpeg']},
+  {id:21, nombre:'Pulsera Miel',                    precio:6900,  tipo:'pulsera',   col:'flores',    desc:'Hecha a mano con Miyuki, cristal de roca y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-miel-1.jpeg','images/pulsera-miel-2.jpeg']},
+  {id:22, nombre:'Pulsera Petalina',                precio:6900,  tipo:'pulsera',   col:'flores',    desc:'Inspirada en los pétalos más suaves del jardín. Hecha a mano con mostacillas, cristales y componentes gold filled.',imgs:['images/pulsera-petalina.jpeg']},
+  {id:23, nombre:'Aros Flor de Cristal',            precio:10700, tipo:'argolla',   col:'flores',    desc:'Base de aro gold filled y flores hechas a mano.',imgs:['images/aros-flor-cristal.jpeg']},
+  {id:24, nombre:'Pulsera Suspiro de Primavera',    precio:7200,  tipo:'pulsera',   col:'flores',    desc:'Hecha a mano con Miyuki y componentes gold filled. 16 cm de largo con 5 cm de extensión.',imgs:['images/pulsera-suspiro-primavera.jpeg']},
+  {id:25, nombre:'Aros Flor de Cristal Lila',       precio:10700, tipo:'argolla',   col:'flores',    desc:'Base de aro gold filled y flores hechas a mano.',imgs:['images/aros-flor-cristal-lila.jpeg']},
+];
+
+let db, productos = [], destacado = {nombre:'',precio:'',img:''};
+let galeriaFotos = [], idParaEliminar = null, imgsNuevoProd = [];
+
+firebase.initializeApp(FIREBASE_CONFIG);
+db = firebase.firestore();
+
+async function fbGet(doc) {
+  try { const s = await db.collection('config').doc(doc).get(); return s.exists ? s.data() : null; }
+  catch { return null; }
+}
+async function fbSet(doc, data) {
+  try { await db.collection('config').doc(doc).set(data, { merge: true }); return true; }
+  catch(e) { console.error('Firebase write error:', e); return false; }
+}
+
+function verificarPass() {
+  if (document.getElementById('pass-input').value === PASS_ADMIN) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    iniciarAdmin();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pass-input').value = '';
+    document.getElementById('pass-input').focus();
+  }
+}
+document.getElementById('pass-input').addEventListener('keydown', e => { if (e.key === 'Enter') verificarPass(); });
+
+async function iniciarAdmin() {
+  toast('Conectando con Firebase...', '');
+  const [prodData, siteData] = await Promise.all([fbGet('productos'), fbGet('site')]);
+  productos  = (prodData && prodData.items && prodData.items.length) ? prodData.items : JSON.parse(JSON.stringify(PRODUCTOS_DEFAULT));
+  destacado  = siteData?.destacado  || {nombre:'',precio:'',img:''};
+  galeriaFotos = siteData?.galeria  || [];
+  const favIds = siteData?.favoritos || [6,10,17,7];
+
+  if (!prodData) {
+    await fbSet('productos', { items: productos });
+    await fbSet('site', { destacado, favoritos: favIds, galeria: [] });
+    toast('✓ Base de datos inicializada', 'exito');
+  } else {
+    toast('✓ Conectado a Firebase', 'exito');
+  }
+
+  renderStats();
+  renderTabla();
+  renderDestacado();
+  renderSelectDestacado(favIds);
+  renderSelectGaleria();
+  renderGaleriaAdmin();
+}
+
+function mostrarTab(nombre, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+  document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('activo'));
+  document.getElementById('tab-' + nombre).classList.add('activo');
+  if (btn) btn.classList.add('activo');
+}
+
+const TIPO_LBL = {pulsera:'Pulsera',argolla:'Arito',collar:'Collar',anillo:'Anillo',tobillera:'Tobillera'};
+const COL_EMO  = {flores:'🌸',mariposa:'🦋',girasol:'🌻',cherry:'🍒',caracoles:'🐚'};
+
+function renderStats() {
+  const tipos = {};
+  productos.forEach(p => { tipos[p.tipo] = (tipos[p.tipo] || 0) + 1; });
+  document.getElementById('stats-grid').innerHTML = [
+    {n:productos.length, l:'Total piezas'},
+    {n:tipos.pulsera||0, l:'Pulseras'},
+    {n:tipos.argolla||0, l:'Aritos'},
+    {n:(tipos.collar||0)+(tipos.anillo||0)+(tipos.tobillera||0), l:'Otros'}
+  ].map(s => `<div class="stat-card"><div class="stat-n">${s.n}</div><div class="stat-l">${s.l}</div></div>`).join('');
+}
+
+function renderTabla(filtro = '') {
+  const lista = filtro ? productos.filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase())) : productos;
+  const fi = p => (p.imgs && p.imgs[0]) || p.img || '';
+  document.getElementById('tabla-body').innerHTML = lista.map(p => `
+    <tr>
+      <td style="color:var(--txt3);font-size:.8rem">${p.id}</td>
+      <td>${fi(p) ? `<img class="td-img" src="${fi(p)}" alt="${p.nombre}"/>` : '<i class="fa-regular fa-image" style="color:var(--cborde)"></i>'}</td>
+      <td class="td-nombre">${p.nombre}${destacado.nombre===p.nombre?' <span class="badge badge-dest">★</span>':''}</td>
+      <td><span class="badge badge-tipo">${TIPO_LBL[p.tipo]||p.tipo}</span></td>
+      <td><span class="badge badge-col">${COL_EMO[p.col]||''} ${p.col}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:var(--txt3);font-size:.8rem">$</span>
+          <input type="number" value="${p.precio}" id="precio-${p.id}"
+            style="width:90px;padding:5px 8px;border:1.5px solid var(--cborde);border-radius:8px;font-family:var(--fb);font-size:.85rem"
+            onkeydown="if(event.key==='Enter')guardarPrecio(${p.id})"/>
+          <button class="btn btn-ghost btn-sm" onclick="guardarPrecio(${p.id})"><i class="fa-solid fa-check"></i></button>
+        </div>
+      </td>
+      <td><div class="td-acciones"><button class="btn btn-red btn-sm" onclick="confirmarEliminar(${p.id})"><i class="fa-solid fa-trash"></i></button></div></td>
+    </tr>`).join('');
+}
+function filtrarTabla() { renderTabla(document.getElementById('buscar-input').value); }
+
+async function guardarPrecio(id) {
+  const val = parseInt(document.getElementById('precio-' + id).value);
+  if (isNaN(val) || val < 0) { toast('Precio inválido', 'error'); return; }
+  const idx = productos.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  productos[idx].precio = val;
+  const ok = await fbSet('productos', { items: productos });
+  if (ok) toast(`✓ Precio actualizado: $${val.toLocaleString('es-AR')}`, 'exito');
+  else    toast('Error al guardar', 'error');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-area').classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFileSelect(e.dataTransfer.files);
+}
+async function handleFileSelect(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!arr.length) { toast('Solo imágenes', 'error'); return; }
+  const progress = document.getElementById('upload-progress');
+  const bar      = document.getElementById('upload-bar');
+  const status   = document.getElementById('upload-status');
+  const btn      = document.getElementById('btn-guardar');
+  progress.style.display = 'block';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo fotos...';
+  let subidas = 0;
+  for (const file of arr) {
+    status.textContent = `Subiendo ${subidas+1} de ${arr.length}...`;
+    bar.style.width = (subidas / arr.length * 100) + '%';
+    const url = await subirACloudinary(file);
+    if (url) { imgsNuevoProd.push(url); agregarThumb(url, imgsNuevoProd.length-1); subidas++; }
+    else toast('Error al subir foto', 'error');
+  }
+  bar.style.width = '100%';
+  status.textContent = `✓ ${subidas} foto${subidas!==1?'s':''} lista${subidas!==1?'s':''}`;
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar producto';
+  setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 1500);
+}
+async function subirACloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  try {
+    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_NAME}/image/upload`, {method:'POST', body:fd});
+    const data = await res.json();
+    return data.secure_url || null;
+  } catch { return null; }
+}
+function agregarThumb(url, idx) {
+  const preview = document.getElementById('imgs-preview');
+  const thumb   = document.createElement('div');
+  thumb.className = 'img-thumb';
+  thumb.innerHTML = `<img src="${url}" alt="foto"/><button class="img-thumb-rm" onclick="quitarThumb(${idx})">✕</button>`;
+  preview.appendChild(thumb);
+}
+function quitarThumb(idx) {
+  imgsNuevoProd.splice(idx, 1);
+  const preview = document.getElementById('imgs-preview');
+  preview.innerHTML = '';
+  imgsNuevoProd.forEach((url, i) => {
+    const t = document.createElement('div');
+    t.className = 'img-thumb';
+    t.innerHTML = `<img src="${url}" alt="foto"/><button class="img-thumb-rm" onclick="quitarThumb(${i})">✕</button>`;
+    preview.appendChild(t);
+  });
+  const s = document.getElementById('upload-status');
+  if (s) s.textContent = imgsNuevoProd.length ? `${imgsNuevoProd.length} foto${imgsNuevoProd.length!==1?'s':''} lista${imgsNuevoProd.length!==1?'s':''}` : '';
+}
+async function agregarProducto() {
+  const nombre = document.getElementById('np-nombre').value.trim();
+  const precio = parseInt(document.getElementById('np-precio').value);
+  const tipo   = document.getElementById('np-tipo').value;
+  const col    = document.getElementById('np-col').value;
+  const desc   = document.getElementById('np-desc').value.trim();
+  if (!nombre || isNaN(precio) || !tipo || !col || !desc) { toast('Completá todos los campos (*)', 'error'); return; }
+  if (!imgsNuevoProd.length) { toast('Subí al menos una foto', 'error'); return; }
+  const maxId = productos.reduce((m, p) => Math.max(m, p.id), -1);
+  productos.push({id: maxId+1, nombre, precio, tipo, col, desc, imgs:[...imgsNuevoProd]});
+  const ok = await fbSet('productos', { items: productos });
+  if (ok) {
+    renderStats(); renderTabla(); renderSelectDestacado(); renderSelectGaleria();
+    limpiarFormulario();
+    toast(`✓ "${nombre}" publicado en el catálogo`, 'exito');
+  } else {
+    productos.pop();
+    toast('Error al guardar en Firebase', 'error');
+  }
+}
+function limpiarFormulario() {
+  ['np-nombre','np-precio','np-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('np-tipo').value = '';
+  document.getElementById('np-col').value  = '';
+  imgsNuevoProd = [];
+  document.getElementById('imgs-preview').innerHTML = '';
+  document.getElementById('upload-status').textContent = '';
+  document.getElementById('np-fotos').value = '';
+}
+
+function confirmarEliminar(id) {
+  const p = productos.find(pr => pr.id === id); if (!p) return;
+  idParaEliminar = id;
+  document.getElementById('modal-titulo').textContent = 'Eliminar producto';
+  document.getElementById('modal-texto').textContent  = `¿Eliminar "${p.nombre}"?`;
+  document.getElementById('modal-ok-btn').onclick = async () => {
+    productos = productos.filter(p => p.id !== idParaEliminar);
+    const ok = await fbSet('productos', { items: productos });
+    if (ok) { renderStats(); renderTabla(); renderSelectDestacado(); renderSelectGaleria(); toast('Eliminado', 'exito'); }
+    else    { toast('Error al eliminar', 'error'); }
+    cerrarModal();
+  };
+  document.getElementById('modal-over').classList.add('open');
+}
+
+function renderDestacado() {
+  const wrap = document.getElementById('destacado-preview-wrap');
+  wrap.innerHTML = destacado.nombre
+    ? `<div class="destacado-preview">${destacado.img?`<img src="${destacado.img}" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0"/>`:'<i class="fa-solid fa-star"></i>'}<div class="destacado-preview-txt"><div class="nombre">⭐ ${destacado.nombre}</div><div class="precio">$${parseInt(destacado.precio).toLocaleString('es-AR')} ARS</div></div></div>`
+    : `<div class="destacado-preview" style="opacity:.5"><i class="fa-regular fa-star"></i><div class="destacado-preview-txt"><div class="nombre">Sin destacado</div></div></div>`;
+}
+function renderSelectDestacado(favIds) {
+  const opts = '<option value="">Seleccioná...</option>' +
+    productos.map(p => `<option value="${p.id}">${p.nombre} — $${p.precio.toLocaleString('es-AR')}</option>`).join('');
+  document.getElementById('dest-select').innerHTML = opts;
+  for (let i = 0; i < 4; i++) {
+    const sel = document.getElementById('fav-' + i);
+    if (sel) sel.innerHTML = opts;
+  }
+  if (favIds) {
+    favIds.forEach((id, i) => {
+      const sel = document.getElementById('fav-' + i);
+      if (sel) sel.value = id;
+    });
+    previsualizarFavoritos();
+  }
+}
+function previsualizarDestacado() {
+  const p = productos.find(pr => pr.id === parseInt(document.getElementById('dest-select').value));
+  if (!p) return;
+  document.getElementById('dest-nombre-manual').value = p.nombre;
+  document.getElementById('dest-precio-manual').value = p.precio.toLocaleString('es-AR');
+}
+async function guardarDestacado() {
+  const p = productos.find(pr => pr.id === parseInt(document.getElementById('dest-select').value));
+  if (!p) { toast('Seleccioná un producto', 'error'); return; }
+  destacado = {nombre:p.nombre, precio:p.precio, img:(p.imgs&&p.imgs[0])||p.img||''};
+  const ok = await fbSet('site', { destacado });
+  if (ok) { renderDestacado(); renderTabla(); toast(`★ "${p.nombre}" es el destacado`, 'exito'); }
+  else      toast('Error al guardar', 'error');
+}
+async function guardarDestacadoManual() {
+  const nombre = document.getElementById('dest-nombre-manual').value.trim();
+  const precio = document.getElementById('dest-precio-manual').value.trim();
+  if (!nombre || !precio) { toast('Completá nombre y precio', 'error'); return; }
+  destacado = {nombre, precio, img:''};
+  const ok = await fbSet('site', { destacado });
+  if (ok) { renderDestacado(); renderTabla(); toast(`★ Destacado: "${nombre}"`, 'exito'); }
+  else      toast('Error al guardar', 'error');
+}
+
+function previsualizarFavoritos() {
+  const wrap = document.getElementById('favoritos-preview');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const sel = document.getElementById('fav-' + i);
+    const p   = productos.find(pr => pr.id === parseInt(sel?.value));
+    if (!p) continue;
+    const img = (p.imgs && p.imgs[0]) || p.img || '';
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--c);border:1px solid var(--cborde);border-radius:10px;padding:8px 12px;font-size:.82rem;color:var(--v)';
+    div.innerHTML = img ? `<img src="${img}" style="width:36px;height:36px;border-radius:6px;object-fit:cover"/>${p.nombre}` : `<i class="fa-regular fa-image" style="font-size:1.2rem;color:var(--cborde)"></i>${p.nombre}`;
+    wrap.appendChild(div);
+  }
+}
+async function guardarFavoritos() {
+  const ids = [];
+  for (let i = 0; i < 4; i++) {
+    const val = parseInt(document.getElementById('fav-' + i)?.value);
+    if (!isNaN(val) && val >= 0) ids.push(val);
+  }
+  if (ids.length !== 4) { toast('Elegí exactamente 4 productos', 'error'); return; }
+  const ok = await fbSet('site', { favoritos: ids });
+  if (ok) toast('✓ Favoritos guardados', 'exito');
+  else    toast('Error al guardar', 'error');
+}
+async function resetearFavoritos() {
+  const defaults = [6,10,17,7];
+  const ok = await fbSet('site', { favoritos: defaults });
+  if (ok) {
+    defaults.forEach((id, i) => { const sel = document.getElementById('fav-' + i); if (sel) sel.value = id; });
+    previsualizarFavoritos();
+    toast('Favoritos restaurados', 'exito');
+  } else toast('Error al guardar', 'error');
+}
+
+function renderSelectGaleria() {
+  const sel = document.getElementById('galeria-prod-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Seleccioná un producto...</option>' +
+    productos.map(p => {
+      const cant = (p.imgs || [p.img]).filter(Boolean).length;
+      return `<option value="${p.id}">${p.nombre} (${cant} foto${cant!==1?'s':''})</option>`;
+    }).join('');
+}
+function previsualizarGaleriaProd() {
+  const sel     = document.getElementById('galeria-prod-select');
+  const preview = document.getElementById('galeria-prod-preview');
+  if (!sel || !preview) return;
+  const p = productos.find(pr => pr.id === parseInt(sel.value));
+  if (!p) { preview.innerHTML=''; return; }
+  const imgs = p.imgs || (p.img ? [p.img] : []);
+  preview.innerHTML = imgs.map(url => `
+    <div style="width:80px;height:80px;border-radius:10px;overflow:hidden;border:2px solid var(--vmenta)">
+      <img src="${url}" style="width:100%;height:100%;object-fit:cover"/>
+    </div>`).join('');
+}
+async function agregarFotosDesdeCatalogo() {
+  const sel = document.getElementById('galeria-prod-select');
+  const p   = productos.find(pr => pr.id === parseInt(sel?.value));
+  if (!p) { toast('Seleccioná un producto primero', 'error'); return; }
+  const imgs = p.imgs || (p.img ? [p.img] : []);
+  if (!imgs.length) { toast('Este producto no tiene fotos', 'error'); return; }
+  let agregadas = 0;
+  imgs.forEach(url => { if (!galeriaFotos.includes(url)) { galeriaFotos.push(url); agregadas++; } });
+  const ok = await fbSet('site', { galeria: galeriaFotos });
+  if (ok) {
+    renderGaleriaAdmin();
+    document.getElementById('galeria-prod-preview').innerHTML = '';
+    sel.value = '';
+    toast(agregadas > 0 ? `✓ ${agregadas} foto${agregadas!==1?'s':''} agregada${agregadas!==1?'s':''}` : 'Esas fotos ya están en el carrusel', agregadas > 0 ? 'exito' : '');
+  } else toast('Error al guardar', 'error');
+}
+function renderGaleriaAdmin() {
+  const grid = document.getElementById('galeria-grid');
+  if (!grid) return;
+  if (!galeriaFotos.length) {
+    grid.innerHTML = '<p style="color:var(--txt3);font-size:.85rem;font-style:italic;grid-column:1/-1">No hay fotos aún.</p>';
+    return;
+  }
+  grid.innerHTML = galeriaFotos.map((url, idx) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;border:2px solid var(--cborde)">
+      <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block"/>
+      <button onclick="quitarFotoGaleria(${idx})"
+        style="position:absolute;top:5px;right:5px;background:rgba(192,64,64,.92);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(30,45,8,.6);color:#fff;font-size:.65rem;text-align:center;padding:3px 0">${idx+1}</div>
+    </div>`).join('');
+}
+async function quitarFotoGaleria(idx) {
+  galeriaFotos.splice(idx, 1);
+  const ok = await fbSet('site', { galeria: galeriaFotos });
+  if (ok) { renderGaleriaAdmin(); toast('Foto eliminada', 'exito'); }
+  else      toast('Error al guardar', 'error');
+}
+function confirmarLimpiarGaleria() {
+  document.getElementById('modal-titulo').textContent = 'Vaciar galería';
+  document.getElementById('modal-texto').textContent  = '¿Eliminar todas las fotos del carrusel?';
+  document.getElementById('modal-ok-btn').onclick = async () => {
+    galeriaFotos = [];
+    const ok = await fbSet('site', { galeria: [] });
+    if (ok) { renderGaleriaAdmin(); toast('Galería vaciada', 'exito'); }
+    else      toast('Error al guardar', 'error');
+    cerrarModal();
+  };
+  document.getElementById('modal-over').classList.add('open');
+}
+function handleGaleriaDrop(e) {
+  e.preventDefault();
+  document.getElementById('galeria-upload-area').classList.remove('drag');
+  if (e.dataTransfer.files.length) handleGaleriaFileSelect(e.dataTransfer.files);
+}
+async function handleGaleriaFileSelect(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!arr.length) { toast('Solo imágenes', 'error'); return; }
+  const progress = document.getElementById('galeria-progress');
+  const bar      = document.getElementById('galeria-bar');
+  const status   = document.getElementById('galeria-status');
+  progress.style.display = 'block';
+  let subidas = 0;
+  for (const file of arr) {
+    status.textContent = `Subiendo ${subidas+1} de ${arr.length}...`;
+    bar.style.width = (subidas / arr.length * 100) + '%';
+    const url = await subirACloudinary(file);
+    if (url) { galeriaFotos.push(url); subidas++; }
+    else toast('Error al subir foto', 'error');
+  }
+  bar.style.width = '100%';
+  const ok = await fbSet('site', { galeria: galeriaFotos });
+  renderGaleriaAdmin();
+  status.textContent = `✓ ${subidas} foto${subidas!==1?'s':''} agregada${subidas!==1?'s':''}`;
+  document.getElementById('galeria-fotos').value = '';
+  setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 1500);
+  if (!ok) toast('Error al guardar en Firebase', 'error');
+}
+
+function confirmarReset() {
+  document.getElementById('modal-titulo').textContent = 'Resetear todo';
+  document.getElementById('modal-texto').textContent  = 'Borra todos los cambios en Firebase y vuelve al catálogo original.';
+  document.getElementById('modal-ok-btn').onclick = async () => {
+    productos    = JSON.parse(JSON.stringify(PRODUCTOS_DEFAULT));
+    destacado    = {nombre:'',precio:'',img:''};
+    galeriaFotos = [];
+    await fbSet('productos', { items: productos });
+    await fbSet('site', { destacado, favoritos:[6,10,17,7], galeria:[] });
+    cerrarModal();
+    renderStats(); renderTabla(); renderDestacado(); renderSelectDestacado([6,10,17,7]);
+    renderSelectGaleria(); renderGaleriaAdmin();
+    toast('Reseteado a valores originales', 'exito');
+  };
+  document.getElementById('modal-over').classList.add('open');
+}
+
+function cerrarModal() { document.getElementById('modal-over').classList.remove('open'); idParaEliminar = null; }
+document.getElementById('modal-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-over')) cerrarModal(); });
+let toastTimer;
+function toast(msg, tipo='') { const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+tipo; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='',2800); }
+</script>
+</body>
+</html>

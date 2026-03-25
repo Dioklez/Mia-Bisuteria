@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedido especial — Mía Bisutería</title>
+  <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .page-hero {
+      padding:140px 0 80px;
+      background:var(--v);
+      position:relative; overflow:hidden;
+    }
+    .page-hero::before {
+      content:''; position:absolute;
+      top:-100px; right:-100px;
+      width:500px; height:500px; border-radius:50%;
+      background:rgba(255,255,255,.03); pointer-events:none;
+    }
+    .page-hero::after {
+      content:''; position:absolute;
+      bottom:-80px; left:-80px;
+      width:350px; height:350px; border-radius:50%;
+      background:rgba(184,134,46,.06); pointer-events:none;
+    }
+    .page-hero-inner { position:relative; z-index:1 }
+    .page-hero h1   { font-family:var(--fn); font-size:clamp(2.5rem,5vw,4rem); color:#fff; line-height:1.1; margin-bottom:16px }
+    .page-hero h1 em { font-style:italic; color:var(--orop) }
+    .page-hero p    { color:rgba(255,255,255,.6); font-size:1rem; max-width:500px; line-height:1.8 }
+    .hero-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px }
+    .chip {
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.15);
+      color:rgba(255,255,255,.75);
+      padding:6px 14px; border-radius:50px; font-size:.78rem;
+      transition:var(--e);
+    }
+    .chip:hover { background:rgba(255,255,255,.15) }
+    .promise-bar {
+      background:rgba(184,134,46,.12);
+      border:1px solid rgba(184,134,46,.3);
+      border-radius:50px; padding:10px 24px;
+      display:inline-flex; align-items:center; gap:10px;
+      color:var(--orop); font-size:.83rem;
+      margin-top:28px;
+    }
+    .promise-bar i { color:var(--oro2) }
+
+    .galeria-section {
+      padding:64px 0 52px;
+      background:#fff;
+      overflow:hidden;
+    }
+    .galeria-header {
+      text-align:center;
+      margin-bottom:36px;
+    }
+    .galeria-header h2 {
+      font-family:var(--fn);
+      font-size:clamp(1.6rem,3vw,2.4rem);
+      color:var(--v); margin-bottom:8px;
+    }
+    .galeria-header p {
+      color:var(--txt3); font-size:.9rem;
+    }
+    .galeria-track-wrap {
+      overflow:hidden;
+      cursor:default;
+      -webkit-mask-image:linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      mask-image:linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+    .galeria-track {
+      display:flex;
+      gap:16px;
+      width:max-content;
+      animation:galeria-scroll 40s linear infinite;
+    }
+    .galeria-track-wrap:hover .galeria-track {
+      animation-play-state:paused;
+    }
+    @keyframes galeria-scroll {
+      0%   { transform:translateX(0) }
+      100% { transform:translateX(-50%) }
+    }
+    .galeria-item {
+      width:220px;
+      height:220px;
+      border-radius:16px;
+      overflow:hidden;
+      flex-shrink:0;
+      position:relative;
+      cursor:pointer;
+      transition:transform .4s cubic-bezier(.4,0,.2,1), box-shadow .4s ease;
+    }
+    .galeria-item:hover {
+      transform:scale(1.07);
+      box-shadow:0 16px 48px rgba(30,45,8,.2);
+      z-index:2;
+    }
+    .galeria-item img {
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+      transition:transform .5s ease;
+    }
+    .galeria-item:hover img {
+      transform:scale(1.05);
+    }
+    .galeria-item::after {
+      content:'';
+      position:absolute; inset:0;
+      background:linear-gradient(to top, rgba(30,45,8,.35) 0%, transparent 50%);
+      opacity:0;
+      transition:opacity .4s ease;
+    }
+    .galeria-item:hover::after { opacity:1 }
+
+    .pers-body { padding:60px 0 100px; background:var(--c) }
+    .pers-layout {
+      display:grid; grid-template-columns:1fr 1.3fr;
+      gap:60px; align-items:start;
+    }
+    .pers-info h2 { font-family:var(--fn); font-size:1.8rem; color:var(--v); margin-bottom:16px; line-height:1.2 }
+    .pers-info p  { color:var(--txt2); font-size:.92rem; line-height:1.8; margin-bottom:14px }
+    .info-cards { display:flex; flex-direction:column; gap:14px; margin-top:28px }
+    .info-card {
+      background:#fff; border:1px solid var(--cborde);
+      border-radius:14px; padding:18px 20px;
+      display:flex; gap:14px; align-items:flex-start;
+      transition:var(--e);
+    }
+    .info-card:hover { border-color:var(--vmenta); box-shadow:var(--sh) }
+    .info-card-icon {
+      width:40px; height:40px; border-radius:10px;
+      background:var(--vfondo); display:flex; align-items:center;
+      justify-content:center; color:var(--v); font-size:1rem; flex-shrink:0;
+    }
+    .info-card h4 { font-family:var(--fn); font-size:.95rem; color:var(--v); margin-bottom:4px }
+    .info-card p  { font-size:.82rem; color:var(--txt3); margin:0; line-height:1.6 }
+    .form-box {
+      background:#fff; border-radius:24px; padding:44px;
+      box-shadow:0 20px 60px rgba(30,45,8,.08);
+      border:1px solid var(--cborde);
+      position:sticky; top:90px;
+    }
+    .form-box h3 { font-family:var(--fn); font-size:1.5rem; color:var(--v); margin-bottom:6px }
+    .form-box > p { font-size:.85rem; color:var(--txt3); margin-bottom:28px }
+    .fg { margin-bottom:18px }
+    .fg label {
+      display:block; font-size:.7rem; font-weight:600;
+      letter-spacing:.12em; text-transform:uppercase;
+      color:var(--txt2); margin-bottom:7px;
+    }
+    .fg input, .fg select, .fg textarea {
+      width:100%; background:var(--c);
+      border:1.5px solid var(--cborde);
+      border-radius:10px; padding:12px 15px;
+      font-family:var(--fb); font-size:.9rem; color:var(--txt);
+      outline:none; transition:border-color var(--e);
+      resize:none; -webkit-appearance:none; appearance:none;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color:var(--v) }
+    .fg textarea { height:100px }
+    .fg-row { display:grid; grid-template-columns:1fr 1fr; gap:14px }
+    .fg-hint { font-size:.72rem; color:var(--txt3); margin-top:5px }
+    .colores-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
+    .color-chip {
+      background:var(--c2); border:1.5px solid var(--cborde);
+      border-radius:50px; padding:5px 13px;
+      font-size:.78rem; color:var(--txt2); cursor:pointer;
+      transition:var(--e); user-select:none;
+    }
+    .color-chip:hover { border-color:var(--v); color:var(--v) }
+    .color-chip.sel  { background:var(--vfondo); border-color:var(--v); color:var(--v); font-weight:500 }
+    .form-nota { font-size:.74rem; color:var(--txt3); text-align:center; margin-top:14px; line-height:1.6 }
+    @media(max-width:900px) {
+      .pers-layout { grid-template-columns:1fr; gap:36px }
+      .form-box { position:static; padding:28px 22px }
+    }
+    @media(max-width:480px) {
+      .fg-row { grid-template-columns:1fr }
+      .page-hero { padding:120px 0 60px }
+      .galeria-item { width:160px; height:160px }
+    }
+  </style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="index.html" class="logo t-logo">
+      <img src="images/logos/logo-mia.jpg" alt="Mía Bisutería" class="logo-img"/>
+      Mía<sup>Bisutería</sup>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="catalogo.html">Catálogo</a></li>
+      <li><a href="personalizado.html">Pedido especial</a></li>
+      <li><a href="index.html#historia">Sobre Mía</a></li>
+    </ul>
+    <div class="nav-r">
+      <div class="nav-r-icons">
+        <a href="https://www.instagram.com/miabisuteria.ar/" target="_blank" aria-label="Instagram">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/5491137742189" target="_blank" aria-label="WhatsApp">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+      <button class="nav-pedido" onclick="abrirPanel()" aria-label="Ver mi pedido">
+        <i class="fa-solid fa-bag-shopping" style="font-size:.85rem"></i>
+        Mi pedido
+        <span class="pedido-count" id="pedido-count">0</span>
+      </button>
+      <button class="ham" id="ham" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mnav-over" id="mnav-over" onclick="cerrarMnav()"></div>
+<nav class="mnav" id="mnav">
+  <ul>
+    <li><a href="index.html"         onclick="cerrarMnav()">Inicio</a></li>
+    <li><a href="catalogo.html"      onclick="cerrarMnav()">Catálogo</a></li>
+    <li><a href="personalizado.html" onclick="cerrarMnav()">Pedido especial</a></li>
+    <li><a href="index.html#historia" onclick="cerrarMnav()">Sobre Mía</a></li>
+  </ul>
+</nav>
+<div class="panel-over" id="panel-over" onclick="cerrarPanel()"></div>
+
+<aside class="pedido-panel" id="pedido-panel" aria-label="Mi pedido">
+  <div class="pp-header">
+    <div class="pp-titulo">Mi pedido</div>
+    <button class="pp-close" onclick="cerrarPanel()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="pp-items" id="pp-items">
+    <div class="pp-empty" id="pp-empty">
+      <i class="fa-regular fa-heart"></i>
+      <p>Tu pedido está vacío</p>
+      <small>Agrega piezas desde el catálogo y envíalas por WhatsApp</small>
+    </div>
+  </div>
+  <div class="pp-footer">
+    <div class="pp-total">
+      <span class="pp-total-lbl">Total estimado</span>
+      <span class="pp-total-val" id="pp-total">$0</span>
+    </div>
+    <button class="btn btn-wa" style="width:100%;font-size:.95rem;padding:15px" onclick="enviarPedidoWA()">
+      <i class="fa-brands fa-whatsapp"></i> Enviar pedido por WhatsApp
+    </button>
+    <p class="pp-nota">
+      Los precios son orientativos. Mía confirmará disponibilidad y total exacto.
+      <strong>Respuesta en menos de 24 h.</strong>
+    </p>
+  </div>
+</aside>
+
+<main>
+
+<section class="page-hero">
+  <div class="wrap page-hero-inner">
+    <span class="t-etiq" style="color:var(--orop)">Hecho solo para vos</span>
+    <h1>¿Tenés una idea <em>especial</em><br/>en mente?</h1>
+    <p>
+      Contanos qué querés y lo creamos desde cero. Para un regalo, una ocasión especial
+      o simplemente porque merecés algo único que no tenga nadie más.
+    </p>
+    <div class="hero-chips">
+      <span class="chip">🌸 Pulseras</span>
+      <span class="chip">💎 Argollas</span>
+      <span class="chip">📿 Collares</span>
+      <span class="chip">💍 Anillos</span>
+      <span class="chip">🎁 Regalos</span>
+      <span class="chip">💒 XV Años</span>
+      <span class="chip">💍 Bodas</span>
+      <span class="chip">🎓 Graduaciones</span>
+    </div>
+    <div class="promise-bar">
+      <i class="fa-solid fa-clock"></i>
+      Respondemos en menos de 24 horas con opciones y presupuesto, sin compromiso.
+    </div>
+  </div>
+</section>
+
+<section class="galeria-section" id="galeria-section">
+  <div class="galeria-header reveal">
+    <span class="t-etiq">Lo que hemos creado</span>
+    <h2>Pedidos que cobraron vida ✨</h2>
+    <p>Cada uno pensado desde cero para quien lo encargó.</p>
+  </div>
+  <div class="galeria-track-wrap">
+    <div class="galeria-track" id="galeria-track">
+    </div>
+  </div>
+</section>
+
+<section class="pers-body">
+  <div class="wrap">
+    <div class="pers-layout">
+
+      <div class="pers-info reveal">
+        <span class="t-etiq">¿Por qué encargarlo?</span>
+        <h2>Una pieza que no tiene nadie más en el mundo</h2>
+        <p>
+          Cada pedido personalizado es una conversación entre vos y Mía.
+          Le contás tu idea — los colores que amás, la ocasión, el presupuesto —
+          y ella crea algo único pensado exactamente para vos.
+        </p>
+        <p>
+          No hay mínimo de compra ni diseños preestablecidos.
+          Desde un anillo sencillo hasta un set completo de novia.
+        </p>
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-card-icon"><i class="fa-solid fa-palette"></i></div>
+            <div>
+              <h4>Vos elegís los colores</h4>
+              <p>Mostacillas checas, Miyuki, cristales de roca, gold filled — en los tonos que prefieras.</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"><i class="fa-solid fa-gift"></i></div>
+            <div>
+              <h4>Perfecto para regalar</h4>
+              <p>Incluye empaque cuidado y una notita si lo pedís. Ideal para cumpleaños, XV años y bodas.</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"><i class="fa-solid fa-clock"></i></div>
+            <div>
+              <h4>Respuesta en 24 horas</h4>
+              <p>Mía te escribe por WhatsApp con opciones de diseño y el precio exacto. Sin compromiso.</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon"><i class="fa-solid fa-star"></i></div>
+            <div>
+              <h4>Precio justo</h4>
+              <p>Pedidos personalizados desde $2.000 ARS según complejidad y materiales.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal d1">
+        <div class="form-box">
+          <h3>Contanos tu idea ✨</h3>
+          <p>Completá el formulario y te escribimos por WhatsApp con opciones.</p>
+
+          <div class="fg-row">
+            <div class="fg">
+              <label>Tu nombre *</label>
+              <input type="text" id="f-nombre" placeholder="Ej. Sofi"/>
+            </div>
+            <div class="fg">
+              <label>Tipo de accesorio *</label>
+              <select id="f-tipo">
+                <option value="">Seleccioná...</option>
+                <option>Pulsera</option>
+                <option>Argolla / Aro</option>
+                <option>Collar / Gargantilla</option>
+                <option>Anillo</option>
+                <option>Tobillera</option>
+                <option>Set completo</option>
+                <option>Otro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fg-row">
+            <div class="fg">
+              <label>Ocasión *</label>
+              <select id="f-ocasion">
+                <option value="">Seleccioná...</option>
+                <option>Uso diario</option>
+                <option>Cumpleaños / Regalo</option>
+                <option>XV Años</option>
+                <option>Boda</option>
+                <option>Graduación</option>
+                <option>Día de la madre</option>
+                <option>San Valentín</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Presupuesto aprox. *</label>
+              <select id="f-pres">
+                <option value="">Seleccioná...</option>
+                <option>Menos de $5.000</option>
+                <option>$5.000 – $8.000</option>
+                <option>$8.000 – $12.000</option>
+                <option>Más de $12.000</option>
+                <option>Sin límite</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Colores que te gustan</label>
+            <p class="fg-hint" style="margin-bottom:8px">Tocá los que quieras (podés elegir varios)</p>
+            <div class="colores-chips" id="colores-chips">
+              <span class="color-chip" onclick="toggleColor(this)">🤍 Blanco</span>
+              <span class="color-chip" onclick="toggleColor(this)">🖤 Negro</span>
+              <span class="color-chip" onclick="toggleColor(this)">❤️ Rojo</span>
+              <span class="color-chip" onclick="toggleColor(this)">🩷 Rosa</span>
+              <span class="color-chip" onclick="toggleColor(this)">💜 Lila</span>
+              <span class="color-chip" onclick="toggleColor(this)">💙 Azul</span>
+              <span class="color-chip" onclick="toggleColor(this)">💚 Verde</span>
+              <span class="color-chip" onclick="toggleColor(this)">🌿 Sage</span>
+              <span class="color-chip" onclick="toggleColor(this)">🟡 Amarillo</span>
+              <span class="color-chip" onclick="toggleColor(this)">🟠 Naranja</span>
+              <span class="color-chip" onclick="toggleColor(this)">✨ Dorado</span>
+              <span class="color-chip" onclick="toggleColor(this)">🌸 Coral</span>
+              <span class="color-chip" onclick="toggleColor(this)">🤎 Natural</span>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Describe tu idea *</label>
+            <textarea id="f-desc"
+              placeholder="Contanos todo — estilo, largo, si es para combinarlo con algo específico, inspiración... Entre más detalles, mejor podemos ayudarte."></textarea>
+          </div>
+
+          <div class="fg">
+            <label>¿Referencia de alguna foto? (opcional)</label>
+            <input type="text" id="f-ref" placeholder="Link de Instagram, Pinterest, etc."/>
+            <p class="fg-hint">Si tenés una imagen que te inspire, pegá el link acá.</p>
+          </div>
+
+          <button type="button" class="btn btn-wa"
+                  style="width:100%;padding:16px;font-size:.95rem"
+                  onclick="enviarPersonalizadoCompleto()">
+            <i class="fa-brands fa-whatsapp"></i> Enviar mi idea por WhatsApp
+          </button>
+          <p class="form-nota">
+            Al tocar el botón se abre WhatsApp con tu información lista. ¡Sin escribir nada! 🌿
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <span class="ft-logo t-logo">Mía Bisutería</span>
+        <p>Accesorios hechos a mano con pasión, calidad y mucho corazón. Cada pieza cuenta tu historia.</p>
+        <div class="ft-socials">
+          <a href="https://www.instagram.com/miabisuteria.ar/" class="ft-soc" target="_blank" aria-label="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="https://wa.me/5491137742189" class="ft-soc" target="_blank" aria-label="WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h5>Páginas</h5>
+        <ul class="ft-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="personalizado.html">Pedido especial</a></li>
+          <li><a href="index.html#historia">Sobre Mía</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Colecciones</h5>
+        <ul class="ft-links">
+          <li><a href="catalogo.html">🌸 Flores</a></li>
+          <li><a href="catalogo.html">🦋 Mariposa</a></li>
+          <li><a href="catalogo.html">🌻 Girasol</a></li>
+          <li><a href="catalogo.html">🍒 Cherry</a></li>
+          <li><a href="catalogo.html">🐚 Caracoles</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Contacto</h5>
+        <ul class="ft-contact">
+          <li><i class="fa-brands fa-whatsapp"></i><a href="https://wa.me/5491137742189" target="_blank">+54 9 11 3774-2189</a></li>
+          <li><i class="fa-brands fa-instagram"></i><a href="https://www.instagram.com/miabisuteria.ar/" target="_blank">@miabisuteria.ar</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
+      <p>Diseñado por <span style="color:var(--oro2);font-weight:500">Aarón Rosas</span></p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5491137742189?text=Hola+Mía!+Quiero+hacer+un+pedido+especial+🌿"
+   target="_blank" class="wa-fab" aria-label="WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/app.js"></script>
+<script>
+
+const GALERIA_DEFAULT = [
+  'images/collar-mariposa-lila-1.jpeg',
+  'images/pulsera-alma-girasol-1.jpeg',
+  'images/argollas-alas-flor-1.jpeg',
+  'images/gargantilla-lluvia-margaritas-1.jpeg',
+  'images/tobillera-caracoles-1.jpeg',
+  'images/pulsera-patria-flores-1.jpeg',
+  'images/pulsera-cherry-margaritas-1.jpeg',
+  'images/daisy-bracelet-cristales-1.jpeg',
+];
+
+function renderGaleriaPersonalizada() {
+  const track = document.getElementById('galeria-track');
+  if (!track) return;
+
+  let fotos = GALERIA_DEFAULT;
+  if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    firebase.firestore().collection('config').doc('site').get().then(snap => {
+      if (snap.exists && snap.data().galeria && snap.data().galeria.length > 0) {
+        const track = document.getElementById('galeria-track');
+        if (!track) return;
+        const imgs = snap.data().galeria;
+        let todos = [...imgs];
+        while (todos.length < 8) todos = [...todos, ...imgs];
+        const dup = [...todos, ...todos];
+        track.innerHTML = dup.map(src => `<div class="galeria-item"><img src="${src}" alt="Pedido personalizado" loading="lazy"/></div>`).join('');
+        track.style.animationDuration = Math.max(30, todos.length * 4) + 's';
+      }
+    }).catch(() => {});
+  }
+
+  let imgs = [...fotos];
+  while (imgs.length < 8) imgs = [...imgs, ...fotos];
+
+  const todosDuplicados = [...imgs, ...imgs];
+
+  track.innerHTML = todosDuplicados.map(src => `
+    <div class="galeria-item">
+      <img src="${src}" alt="Pedido personalizado" loading="lazy"/>
+    </div>
+  `).join('');
+  const duracion = Math.max(30, imgs.length * 4);
+  track.style.animationDuration = duracion + 's';
+}
+
+function toggleColor(chip) {
+  chip.classList.toggle('sel');
+}
+
+function getColoresSeleccionados() {
+  const sel = [];
+  document.querySelectorAll('.color-chip.sel').forEach(c => {
+    sel.push(c.textContent.trim().replace(/^\S+\s/, ''));
+  });
+  return sel.join(', ') || 'Sin especificar';
+}
+
+function enviarPersonalizadoCompleto() {
+  const n   = document.getElementById('f-nombre').value.trim()  || 'Sin nombre';
+  const t   = document.getElementById('f-tipo').value           || 'No especificado';
+  const o   = document.getElementById('f-ocasion').value        || 'No especificada';
+  const pr  = document.getElementById('f-pres').value           || 'No especificado';
+  const col = getColoresSeleccionados();
+  const d   = document.getElementById('f-desc').value.trim()    || 'Sin descripción';
+  const ref = document.getElementById('f-ref').value.trim();
+
+  if (!document.getElementById('f-tipo').value || !document.getElementById('f-ocasion').value || !document.getElementById('f-desc').value.trim()) {
+    alert('Por favor completá al menos el tipo de accesorio, la ocasión y la descripción de tu idea.');
+    return;
+  }
+
+  const refLinea = ref ? `\n🖼️ *Referencia:* ${ref}` : '';
+
+  window.open(`https://wa.me/5491137742189?text=${encodeURIComponent(
+    `¡Hola Mía! 🌿 Quiero un pedido personalizado:\n\n` +
+    `👤 *Nombre:* ${n}\n` +
+    `💎 *Tipo:* ${t}\n` +
+    `🎉 *Ocasión:* ${o}\n` +
+    `💰 *Presupuesto:* ${pr}\n` +
+    `🎨 *Colores:* ${col}` +
+    refLinea + `\n\n` +
+    `📝 *Mi idea:*\n${d}\n\n` +
+    `¡Espero tu respuesta! ✨`
+  )}`, '_blank');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderGaleriaPersonalizada();
+});
+</script>
+</body>
+</html>
