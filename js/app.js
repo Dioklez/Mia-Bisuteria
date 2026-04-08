@@ -441,6 +441,66 @@ function initReveal() {
   });
 }
 
+const TESTIMONIOS_DEFAULT = [
+  {id:0, nombre:'Sol G.',  ciudad:'Buenos Aires', estrellas:5, texto:'La calidad es increíble y se nota que está hecha con amor. Recibo cumplidos cada vez que uso mi pulsera. ¡Ya encargué la segunda!'},
+  {id:1, nombre:'Vale M.', ciudad:'Rosario',      estrellas:5, texto:'El collar Mariposa Lila es una joya. Super liviano y delicado. El empaque también fue muy cuidado. Cien por ciento recomendable.'},
+  {id:2, nombre:'Lu C.',   ciudad:'Córdoba',      estrellas:5, texto:'Compré un pedido personalizado para el cumple de mi amiga y quedó fascinada. Mía fue súper atenta y entregó en tiempo. ¡La mejor!'},
+];
+
+const COLECCIONES_DEFAULT = [
+  {key:'flores',    emoji:'🌸', nombre:'Flores',    img:'images/pulsera-suspiro-lila.jpeg'},
+  {key:'mariposa',  emoji:'🦋', nombre:'Mariposa',  img:'images/collar-mariposa-lila-1.jpeg'},
+  {key:'girasol',   emoji:'🌻', nombre:'Girasol',   img:'images/pulsera-alma-girasol-1.jpeg'},
+  {key:'cherry',    emoji:'🍒', nombre:'Cherry',    img:'images/pulsera-cherry-margaritas-1.jpeg'},
+  {key:'caracoles', emoji:'🐚', nombre:'Caracoles', img:'images/tobillera-caracoles-1.jpeg'},
+];
+
+function renderTestimoniosIndex(grid, testimonios) {
+  if (!grid || !testimonios || !testimonios.length) return;
+  const delays = ['', 'd1', 'd2', 'd3', 'd4', 'd5'];
+  grid.innerHTML = testimonios.map((t, i) => {
+    const partes   = t.nombre.trim().split(' ');
+    const iniciales = partes.map(p => p[0] || '').slice(0, 2).join('').toUpperCase();
+    const stars     = Array.from({length: t.estrellas},  () => '<i class="fa-solid fa-star"></i>').join('') +
+                      Array.from({length: 5 - t.estrellas}, () => '<i class="fa-regular fa-star"></i>').join('');
+    return `
+      <div class="tcard reveal ${delays[i % delays.length]}">
+        <div class="tcard-stars">${stars}</div>
+        <p class="tcard-txt">"${t.texto}"</p>
+        <div class="tcard-author">
+          <div class="t-av">${iniciales}</div>
+          <div><div class="t-nombre">${t.nombre}</div><div class="t-ciudad">${t.ciudad}</div></div>
+        </div>
+      </div>`;
+  }).join('');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  grid.querySelectorAll('.reveal').forEach(el => {
+    if (el.getBoundingClientRect().top < innerHeight) el.classList.add('vis');
+    else obs.observe(el);
+  });
+}
+
+function renderColeccionesIndex(colecciones) {
+  if (!colecciones || !colecciones.length) return;
+  colecciones.forEach(col => {
+    const card = document.querySelector(`[data-col-key="${col.key}"]`);
+    if (!card) return;
+    if (col.img) {
+      const img = card.querySelector('img.col-bg');
+      if (img) img.src = col.img;
+    }
+    const titulo = card.querySelector('.col-nombre');
+    if (titulo && col.nombre && col.emoji) {
+      const cant = titulo.querySelector('.col-cant-text');
+      const cantHtml = cant ? cant.outerHTML : '';
+      titulo.textContent = '';
+      titulo.textContent = `${col.emoji} Colección ${col.nombre}`;
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   initFirebase();
   initHeader();
@@ -448,6 +508,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   initReveal();
 
   await cargarDatosFirebase();
+
+  const siteConfig = await cargarConfigFirebase();
+
+  const testGrid = document.getElementById('test-grid');
+  if (testGrid) renderTestimoniosIndex(testGrid, siteConfig.testimonios || TESTIMONIOS_DEFAULT);
+
+  renderColeccionesIndex(siteConfig.colecciones || COLECCIONES_DEFAULT);
 
   aplicarFiltros();
   renderCatalogo();

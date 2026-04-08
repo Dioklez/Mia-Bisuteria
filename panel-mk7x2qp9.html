@@ -100,6 +100,26 @@
     .modal h3{font-family:var(--fn);font-size:1.3rem;color:var(--v);margin-bottom:8px}
     .modal p{font-size:.9rem;color:var(--txt2);margin-bottom:20px;line-height:1.7}
     .modal-btns{display:flex;gap:10px;justify-content:flex-end}
+    /* Modal grande para editar producto */
+    .modal-large{max-width:700px;max-height:90vh;overflow-y:auto;width:95%}
+    .modal-large .form-grid{margin-top:16px}
+    /* Colecciones en admin */
+    .col-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+    .col-admin-card{border:1px solid var(--cborde);border-radius:14px;overflow:hidden;background:#fff;transition:box-shadow var(--e)}
+    .col-admin-card:hover{box-shadow:0 4px 20px rgba(30,45,8,.1)}
+    .col-admin-img-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--c2)}
+    .col-admin-img{width:100%;height:100%;object-fit:cover;display:block}
+    .col-admin-overlay{position:absolute;bottom:0;left:0;right:0;background:rgba(30,45,8,.75);color:#fff;padding:10px 14px}
+    .col-admin-overlay-name{font-family:var(--fn);font-size:1.05rem}
+    .col-admin-body{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .col-admin-meta{font-size:.75rem;color:var(--txt3)}
+    /* Testimonios en admin */
+    .tcard-admin{background:var(--c);border:1px solid var(--cborde);border-radius:12px;padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+    .tcard-admin-body{flex:1;min-width:0}
+    .tcard-admin-nombre{font-weight:600;color:var(--v);font-size:.9rem}
+    .tcard-admin-stars{color:var(--oro);font-size:.78rem;margin-top:3px}
+    .tcard-admin-txt{font-size:.83rem;color:var(--txt2);margin-top:6px;font-style:italic;line-height:1.65;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+    .tcard-admin-acciones{display:flex;gap:6px;flex-shrink:0}
     @media(max-width:768px){.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.admin-section{padding:18px}}
   </style>
@@ -124,13 +144,17 @@
       <div class="admin-nav">
         <button class="admin-nav-btn activo" onclick="mostrarTab('productos',this)"><i class="fa-solid fa-box"></i> Productos</button>
         <button class="admin-nav-btn" onclick="mostrarTab('destacado',this)"><i class="fa-solid fa-star"></i> Destacado</button>
+        <button class="admin-nav-btn" onclick="mostrarTab('colecciones',this)"><i class="fa-solid fa-layer-group"></i> Colecciones</button>
+        <button class="admin-nav-btn" onclick="mostrarTab('testimonios',this)"><i class="fa-solid fa-quote-right"></i> Testimonios</button>
         <button class="admin-nav-btn" onclick="mostrarTab('galeria',this)"><i class="fa-solid fa-images"></i> Galería</button>
         <button class="admin-nav-btn danger" onclick="confirmarReset()"><i class="fa-solid fa-rotate-left"></i> Resetear</button>
-        <a href="catalogo.html" target="_blank" class="admin-nav-btn" style="text-decoration:none"><i class="fa-solid fa-eye"></i> Ver sitio</a>
+        <a href="index.html" target="_blank" class="admin-nav-btn" style="text-decoration:none"><i class="fa-solid fa-eye"></i> Ver sitio</a>
       </div>
     </div>
   </header>
   <div class="admin-body">
+
+    <!-- TAB: PRODUCTOS -->
     <div class="tab activo" id="tab-productos">
       <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
       <div class="stats-grid" id="stats-grid"></div>
@@ -185,24 +209,26 @@
 
       <div class="admin-section">
         <h2><i class="fa-solid fa-list"></i> Todos los productos</h2>
-        <p>Editá el precio y presioná Enter o ✓. El botón rojo elimina. Cambios instantáneos.</p>
+        <p>Editá el precio con Enter o ✓. El lápiz abre edición completa (nombre, descripción, fotos). El rojo elimina.</p>
         <div class="buscar-wrap">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="buscar-input" placeholder="Buscar por nombre..." oninput="filtrarTabla()"/>
         </div>
         <div class="tabla-wrap">
           <table>
-            <thead><tr><th>#</th><th>Foto</th><th>Nombre</th><th>Tipo</th><th>Col.</th><th>Precio</th><th>Acción</th></tr></thead>
+            <thead><tr><th>#</th><th>Foto</th><th>Nombre</th><th>Tipo</th><th>Col.</th><th>Precio</th><th>Acciones</th></tr></thead>
             <tbody id="tabla-body"></tbody>
           </table>
         </div>
       </div>
     </div>
+
+    <!-- TAB: DESTACADO -->
     <div class="tab" id="tab-destacado">
       <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
       <div class="admin-section">
         <h2><i class="fa-solid fa-star"></i> Destacado de la semana</h2>
-        <p>Aparece en la tarjeta flotante del hero y como imagen principal del index.</p>
+        <p>Aparece en la tarjeta flotante del hero y como imagen principal del inicio.</p>
         <div id="destacado-preview-wrap"></div>
         <div class="form-grid">
           <div class="fg full"><label>Elegir del catálogo</label>
@@ -236,6 +262,49 @@
         </div>
       </div>
     </div>
+
+    <!-- TAB: COLECCIONES -->
+    <div class="tab" id="tab-colecciones">
+      <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-layer-group"></i> Colecciones</h2>
+        <p>Editá el nombre, emoji y foto de portada de cada colección. La foto se muestra en la sección de colecciones del inicio.</p>
+        <div class="col-admin-grid" id="col-admin-grid"></div>
+      </div>
+    </div>
+
+    <!-- TAB: TESTIMONIOS -->
+    <div class="tab" id="tab-testimonios">
+      <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-plus"></i> Agregar testimonio nuevo</h2>
+        <p>Aparece en la sección de opiniones del inicio. Máximo recomendado: 6 testimonios.</p>
+        <div class="form-grid">
+          <div class="fg"><label>Nombre *</label><input type="text" id="tm-nombre" placeholder="Sol G."/></div>
+          <div class="fg"><label>Ciudad *</label><input type="text" id="tm-ciudad" placeholder="Buenos Aires"/></div>
+          <div class="fg"><label>Estrellas</label>
+            <select id="tm-estrellas">
+              <option value="5">★★★★★ (5 estrellas)</option>
+              <option value="4">★★★★☆ (4 estrellas)</option>
+              <option value="3">★★★☆☆ (3 estrellas)</option>
+            </select>
+          </div>
+          <div class="fg full"><label>Reseña *</label>
+            <textarea id="tm-texto" style="height:90px" placeholder='"La calidad es increíble y se nota que está hecha con amor..."'></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-v" onclick="agregarTestimonio()"><i class="fa-solid fa-plus"></i> Publicar testimonio</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-quote-right"></i> Testimonios publicados</h2>
+        <p>El lápiz edita, el rojo elimina. Los cambios son instantáneos en el inicio.</p>
+        <div id="testimonios-lista"></div>
+      </div>
+    </div>
+
+    <!-- TAB: GALERÍA -->
     <div class="tab" id="tab-galeria">
       <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
       <div class="admin-section">
@@ -281,6 +350,7 @@
   </div>
 </div>
 
+<!-- Modal confirmación (eliminar, resetear, etc.) -->
 <div class="modal-over" id="modal-over">
   <div class="modal">
     <h3 id="modal-titulo"></h3><p id="modal-texto"></p>
@@ -290,6 +360,138 @@
     </div>
   </div>
 </div>
+
+<!-- Modal editar producto (grande) -->
+<div class="modal-over" id="modal-ep-over">
+  <div class="modal modal-large">
+    <h3><i class="fa-solid fa-pencil" style="color:var(--oro)"></i> Editar producto</h3>
+    <p>Modificá los datos y guardá. Los cambios son instantáneos en el catálogo.</p>
+    <div class="form-grid">
+      <div class="fg"><label>Nombre *</label><input type="text" id="ep-nombre"/></div>
+      <div class="fg"><label>Precio ARS *</label><input type="number" id="ep-precio" min="0"/></div>
+      <div class="fg"><label>Tipo *</label>
+        <select id="ep-tipo">
+          <option value="pulsera">Pulsera</option>
+          <option value="argolla">Argolla / Arito</option>
+          <option value="collar">Collar</option>
+          <option value="anillo">Anillo</option>
+          <option value="tobillera">Tobillera</option>
+        </select>
+      </div>
+      <div class="fg"><label>Colección *</label>
+        <select id="ep-col">
+          <option value="flores">🌸 Flores</option>
+          <option value="mariposa">🦋 Mariposa</option>
+          <option value="girasol">🌻 Girasol</option>
+          <option value="cherry">🍒 Cherry</option>
+          <option value="caracoles">🐚 Caracoles</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Descripción *</label>
+        <textarea id="ep-desc" style="height:88px"></textarea>
+      </div>
+      <div class="fg full">
+        <label>Fotos actuales <span style="font-weight:400;color:var(--txt3)">(✕ para quitar)</span></label>
+        <div id="ep-fotos-act" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px"></div>
+        <label>Agregar fotos nuevas</label>
+        <div class="upload-area" id="ep-upload-area"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleEditDrop(event)">
+          <input type="file" id="ep-fotos" accept="image/*" multiple onchange="handleEditFileSelect(this.files)"/>
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem"></i>
+          <strong style="font-size:.85rem">Tocá o arrastrá fotos nuevas</strong>
+          <p>Las actuales se mantienen salvo que las quites</p>
+        </div>
+        <div class="upload-progress" id="ep-progress"><div class="upload-progress-bar" id="ep-bar"></div></div>
+        <div class="imgs-preview" id="ep-imgs-preview"></div>
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:20px">
+      <button class="btn btn-ghost" onclick="cerrarEditarProducto()">Cancelar</button>
+      <button class="btn btn-v" id="ep-btn-guardar" onclick="guardarEdicionProducto()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar colección -->
+<div class="modal-over" id="modal-col-over">
+  <div class="modal" style="max-width:460px">
+    <h3 id="modal-col-titulo"><i class="fa-solid fa-layer-group" style="color:var(--oro)"></i> Editar colección</h3>
+    <p>Los cambios se ven en la sección de colecciones del inicio al instante.</p>
+    <div class="form-grid" style="margin-top:16px">
+      <div class="fg"><label>Nombre</label><input type="text" id="col-nombre"/></div>
+      <div class="fg"><label>Emoji</label>
+        <select id="col-emoji">
+          <option value="🌸">🌸 Flor</option>
+          <option value="🦋">🦋 Mariposa</option>
+          <option value="🌻">🌻 Girasol</option>
+          <option value="🍒">🍒 Cherry</option>
+          <option value="🐚">🐚 Caracol</option>
+          <option value="🌺">🌺 Hibisco</option>
+          <option value="🌹">🌹 Rosa</option>
+          <option value="🌼">🌼 Margarita</option>
+          <option value="🌿">🌿 Hoja</option>
+          <option value="✨">✨ Destellos</option>
+        </select>
+      </div>
+      <div class="fg full">
+        <label>Foto de portada actual</label>
+        <div id="col-img-preview" style="margin:6px 0 10px"></div>
+        <label>Cambiar foto</label>
+        <div class="upload-area" id="col-upload-area"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleColDrop(event)"
+             style="min-height:90px;padding:18px">
+          <input type="file" id="col-foto" accept="image/*" onchange="handleColFileSelect(this.files)"/>
+          <i class="fa-solid fa-image" style="font-size:1.5rem"></i>
+          <strong style="font-size:.85rem">Tocá para elegir nueva foto</strong>
+          <p>JPG, PNG o WEBP recomendado</p>
+        </div>
+        <div class="upload-progress" id="col-progress"><div class="upload-progress-bar" id="col-bar"></div></div>
+        <span id="col-upload-status" class="hint" style="display:block;margin-top:4px"></span>
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:18px">
+      <button class="btn btn-ghost" onclick="cerrarEditarColeccion()">Cancelar</button>
+      <button class="btn btn-v" id="col-btn-guardar" onclick="guardarEdicionColeccion()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar testimonio -->
+<div class="modal-over" id="modal-test-over">
+  <div class="modal">
+    <h3><i class="fa-solid fa-quote-right" style="color:var(--oro)"></i> Editar testimonio</h3>
+    <p>Modificá los datos y guardá. El cambio es instantáneo en el inicio.</p>
+    <div class="form-grid" style="margin-top:14px">
+      <div class="fg"><label>Nombre</label><input type="text" id="et-nombre"/></div>
+      <div class="fg"><label>Ciudad</label><input type="text" id="et-ciudad"/></div>
+      <div class="fg"><label>Estrellas</label>
+        <select id="et-estrellas">
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★☆ (4)</option>
+          <option value="3">★★★☆☆ (3)</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Reseña</label>
+        <textarea id="et-texto" style="height:90px"></textarea>
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="cerrarEditarTestimonio()">Cancelar</button>
+      <button class="btn btn-v" onclick="guardarEdicionTestimonio()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -337,8 +539,26 @@ const PRODUCTOS_DEFAULT = [
   {id:25, nombre:'Aros Flor de Cristal Lila',       precio:10700, tipo:'argolla',   col:'flores',    desc:'Base de aro gold filled y flores hechas a mano.',imgs:['images/aros-flor-cristal-lila.jpeg']},
 ];
 
+const TESTIMONIOS_DEFAULT = [
+  {id:0, nombre:'Sol G.',  ciudad:'Buenos Aires', estrellas:5, texto:'La calidad es increíble y se nota que está hecha con amor. Recibo cumplidos cada vez que uso mi pulsera. ¡Ya encargué la segunda!'},
+  {id:1, nombre:'Vale M.', ciudad:'Rosario',      estrellas:5, texto:'El collar Mariposa Lila es una joya. Super liviano y delicado. El empaque también fue muy cuidado. Cien por ciento recomendable.'},
+  {id:2, nombre:'Lu C.',   ciudad:'Córdoba',      estrellas:5, texto:'Compré un pedido personalizado para el cumple de mi amiga y quedó fascinada. Mía fue súper atenta y entregó en tiempo. ¡La mejor!'},
+];
+
+const COLECCIONES_DEFAULT = [
+  {key:'flores',    emoji:'🌸', nombre:'Flores',    img:'images/pulsera-suspiro-lila.jpeg'},
+  {key:'mariposa',  emoji:'🦋', nombre:'Mariposa',  img:'images/collar-mariposa-lila-1.jpeg'},
+  {key:'girasol',   emoji:'🌻', nombre:'Girasol',   img:'images/pulsera-alma-girasol-1.jpeg'},
+  {key:'cherry',    emoji:'🍒', nombre:'Cherry',    img:'images/pulsera-cherry-margaritas-1.jpeg'},
+  {key:'caracoles', emoji:'🐚', nombre:'Caracoles', img:'images/tobillera-caracoles-1.jpeg'},
+];
+
 let db, productos = [], destacado = {nombre:'',precio:'',img:''};
 let galeriaFotos = [], idParaEliminar = null, imgsNuevoProd = [];
+let testimonios = [], colecciones = [];
+let editProdId = null, epImgsNuev = [], epImgsAct = [];
+let editColKey = null, colImgNueva = '';
+let editTestId = null;
 
 firebase.initializeApp(FIREBASE_CONFIG);
 db = firebase.firestore();
@@ -368,16 +588,22 @@ document.getElementById('pass-input').addEventListener('keydown', e => { if (e.k
 async function iniciarAdmin() {
   toast('Conectando con Firebase...', '');
   const [prodData, siteData] = await Promise.all([fbGet('productos'), fbGet('site')]);
-  productos  = (prodData && prodData.items && prodData.items.length) ? prodData.items : JSON.parse(JSON.stringify(PRODUCTOS_DEFAULT));
-  destacado  = siteData?.destacado  || {nombre:'',precio:'',img:''};
-  galeriaFotos = siteData?.galeria  || [];
-  const favIds = siteData?.favoritos || [6,10,17,7];
+  productos    = (prodData && prodData.items && prodData.items.length) ? prodData.items : JSON.parse(JSON.stringify(PRODUCTOS_DEFAULT));
+  destacado    = siteData?.destacado   || {nombre:'',precio:'',img:''};
+  galeriaFotos = siteData?.galeria     || [];
+  testimonios  = siteData?.testimonios || JSON.parse(JSON.stringify(TESTIMONIOS_DEFAULT));
+  colecciones  = siteData?.colecciones || JSON.parse(JSON.stringify(COLECCIONES_DEFAULT));
+  const favIds = siteData?.favoritos   || [6,10,17,7];
 
   if (!prodData) {
     await fbSet('productos', { items: productos });
-    await fbSet('site', { destacado, favoritos: favIds, galeria: [] });
+    await fbSet('site', { destacado, favoritos: favIds, galeria: [], testimonios, colecciones });
     toast('✓ Base de datos inicializada', 'exito');
   } else {
+    const updates = {};
+    if (!siteData?.testimonios) updates.testimonios = testimonios;
+    if (!siteData?.colecciones) updates.colecciones = colecciones;
+    if (Object.keys(updates).length) await fbSet('site', updates);
     toast('✓ Conectado a Firebase', 'exito');
   }
 
@@ -387,6 +613,8 @@ async function iniciarAdmin() {
   renderSelectDestacado(favIds);
   renderSelectGaleria();
   renderGaleriaAdmin();
+  renderColecciones();
+  renderTestimonios();
 }
 
 function mostrarTab(nombre, btn) {
@@ -429,7 +657,14 @@ function renderTabla(filtro = '') {
           <button class="btn btn-ghost btn-sm" onclick="guardarPrecio(${p.id})"><i class="fa-solid fa-check"></i></button>
         </div>
       </td>
-      <td><div class="td-acciones"><button class="btn btn-red btn-sm" onclick="confirmarEliminar(${p.id})"><i class="fa-solid fa-trash"></i></button></div></td>
+      <td>
+        <div class="td-acciones">
+          <button class="btn btn-ghost btn-sm" onclick="abrirEditarProducto(${p.id})" title="Editar producto">
+            <i class="fa-solid fa-pencil"></i>
+          </button>
+          <button class="btn btn-red btn-sm" onclick="confirmarEliminar(${p.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 function filtrarTabla() { renderTabla(document.getElementById('buscar-input').value); }
@@ -445,6 +680,7 @@ async function guardarPrecio(id) {
   else    toast('Error al guardar', 'error');
 }
 
+// ── SUBIDA DE IMÁGENES (NUEVO PRODUCTO) ─────────────────────────────────────
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('upload-area').classList.remove('drag');
@@ -538,7 +774,7 @@ function confirmarEliminar(id) {
   const p = productos.find(pr => pr.id === id); if (!p) return;
   idParaEliminar = id;
   document.getElementById('modal-titulo').textContent = 'Eliminar producto';
-  document.getElementById('modal-texto').textContent  = `¿Eliminar "${p.nombre}"?`;
+  document.getElementById('modal-texto').textContent  = `¿Eliminar "${p.nombre}"? Esta acción no se puede deshacer.`;
   document.getElementById('modal-ok-btn').onclick = async () => {
     productos = productos.filter(p => p.id !== idParaEliminar);
     const ok = await fbSet('productos', { items: productos });
@@ -549,6 +785,112 @@ function confirmarEliminar(id) {
   document.getElementById('modal-over').classList.add('open');
 }
 
+// ── EDITAR PRODUCTO COMPLETO ─────────────────────────────────────────────────
+function abrirEditarProducto(id) {
+  const p = productos.find(pr => pr.id === id); if (!p) return;
+  editProdId = id;
+  epImgsNuev = [];
+  epImgsAct  = [...((p.imgs || (p.img ? [p.img] : [])))];
+  document.getElementById('ep-nombre').value = p.nombre;
+  document.getElementById('ep-precio').value = p.precio;
+  document.getElementById('ep-tipo').value   = p.tipo || '';
+  document.getElementById('ep-col').value    = p.col  || '';
+  document.getElementById('ep-desc').value   = p.desc || '';
+  document.getElementById('ep-fotos').value  = '';
+  document.getElementById('ep-imgs-preview').innerHTML = '';
+  actualizarFotosActualesEdit();
+  document.getElementById('modal-ep-over').classList.add('open');
+}
+function cerrarEditarProducto() {
+  document.getElementById('modal-ep-over').classList.remove('open');
+  editProdId = null; epImgsNuev = []; epImgsAct = [];
+}
+function actualizarFotosActualesEdit() {
+  const wrap = document.getElementById('ep-fotos-act');
+  if (!wrap) return;
+  if (!epImgsAct.length) {
+    wrap.innerHTML = '<span style="font-size:.8rem;color:var(--txt3);font-style:italic">Sin fotos actuales</span>';
+    return;
+  }
+  wrap.innerHTML = epImgsAct.map((url, i) => `
+    <div class="img-thumb">
+      <img src="${url}" alt="foto"/>
+      <button class="img-thumb-rm" onclick="quitarFotoActual(${i})">✕</button>
+    </div>`).join('');
+}
+function quitarFotoActual(idx) {
+  epImgsAct.splice(idx, 1);
+  actualizarFotosActualesEdit();
+}
+function handleEditDrop(e) {
+  e.preventDefault();
+  document.getElementById('ep-upload-area').classList.remove('drag');
+  if (e.dataTransfer.files.length) handleEditFileSelect(e.dataTransfer.files);
+}
+async function handleEditFileSelect(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!arr.length) { toast('Solo imágenes', 'error'); return; }
+  const progress = document.getElementById('ep-progress');
+  const bar      = document.getElementById('ep-bar');
+  const btn      = document.getElementById('ep-btn-guardar');
+  progress.style.display = 'block';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo...';
+  let subidas = 0;
+  for (const file of arr) {
+    bar.style.width = ((subidas / arr.length) * 100) + '%';
+    const url = await subirACloudinary(file);
+    if (url) {
+      epImgsNuev.push(url);
+      const preview = document.getElementById('ep-imgs-preview');
+      const idx = epImgsNuev.length - 1;
+      const t = document.createElement('div');
+      t.className = 'img-thumb';
+      t.innerHTML = `<img src="${url}" alt="nueva"/><button class="img-thumb-rm" onclick="quitarNuevaFotoEdit(${idx})">✕</button>`;
+      preview.appendChild(t);
+      subidas++;
+    } else toast('Error al subir foto', 'error');
+  }
+  bar.style.width = '100%';
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar cambios';
+  setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 1500);
+}
+function quitarNuevaFotoEdit(idx) {
+  epImgsNuev.splice(idx, 1);
+  const preview = document.getElementById('ep-imgs-preview');
+  preview.innerHTML = '';
+  epImgsNuev.forEach((url, i) => {
+    const t = document.createElement('div');
+    t.className = 'img-thumb';
+    t.innerHTML = `<img src="${url}" alt="nueva"/><button class="img-thumb-rm" onclick="quitarNuevaFotoEdit(${i})">✕</button>`;
+    preview.appendChild(t);
+  });
+}
+async function guardarEdicionProducto() {
+  const nombre = document.getElementById('ep-nombre').value.trim();
+  const precio = parseInt(document.getElementById('ep-precio').value);
+  const tipo   = document.getElementById('ep-tipo').value;
+  const col    = document.getElementById('ep-col').value;
+  const desc   = document.getElementById('ep-desc').value.trim();
+  if (!nombre || isNaN(precio) || !tipo || !col || !desc) { toast('Completá todos los campos', 'error'); return; }
+  const todasLasFotos = [...epImgsAct, ...epImgsNuev];
+  if (!todasLasFotos.length) { toast('El producto necesita al menos una foto', 'error'); return; }
+  const idx = productos.findIndex(p => p.id === editProdId);
+  if (idx === -1) { toast('Producto no encontrado', 'error'); return; }
+  productos[idx] = { ...productos[idx], nombre, precio, tipo, col, desc, imgs: todasLasFotos };
+  const ok = await fbSet('productos', { items: productos });
+  if (ok) {
+    renderStats(); renderTabla(); renderSelectDestacado(); renderSelectGaleria();
+    cerrarEditarProducto();
+    toast(`✓ "${nombre}" actualizado`, 'exito');
+  } else {
+    toast('Error al guardar en Firebase', 'error');
+  }
+}
+document.getElementById('modal-ep-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-ep-over')) cerrarEditarProducto(); });
+
+// ── DESTACADO Y FAVORITOS ────────────────────────────────────────────────────
 function renderDestacado() {
   const wrap = document.getElementById('destacado-preview-wrap');
   wrap.innerHTML = destacado.nombre
@@ -594,7 +936,6 @@ async function guardarDestacadoManual() {
   if (ok) { renderDestacado(); renderTabla(); toast(`★ Destacado: "${nombre}"`, 'exito'); }
   else      toast('Error al guardar', 'error');
 }
-
 function previsualizarFavoritos() {
   const wrap = document.getElementById('favoritos-preview');
   if (!wrap) return;
@@ -631,6 +972,185 @@ async function resetearFavoritos() {
   } else toast('Error al guardar', 'error');
 }
 
+// ── COLECCIONES ──────────────────────────────────────────────────────────────
+function renderColecciones() {
+  const grid = document.getElementById('col-admin-grid');
+  if (!grid) return;
+  grid.innerHTML = colecciones.map(col => `
+    <div class="col-admin-card">
+      <div class="col-admin-img-wrap">
+        <img class="col-admin-img" src="${col.img}" alt="${col.nombre}"
+             onerror="this.style.opacity='.3'"/>
+        <div class="col-admin-overlay">
+          <div class="col-admin-overlay-name">${col.emoji} ${col.nombre}</div>
+        </div>
+      </div>
+      <div class="col-admin-body">
+        <div>
+          <div style="font-weight:500;color:var(--v);font-size:.9rem">${col.emoji} ${col.nombre}</div>
+          <div class="col-admin-meta">Clave: ${col.key}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="abrirEditarColeccion('${col.key}')">
+          <i class="fa-solid fa-pencil"></i> Editar
+        </button>
+      </div>
+    </div>`).join('');
+}
+function abrirEditarColeccion(key) {
+  const col = colecciones.find(c => c.key === key); if (!col) return;
+  editColKey  = key;
+  colImgNueva = '';
+  document.getElementById('col-nombre').value = col.nombre;
+  document.getElementById('col-emoji').value  = col.emoji;
+  document.getElementById('col-foto').value   = '';
+  document.getElementById('col-upload-status').textContent = '';
+  document.getElementById('col-img-preview').innerHTML = col.img
+    ? `<img src="${col.img}" style="width:100%;max-height:130px;object-fit:cover;border-radius:10px;border:1px solid var(--cborde)"/>`
+    : '<span style="font-size:.8rem;color:var(--txt3);font-style:italic">Sin foto actual</span>';
+  document.getElementById('modal-col-titulo').innerHTML =
+    `<i class="fa-solid fa-layer-group" style="color:var(--oro)"></i> Editar — ${col.emoji} ${col.nombre}`;
+  document.getElementById('modal-col-over').classList.add('open');
+}
+function cerrarEditarColeccion() {
+  document.getElementById('modal-col-over').classList.remove('open');
+  editColKey = null; colImgNueva = '';
+}
+function handleColDrop(e) {
+  e.preventDefault();
+  document.getElementById('col-upload-area').classList.remove('drag');
+  if (e.dataTransfer.files.length) handleColFileSelect(e.dataTransfer.files);
+}
+async function handleColFileSelect(files) {
+  const file = files[0];
+  if (!file || !file.type.startsWith('image/')) { toast('Solo imágenes', 'error'); return; }
+  const progress = document.getElementById('col-progress');
+  const bar      = document.getElementById('col-bar');
+  const status   = document.getElementById('col-upload-status');
+  const btn      = document.getElementById('col-btn-guardar');
+  progress.style.display = 'block';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo...';
+  bar.style.width = '50%';
+  status.textContent = 'Subiendo foto...';
+  const url = await subirACloudinary(file);
+  if (url) {
+    colImgNueva = url;
+    status.textContent = '✓ Foto lista — guardá para aplicar';
+    document.getElementById('col-img-preview').innerHTML =
+      `<img src="${url}" style="width:100%;max-height:130px;object-fit:cover;border-radius:10px;border:2px solid var(--vmenta)"/>`;
+    bar.style.width = '100%';
+  } else {
+    status.textContent = 'Error al subir la foto';
+    toast('Error al subir foto', 'error');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+  setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 1500);
+}
+async function guardarEdicionColeccion() {
+  const nombre = document.getElementById('col-nombre').value.trim();
+  const emoji  = document.getElementById('col-emoji').value;
+  if (!nombre) { toast('El nombre es obligatorio', 'error'); return; }
+  const idx = colecciones.findIndex(c => c.key === editColKey);
+  if (idx === -1) { toast('Colección no encontrada', 'error'); return; }
+  colecciones[idx] = { ...colecciones[idx], nombre, emoji, ...(colImgNueva ? {img: colImgNueva} : {}) };
+  const ok = await fbSet('site', { colecciones });
+  if (ok) {
+    renderColecciones();
+    cerrarEditarColeccion();
+    toast(`✓ Colección "${nombre}" actualizada`, 'exito');
+  } else toast('Error al guardar', 'error');
+}
+document.getElementById('modal-col-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-col-over')) cerrarEditarColeccion(); });
+
+// ── TESTIMONIOS ──────────────────────────────────────────────────────────────
+function renderTestimonios() {
+  const lista = document.getElementById('testimonios-lista');
+  if (!lista) return;
+  if (!testimonios.length) {
+    lista.innerHTML = '<p style="color:var(--txt3);font-style:italic;font-size:.85rem;padding:12px 0">No hay testimonios todavía. Agregá el primero arriba.</p>';
+    return;
+  }
+  lista.innerHTML = testimonios.map(t => `
+    <div class="tcard-admin">
+      <div class="tcard-admin-body">
+        <div class="tcard-admin-nombre">${t.nombre}
+          <span style="font-weight:400;color:var(--txt3);font-size:.8rem"> · ${t.ciudad}</span>
+        </div>
+        <div class="tcard-admin-stars">${'★'.repeat(t.estrellas)}${'☆'.repeat(5 - t.estrellas)}</div>
+        <p class="tcard-admin-txt">"${t.texto}"</p>
+      </div>
+      <div class="tcard-admin-acciones">
+        <button class="btn btn-ghost btn-sm" onclick="abrirEditarTestimonio(${t.id})" title="Editar">
+          <i class="fa-solid fa-pencil"></i>
+        </button>
+        <button class="btn btn-red btn-sm" onclick="confirmarEliminarTestimonio(${t.id})" title="Eliminar">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>`).join('');
+}
+async function agregarTestimonio() {
+  const nombre    = document.getElementById('tm-nombre').value.trim();
+  const ciudad    = document.getElementById('tm-ciudad').value.trim();
+  const estrellas = parseInt(document.getElementById('tm-estrellas').value);
+  const texto     = document.getElementById('tm-texto').value.trim();
+  if (!nombre || !ciudad || !texto) { toast('Completá nombre, ciudad y reseña', 'error'); return; }
+  const maxId = testimonios.reduce((m, t) => Math.max(m, t.id), -1);
+  testimonios.push({id: maxId + 1, nombre, ciudad, estrellas, texto});
+  const ok = await fbSet('site', { testimonios });
+  if (ok) {
+    renderTestimonios();
+    ['tm-nombre','tm-ciudad','tm-texto'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('tm-estrellas').value = '5';
+    toast(`✓ Reseña de ${nombre} publicada`, 'exito');
+  } else {
+    testimonios.pop();
+    toast('Error al guardar', 'error');
+  }
+}
+function abrirEditarTestimonio(id) {
+  const t = testimonios.find(x => x.id === id); if (!t) return;
+  editTestId = id;
+  document.getElementById('et-nombre').value    = t.nombre;
+  document.getElementById('et-ciudad').value    = t.ciudad;
+  document.getElementById('et-estrellas').value = t.estrellas;
+  document.getElementById('et-texto').value     = t.texto;
+  document.getElementById('modal-test-over').classList.add('open');
+}
+function cerrarEditarTestimonio() {
+  document.getElementById('modal-test-over').classList.remove('open');
+  editTestId = null;
+}
+async function guardarEdicionTestimonio() {
+  const nombre    = document.getElementById('et-nombre').value.trim();
+  const ciudad    = document.getElementById('et-ciudad').value.trim();
+  const estrellas = parseInt(document.getElementById('et-estrellas').value);
+  const texto     = document.getElementById('et-texto').value.trim();
+  if (!nombre || !ciudad || !texto) { toast('Completá todos los campos', 'error'); return; }
+  const idx = testimonios.findIndex(t => t.id === editTestId);
+  if (idx === -1) { toast('Testimonio no encontrado', 'error'); return; }
+  testimonios[idx] = { ...testimonios[idx], nombre, ciudad, estrellas, texto };
+  const ok = await fbSet('site', { testimonios });
+  if (ok) { renderTestimonios(); cerrarEditarTestimonio(); toast('✓ Testimonio actualizado', 'exito'); }
+  else toast('Error al guardar', 'error');
+}
+function confirmarEliminarTestimonio(id) {
+  const t = testimonios.find(x => x.id === id); if (!t) return;
+  document.getElementById('modal-titulo').textContent = 'Eliminar testimonio';
+  document.getElementById('modal-texto').textContent  = `¿Eliminar la reseña de "${t.nombre}"?`;
+  document.getElementById('modal-ok-btn').onclick = async () => {
+    testimonios = testimonios.filter(x => x.id !== id);
+    const ok = await fbSet('site', { testimonios });
+    if (ok) { renderTestimonios(); toast('Testimonio eliminado', 'exito'); }
+    else toast('Error al eliminar', 'error');
+    cerrarModal();
+  };
+  document.getElementById('modal-over').classList.add('open');
+}
+document.getElementById('modal-test-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-test-over')) cerrarEditarTestimonio(); });
+
+// ── GALERÍA ──────────────────────────────────────────────────────────────────
 function renderSelectGaleria() {
   const sel = document.getElementById('galeria-prod-select');
   if (!sel) return;
@@ -691,7 +1211,7 @@ async function quitarFotoGaleria(idx) {
 }
 function confirmarLimpiarGaleria() {
   document.getElementById('modal-titulo').textContent = 'Vaciar galería';
-  document.getElementById('modal-texto').textContent  = '¿Eliminar todas las fotos del carrusel?';
+  document.getElementById('modal-texto').textContent  = '¿Eliminar todas las fotos del carrusel de personalizados?';
   document.getElementById('modal-ok-btn').onclick = async () => {
     galeriaFotos = [];
     const ok = await fbSet('site', { galeria: [] });
@@ -730,23 +1250,27 @@ async function handleGaleriaFileSelect(files) {
   if (!ok) toast('Error al guardar en Firebase', 'error');
 }
 
+// ── RESETEAR ─────────────────────────────────────────────────────────────────
 function confirmarReset() {
   document.getElementById('modal-titulo').textContent = 'Resetear todo';
-  document.getElementById('modal-texto').textContent  = 'Borra todos los cambios en Firebase y vuelve al catálogo original.';
+  document.getElementById('modal-texto').textContent  = 'Borra todos los cambios en Firebase y vuelve al catálogo original, incluyendo testimonios y colecciones.';
   document.getElementById('modal-ok-btn').onclick = async () => {
     productos    = JSON.parse(JSON.stringify(PRODUCTOS_DEFAULT));
     destacado    = {nombre:'',precio:'',img:''};
     galeriaFotos = [];
+    testimonios  = JSON.parse(JSON.stringify(TESTIMONIOS_DEFAULT));
+    colecciones  = JSON.parse(JSON.stringify(COLECCIONES_DEFAULT));
     await fbSet('productos', { items: productos });
-    await fbSet('site', { destacado, favoritos:[6,10,17,7], galeria:[] });
+    await fbSet('site', { destacado, favoritos:[6,10,17,7], galeria:[], testimonios, colecciones });
     cerrarModal();
     renderStats(); renderTabla(); renderDestacado(); renderSelectDestacado([6,10,17,7]);
-    renderSelectGaleria(); renderGaleriaAdmin();
+    renderSelectGaleria(); renderGaleriaAdmin(); renderColecciones(); renderTestimonios();
     toast('Reseteado a valores originales', 'exito');
   };
   document.getElementById('modal-over').classList.add('open');
 }
 
+// ── UTILIDADES ───────────────────────────────────────────────────────────────
 function cerrarModal() { document.getElementById('modal-over').classList.remove('open'); idParaEliminar = null; }
 document.getElementById('modal-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-over')) cerrarModal(); });
 let toastTimer;

@@ -113,6 +113,40 @@
 
     @keyframes floatHint { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
 
+    /* ── Decoraciones florales ── */
+    .flor-deco {
+      position:absolute; pointer-events:none;
+      color:var(--v); fill:currentColor;
+    }
+    .flor-deco svg { width:100%; height:100%; }
+
+    /* Flor pequeña en etiquetas de sección */
+    .t-etiq::before {
+      content:'✿';
+      margin-right:7px;
+      font-style:normal;
+      color:var(--oro);
+      opacity:.8;
+    }
+
+    /* Divisor orgánico entre secciones */
+    .wave-divider { line-height:0; overflow:hidden; }
+    .wave-divider svg { display:block; width:100%; }
+
+    /* Patrón floral en CTA final */
+    #cta-final {
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(40,40)' fill='rgba(255,255,255,0.04)'%3E%3Cellipse cx='0' cy='-16' rx='6' ry='13' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-16' rx='6' ry='13' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-16' rx='6' ry='13' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-16' rx='6' ry='13' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-16' rx='6' ry='13' transform='rotate(288)'/%3E%3Ccircle r='6'/%3E%3C/g%3E%3C/svg%3E");
+      background-size:80px 80px;
+    }
+
+    /* Fondo sutil floral en sección colecciones */
+    #colecciones {
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(60,60)' fill='rgba(30,45,8,0.025)'%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(288)'/%3E%3Ccircle r='8'/%3E%3C/g%3E%3C/svg%3E");
+      background-size:120px 120px;
+    }
+
     #historia { padding:100px 0; background:#fff }
     .hist-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center }
     .hist-img-wrap { position:relative }
@@ -384,6 +418,57 @@
 <section id="hero">
   <div class="hero-pattern"></div>
   <div class="hero-deco"></div>
+
+  <!-- Flores decorativas SVG del hero -->
+  <div class="flor-deco" style="right:2%;top:8%;width:180px;height:180px;opacity:.07;transform:rotate(18deg)">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(288)"/>
+        <circle r="10"/>
+      </g>
+    </svg>
+  </div>
+  <div class="flor-deco" style="left:1%;bottom:18%;width:100px;height:100px;opacity:.05;transform:rotate(-25deg)">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(60)"/>
+        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(120)"/>
+        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(180)"/>
+        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(240)"/>
+        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(300)"/>
+        <circle r="9"/>
+      </g>
+    </svg>
+  </div>
+  <div class="flor-deco" style="right:38%;top:4%;width:60px;height:60px;opacity:.06;transform:rotate(10deg)">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(288)"/>
+        <circle r="8"/>
+      </g>
+    </svg>
+  </div>
+  <div class="flor-deco" style="right:22%;bottom:10%;width:70px;height:70px;opacity:.04;transform:rotate(-8deg)">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(72)"/>
+        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(144)"/>
+        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(216)"/>
+        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(288)"/>
+        <circle r="7"/>
+      </g>
+    </svg>
+  </div>
   <div class="wrap hero-inner">
     <div class="hero-grid">
       <div>
@@ -431,6 +516,11 @@
   </div>
 
 </section>
+<div class="wave-divider" style="background:#fdf7f0">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
+    <path d="M0,32 C200,0 400,48 600,24 C800,0 1000,48 1200,24 L1200,48 L0,48 Z" fill="#ffffff"/>
+  </svg>
+</div>
 <section id="historia">
   <div class="wrap">
     <div class="hist-grid">
@@ -475,6 +565,11 @@
     </div>
   </div>
 </section>
+<div class="wave-divider" style="background:#ffffff">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
+    <path d="M0,16 C300,48 600,0 900,32 C1050,48 1150,8 1200,24 L1200,48 L0,48 Z" fill="var(--c)"/>
+  </svg>
+</div>
 <section id="colecciones">
   <div class="wrap">
     <div class="col-header reveal">
@@ -483,7 +578,7 @@
       <p>Cinco mundos distintos, una sola pasión artesanal.</p>
     </div>
     <div class="col-grid reveal d1">
-      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('flores')">
+      <a href="catalogo.html" class="col-card" data-col-key="flores" onclick="seleccionarColeccion('flores')">
         <img src="images/pulsera-suspiro-lila.jpeg" class="col-bg" alt="Flores"/>
         <div class="col-ph col-flores">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
@@ -495,7 +590,7 @@
           <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
-      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('mariposa')">
+      <a href="catalogo.html" class="col-card" data-col-key="mariposa" onclick="seleccionarColeccion('mariposa')">
         <img src="images/collar-mariposa-lila-1.jpeg" class="col-bg" alt="Mariposa"/>
         <div class="col-ph col-mariposa">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
@@ -507,7 +602,7 @@
           <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
-      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('girasol')">
+      <a href="catalogo.html" class="col-card" data-col-key="girasol" onclick="seleccionarColeccion('girasol')">
         <img src="images/pulsera-alma-girasol-1.jpeg" class="col-bg" alt="Girasol"/>
         <div class="col-ph col-girasol">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
@@ -519,7 +614,7 @@
           <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
-      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('cherry')">
+      <a href="catalogo.html" class="col-card" data-col-key="cherry" onclick="seleccionarColeccion('cherry')">
         <img src="images/pulsera-cherry-margaritas-1.jpeg" class="col-bg" alt="Cherry"/>
         <div class="col-ph col-cherry">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
@@ -531,7 +626,7 @@
           <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
-      <a href="catalogo.html" class="col-card" onclick="seleccionarColeccion('caracoles')">
+      <a href="catalogo.html" class="col-card" data-col-key="caracoles" onclick="seleccionarColeccion('caracoles')">
         <img src="images/tobillera-caracoles-1.jpeg" class="col-bg" alt="Caracoles"/>
         <div class="col-ph col-caracoles">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
@@ -547,6 +642,11 @@
     </div>
   </div>
 </section>
+<div class="wave-divider" style="background:var(--c)">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
+    <path d="M0,24 C200,48 500,0 800,32 C950,44 1100,12 1200,28 L1200,48 L0,48 Z" fill="#ffffff"/>
+  </svg>
+</div>
 <section id="destacados">
   <div class="wrap">
     <div class="dest-header reveal">
@@ -564,6 +664,11 @@
     <div class="dest-grid reveal d1" id="dest-grid"></div>
   </div>
 </section>
+<div class="wave-divider" style="background:#ffffff">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
+    <path d="M0,8 C300,44 700,0 1000,36 C1100,48 1150,20 1200,16 L1200,48 L0,48 Z" fill="var(--c2)"/>
+  </svg>
+</div>
 <section id="como-funciona">
   <div class="wrap">
     <div class="proceso-header reveal">
@@ -595,13 +700,18 @@
     </div>
   </div>
 </section>
+<div class="wave-divider" style="background:var(--c2)">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
+    <path d="M0,36 C400,0 800,44 1200,12 L1200,48 L0,48 Z" fill="var(--c)"/>
+  </svg>
+</div>
 <section id="testimonios">
   <div class="wrap">
     <div class="test-header reveal">
       <span class="t-etiq">Amor de clientas</span>
       <h2>Lo que dicen de Mía ✨</h2>
     </div>
-    <div class="test-grid">
+    <div class="test-grid" id="test-grid">
       <div class="tcard reveal">
         <div class="tcard-stars">
           <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -641,6 +751,11 @@
     </div>
   </div>
 </section>
+<div class="wave-divider" style="background:var(--c)">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
+    <path d="M0,20 C250,48 550,4 800,28 C950,44 1100,8 1200,24 L1200,48 L0,48 Z" fill="var(--v)"/>
+  </svg>
+</div>
 <section id="cta-final">
   <div class="wrap">
     <div class="cta-inner reveal">
