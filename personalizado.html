@@ -4,6 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pedido especial — Mía Bisutería</title>
+  <meta name="theme-color" content="#1e2d08"/>
+  <meta name="description" content="Crea tu accesorio personalizado con Mía Bisutería. Elige colores, materiales y estilo. Pedido directo por WhatsApp."/>
+  <meta property="og:title" content="Pedido especial — Mía Bisutería"/>
+  <meta property="og:description" content="Diseña tu propio accesorio hecho a mano. Colores, materiales y estilo a tu gusto."/>
+  <meta property="og:image" content="images/pulsera-alma-girasol-1.jpeg"/>
+  <meta property="og:type" content="website"/>
   <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
@@ -11,7 +17,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <style>
     .page-hero {
-      padding:140px 0 80px;
+      padding:120px 0 60px;
       background:var(--v);
       position:relative; overflow:hidden;
     }
@@ -51,10 +57,12 @@
     .promise-bar i { color:var(--oro2) }
 
     .galeria-section {
-      padding:64px 0 52px;
+      padding:52px 0 44px;
       background:#fff;
       overflow:hidden;
+      position:relative;
     }
+    .pers-body { position:relative; overflow:hidden }
     .galeria-header {
       text-align:center;
       margin-bottom:36px;
@@ -119,7 +127,7 @@
     }
     .galeria-item:hover::after { opacity:1 }
 
-    .pers-body { padding:60px 0 100px; background:var(--c) }
+    .pers-body { padding:52px 0 72px; background:var(--c) }
     .pers-layout {
       display:grid; grid-template-columns:1fr 1.3fr;
       gap:60px; align-items:start;
@@ -190,7 +198,7 @@
 </head>
 <body>
 
-<header id="hdr">
+<header id="hdr" class="hdr-inv">
   <div class="wrap nav">
     <a href="index.html" class="logo t-logo">
       <img src="images/logos/logo-mia.jpg" alt="Mía Bisutería" class="logo-img"/>
@@ -264,6 +272,10 @@
 <main>
 
 <section class="page-hero">
+  <!-- 8-pétalos blanco sobre verde -->
+  <div class="flor-deco" style="right:3%;top:15%;width:165px;height:165px;opacity:.13;color:#ffffff;transform:rotate(20deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(0)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(45)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(90)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(135)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(180)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(225)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(270)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(315)"/><circle r="8"/></g></svg></div>
+  <!-- daisy dorado sobre verde -->
+  <div class="flor-deco" style="left:2%;bottom:18%;width:90px;height:90px;opacity:.11;color:#f0d898;transform:rotate(-30deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(45)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(135)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(225)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(270)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(315)"/><circle r="7"/></g></svg></div>
   <div class="wrap page-hero-inner">
     <span class="t-etiq" style="color:var(--orop)">Hecho solo para vos</span>
     <h1>¿Tenés una idea <em>especial</em><br/>en mente?</h1>
@@ -289,6 +301,10 @@
 </section>
 
 <section class="galeria-section" id="galeria-section">
+  <!-- 4-pétalos dorado -->
+  <div class="flor-deco" style="right:1%;top:10px;width:120px;height:120px;opacity:.20;color:#c0902e;transform:rotate(25deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
+  <!-- 5-pétalos violeta -->
+  <div class="flor-deco" style="left:1%;bottom:10px;width:90px;height:90px;opacity:.17;color:#7050b8;transform:rotate(-20deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(72)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(144)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(216)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(288)"/><circle r="10"/></g></svg></div>
   <div class="galeria-header reveal">
     <span class="t-etiq">Lo que hemos creado</span>
     <h2>Pedidos que cobraron vida ✨</h2>
@@ -301,6 +317,10 @@
 </section>
 
 <section class="pers-body">
+  <!-- daisy rosa -->
+  <div class="flor-deco" style="left:0;top:28px;width:100px;height:100px;opacity:.17;color:#c04878;transform:rotate(15deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(45)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(135)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(225)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(270)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(315)"/><circle r="7"/></g></svg></div>
+  <!-- 4-pétalos verde -->
+  <div class="flor-deco" style="right:0;bottom:36px;width:85px;height:85px;opacity:.14;color:#3a8040;transform:rotate(-25deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
   <div class="wrap">
     <div class="pers-layout">
 
@@ -494,7 +514,7 @@
     </div>
     <div class="ft-bottom">
       <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
-      <p>Diseñado por <span style="color:var(--oro2);font-weight:500">Aarón Rosas</span></p>
+      <p>Diseño web por <a href="https://localink-online.netlify.app" target="_blank" rel="noopener" style="color:var(--oro2);font-weight:500;text-decoration:none;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Localink</a></p>
     </div>
   </div>
 </footer>
@@ -597,6 +617,17 @@ function enviarPersonalizadoCompleto() {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderGaleriaPersonalizada();
+});
+</script>
+<script>
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href]');
+  if (!a) return;
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('tel') || a.target === '_blank') return;
+  e.preventDefault();
+  document.body.classList.add('pg-out');
+  setTimeout(() => { window.location.href = href; }, 300);
 });
 </script>
 </body>

@@ -4,7 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mía Bisutería — Accesorios hechos con el corazón</title>
+  <meta name="theme-color" content="#1e2d08"/>
   <meta name="description" content="Accesorios únicos hechos a mano con mostacillas, cristales y componentes gold filled. Pulseras, argollas, collares y más. Pedidos por WhatsApp."/>
+  <meta property="og:title" content="Mía Bisutería — Accesorios hechos con el corazón"/>
+  <meta property="og:description" content="Accesorios únicos hechos a mano. Pulseras, argollas, collares y más. Pedidos por WhatsApp."/>
+  <meta property="og:image" content="images/pulsera-alma-girasol-1.jpeg"/>
+  <meta property="og:type" content="website"/>
   <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
@@ -113,12 +118,6 @@
 
     @keyframes floatHint { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
 
-    /* ── Decoraciones florales ── */
-    .flor-deco {
-      position:absolute; pointer-events:none;
-      color:var(--v); fill:currentColor;
-    }
-    .flor-deco svg { width:100%; height:100%; }
 
     /* Flor pequeña en etiquetas de sección */
     .t-etiq::before {
@@ -145,9 +144,10 @@
       background-image:
         url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(60,60)' fill='rgba(30,45,8,0.025)'%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(0)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-22' rx='8' ry='17' transform='rotate(288)'/%3E%3Ccircle r='8'/%3E%3C/g%3E%3C/svg%3E");
       background-size:120px 120px;
+      position:relative; overflow:hidden;
     }
 
-    #historia { padding:100px 0; background:#fff }
+    #historia { padding:72px 0; background:#fff; position:relative; overflow:hidden }
     .hist-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center }
     .hist-img-wrap { position:relative }
     .hist-img {
@@ -184,7 +184,7 @@
       color:var(--v); font-size:.6rem; flex-shrink:0;
     }
 
-    #colecciones { padding:100px 0; background:var(--c) }
+    #colecciones { padding:72px 0; background:var(--c) }
     .col-header  { text-align:center; margin-bottom:56px }
     .col-header h2 { font-family:var(--fn); font-size:clamp(2rem,3.5vw,3rem); color:var(--v) }
     .col-header p  { color:var(--txt3); margin-top:12px; font-size:.95rem }
@@ -229,7 +229,7 @@
     }
     .col-card:hover .col-btn { opacity:1 }
 
-    #destacados { padding:100px 0; background:#fff }
+    #destacados { padding:72px 0; background:#fff }
     .dest-header {
       display:flex; justify-content:space-between;
       align-items:flex-end; margin-bottom:48px; gap:20px; flex-wrap:wrap;
@@ -238,7 +238,7 @@
     .dest-header p  { color:var(--txt3); font-size:.9rem; max-width:260px; line-height:1.7 }
     .dest-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px }
 
-    #como-funciona { padding:100px 0; background:var(--c2) }
+    #como-funciona { padding:72px 0; background:var(--c2); position:relative; overflow:hidden }
     .proceso-header { text-align:center; margin-bottom:60px }
     .proceso-header h2 { font-family:var(--fn); font-size:clamp(1.8rem,3vw,2.6rem); color:var(--v) }
     .proceso-header p  { color:var(--txt3); margin-top:10px; font-size:.95rem }
@@ -266,7 +266,7 @@
     .paso h3 { font-family:var(--fn); font-size:1.05rem; color:var(--v); margin-bottom:8px }
     .paso p  { font-size:.85rem; color:var(--txt3); line-height:1.7 }
 
-    #testimonios { padding:100px 0; background:var(--c) }
+    #testimonios { padding:72px 0; background:var(--c); position:relative; overflow:hidden }
     .test-header { text-align:center; margin-bottom:52px }
     .test-header h2 { font-family:'Dancing Script',cursive; font-size:clamp(2rem,3.5vw,3rem); color:var(--v) }
     .test-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px }
@@ -293,7 +293,7 @@
     .t-ciudad { font-size:.74rem; color:var(--txt3) }
 
     #cta-final {
-      padding:100px 0; background:var(--v);
+      padding:80px 0; background:var(--v);
       position:relative; overflow:hidden; text-align:center;
     }
     #cta-final::before {
@@ -325,7 +325,8 @@
       .hero-titulo { font-size:clamp(2.6rem,8vw,4rem) }
       .hero-btns { flex-direction:column; align-items:flex-start }
       .hist-grid { grid-template-columns:1fr; gap:48px }
-      .hist-img  { aspect-ratio:3/2 }
+      .hist-img  { aspect-ratio:4/3 }
+      .hist-img img { object-position: center top }
       .hist-quote { right:0; bottom:-16px; max-width:185px; padding:16px 18px }
       .col-grid  { grid-template-columns:1fr; height:auto }
       .col-card:nth-child(1) { grid-column:auto }
@@ -419,56 +420,14 @@
   <div class="hero-pattern"></div>
   <div class="hero-deco"></div>
 
-  <!-- Flores decorativas SVG del hero -->
-  <div class="flor-deco" style="right:2%;top:8%;width:180px;height:180px;opacity:.07;transform:rotate(18deg)">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(50,50)">
-        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(0)"/>
-        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(72)"/>
-        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(144)"/>
-        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(216)"/>
-        <ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(288)"/>
-        <circle r="10"/>
-      </g>
-    </svg>
-  </div>
-  <div class="flor-deco" style="left:1%;bottom:18%;width:100px;height:100px;opacity:.05;transform:rotate(-25deg)">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(50,50)">
-        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(0)"/>
-        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(60)"/>
-        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(120)"/>
-        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(180)"/>
-        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(240)"/>
-        <ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(300)"/>
-        <circle r="9"/>
-      </g>
-    </svg>
-  </div>
-  <div class="flor-deco" style="right:38%;top:4%;width:60px;height:60px;opacity:.06;transform:rotate(10deg)">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(50,50)">
-        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(0)"/>
-        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(72)"/>
-        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(144)"/>
-        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(216)"/>
-        <ellipse cx="0" cy="-18" rx="7" ry="16" transform="rotate(288)"/>
-        <circle r="8"/>
-      </g>
-    </svg>
-  </div>
-  <div class="flor-deco" style="right:22%;bottom:10%;width:70px;height:70px;opacity:.04;transform:rotate(-8deg)">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(50,50)">
-        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(0)"/>
-        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(72)"/>
-        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(144)"/>
-        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(216)"/>
-        <ellipse cx="0" cy="-19" rx="7" ry="15" transform="rotate(288)"/>
-        <circle r="7"/>
-      </g>
-    </svg>
-  </div>
+  <!-- Hero: 5-pétalos dorado -->
+  <div class="flor-deco" style="right:2%;top:8%;width:200px;height:200px;opacity:.32;color:#c0902e;transform:rotate(18deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(72)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(144)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(216)"/><ellipse cx="0" cy="-22" rx="9" ry="20" transform="rotate(288)"/><circle r="10"/></g></svg></div>
+  <!-- Hero: 6-pétalos rosa -->
+  <div class="flor-deco" style="left:1%;bottom:18%;width:120px;height:120px;opacity:.30;color:#c04878;transform:rotate(-25deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(0)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(60)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(120)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(180)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(240)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(300)"/><circle r="9"/></g></svg></div>
+  <!-- Hero: 4-pétalos violeta -->
+  <div class="flor-deco" style="right:38%;top:3%;width:80px;height:80px;opacity:.28;color:#7050b8;transform:rotate(10deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
+  <!-- Hero: daisy verde -->
+  <div class="flor-deco" style="right:22%;bottom:10%;width:90px;height:90px;opacity:.26;color:#3a8040;transform:rotate(-8deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(45)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(135)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(225)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(270)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(315)"/><circle r="7"/></g></svg></div>
   <div class="wrap hero-inner">
     <div class="hero-grid">
       <div>
@@ -522,12 +481,19 @@
   </svg>
 </div>
 <section id="historia">
+  <!-- 8 pétalos dorado -->
+  <div class="flor-deco" style="right:1%;top:20px;width:155px;height:155px;opacity:.22;color:#c0902e;transform:rotate(10deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(0)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(45)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(90)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(135)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(180)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(225)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(270)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(315)"/><circle r="8"/></g></svg></div>
+  <!-- 4 pétalos rosa -->
+  <div class="flor-deco" style="left:1%;bottom:24px;width:110px;height:110px;opacity:.18;color:#c04878;transform:rotate(-20deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
   <div class="wrap">
     <div class="hist-grid">
       <div class="hist-img-wrap reveal">
         <div class="hist-img">
           <div class="hist-ph">
-            <img src="images/logos/mia.jpeg" alt="Mía trabajando"/>
+            <picture>
+              <source media="(max-width:768px)" srcset="images/logos/mia-mobile.jpeg">
+              <img src="images/logos/mia.jpeg" alt="Mía trabajando" loading="lazy"/>
+            </picture>
             <i class="fa-regular fa-image" style="font-size:2rem;opacity:.3;color:var(--v4)"></i>
             <span>Foto de Mía</span>
           </div>
@@ -571,6 +537,10 @@
   </svg>
 </div>
 <section id="colecciones">
+  <!-- 4 pétalos violeta -->
+  <div class="flor-deco" style="right:1%;top:20px;width:125px;height:125px;opacity:.22;color:#7050b8;transform:rotate(28deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
+  <!-- daisy verde -->
+  <div class="flor-deco" style="left:0;bottom:16px;width:100px;height:100px;opacity:.18;color:#3a8040;transform:rotate(-14deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(45)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(135)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(225)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(270)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(315)"/><circle r="7"/></g></svg></div>
   <div class="wrap">
     <div class="col-header reveal">
       <span class="t-etiq">Nuestro universo</span>
@@ -579,7 +549,7 @@
     </div>
     <div class="col-grid reveal d1">
       <a href="catalogo.html" class="col-card" data-col-key="flores" onclick="seleccionarColeccion('flores')">
-        <img src="images/pulsera-suspiro-lila.jpeg" class="col-bg" alt="Flores"/>
+        <img src="images/pulsera-suspiro-lila.jpeg" class="col-bg" alt="Flores" loading="lazy"/>
         <div class="col-ph col-flores">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
         </div>
@@ -591,7 +561,7 @@
         </div>
       </a>
       <a href="catalogo.html" class="col-card" data-col-key="mariposa" onclick="seleccionarColeccion('mariposa')">
-        <img src="images/collar-mariposa-lila-1.jpeg" class="col-bg" alt="Mariposa"/>
+        <img src="images/collar-mariposa-lila-1.jpeg" class="col-bg" alt="Mariposa" loading="lazy"/>
         <div class="col-ph col-mariposa">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
         </div>
@@ -603,7 +573,7 @@
         </div>
       </a>
       <a href="catalogo.html" class="col-card" data-col-key="girasol" onclick="seleccionarColeccion('girasol')">
-        <img src="images/pulsera-alma-girasol-1.jpeg" class="col-bg" alt="Girasol"/>
+        <img src="images/pulsera-alma-girasol-1.jpeg" class="col-bg" alt="Girasol" loading="lazy"/>
         <div class="col-ph col-girasol">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
         </div>
@@ -615,7 +585,7 @@
         </div>
       </a>
       <a href="catalogo.html" class="col-card" data-col-key="cherry" onclick="seleccionarColeccion('cherry')">
-        <img src="images/pulsera-cherry-margaritas-1.jpeg" class="col-bg" alt="Cherry"/>
+        <img src="images/pulsera-cherry-margaritas-1.jpeg" class="col-bg" alt="Cherry" loading="lazy"/>
         <div class="col-ph col-cherry">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
         </div>
@@ -627,7 +597,7 @@
         </div>
       </a>
       <a href="catalogo.html" class="col-card" data-col-key="caracoles" onclick="seleccionarColeccion('caracoles')">
-        <img src="images/tobillera-caracoles-1.jpeg" class="col-bg" alt="Caracoles"/>
+        <img src="images/tobillera-caracoles-1.jpeg" class="col-bg" alt="Caracoles" loading="lazy"/>
         <div class="col-ph col-caracoles">
           <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
         </div>
@@ -670,6 +640,10 @@
   </svg>
 </div>
 <section id="como-funciona">
+  <!-- daisy dorado -->
+  <div class="flor-deco" style="right:1%;top:16px;width:115px;height:115px;opacity:.18;color:#c0902e;transform:rotate(32deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(45)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(135)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(225)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(270)"/><ellipse cx="0" cy="-24" rx="5" ry="22" transform="rotate(315)"/><circle r="7"/></g></svg></div>
+  <!-- 4 pétalos verde -->
+  <div class="flor-deco" style="left:0;bottom:16px;width:90px;height:90px;opacity:.16;color:#3a8040;transform:rotate(-10deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
   <div class="wrap">
     <div class="proceso-header reveal">
       <span class="t-etiq">Así de fácil</span>
@@ -706,6 +680,10 @@
   </svg>
 </div>
 <section id="testimonios">
+  <!-- 8 pétalos rosa -->
+  <div class="flor-deco" style="right:1%;top:16px;width:130px;height:130px;opacity:.22;color:#c04878;transform:rotate(12deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(0)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(45)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(90)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(135)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(180)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(225)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(270)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(315)"/><circle r="8"/></g></svg></div>
+  <!-- 6 pétalos violeta -->
+  <div class="flor-deco" style="left:0;bottom:24px;width:100px;height:100px;opacity:.17;color:#7050b8;transform:rotate(-32deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(0)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(60)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(120)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(180)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(240)"/><ellipse cx="0" cy="-20" rx="8" ry="17" transform="rotate(300)"/><circle r="9"/></g></svg></div>
   <div class="wrap">
     <div class="test-header reveal">
       <span class="t-etiq">Amor de clientas</span>
@@ -757,6 +735,10 @@
   </svg>
 </div>
 <section id="cta-final">
+  <!-- 8 pétalos blanco recortado -->
+  <div class="flor-deco" style="left:-30px;top:-30px;width:230px;height:230px;opacity:.12;color:#ffffff;transform:rotate(-18deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(0)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(45)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(90)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(135)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(180)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(225)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(270)"/><ellipse cx="0" cy="-20" rx="6" ry="16" transform="rotate(315)"/><circle r="8"/></g></svg></div>
+  <!-- 4 pétalos dorado recortado -->
+  <div class="flor-deco" style="right:-25px;bottom:-25px;width:190px;height:190px;opacity:.14;color:#d4a84a;transform:rotate(14deg)"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><g transform="translate(50,50)"><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(0)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(90)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(180)"/><ellipse cx="0" cy="-22" rx="10" ry="22" transform="rotate(270)"/><circle r="11"/></g></svg></div>
   <div class="wrap">
     <div class="cta-inner reveal">
       <span class="t-etiq" style="color:var(--orop)">¿Lista para elegir la tuya?</span>
@@ -825,7 +807,7 @@
     </div>
     <div class="ft-bottom">
       <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
-      <p>Diseñado por <span style="color:var(--oro2);font-weight:500">Aarón Rosas</span></p>
+      <p>Diseño web por <a href="https://localink-online.netlify.app" target="_blank" rel="noopener" style="color:var(--oro2);font-weight:500;text-decoration:none;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Localink</a></p>
     </div>
   </div>
 </footer>
@@ -913,6 +895,17 @@ function seleccionarColeccion(col) {
 document.addEventListener('DOMContentLoaded', () => {
   cargarDestacado();
   renderDestacados();
+});
+</script>
+<script>
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href]');
+  if (!a) return;
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('tel') || a.target === '_blank') return;
+  e.preventDefault();
+  document.body.classList.add('pg-out');
+  setTimeout(() => { window.location.href = href; }, 300);
 });
 </script>
 </body>

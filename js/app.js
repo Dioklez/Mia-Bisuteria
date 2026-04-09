@@ -306,11 +306,42 @@ function aplicarSlide(id, idx) {
   if (dotsEl) dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('activo', i === idx));
 }
 function initTouchCarrusel(wrap) {
-  let sx = 0;
-  wrap.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive:true });
-  wrap.addEventListener('touchend',   e => {
-    const diff = sx - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) moverCarrusel(wrap.id, diff > 0 ? 1 : -1, null);
+  if (wrap.dataset.touchInit) return;
+  wrap.dataset.touchInit = '1';
+  wrap.style.touchAction = 'pan-y';
+
+  let sx = 0, sy = 0, dragging = false;
+  const track = wrap.querySelector('.carousel-track');
+
+  wrap.addEventListener('touchstart', e => {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    dragging = true;
+    if (track) track.style.transition = 'none';
+  }, { passive:true });
+
+  wrap.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - sx;
+    const dy = e.touches[0].clientY - sy;
+    if (Math.abs(dx) > Math.abs(dy) && track) {
+      const idx = parseInt(wrap.dataset.idx || '0');
+      track.style.transform = `translateX(calc(-${idx * 100}% + ${dx}px))`;
+    }
+  }, { passive:true });
+
+  wrap.addEventListener('touchend', e => {
+    if (!dragging) return;
+    dragging = false;
+    if (track) track.style.transition = '';
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 35) {
+      moverCarrusel(wrap.id, dx < 0 ? 1 : -1, null);
+    } else {
+      const idx = parseInt(wrap.dataset.idx || '0');
+      if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+    }
   }, { passive:true });
 }
 function initCarruseles() {
@@ -347,7 +378,7 @@ function renderCatalogo() {
   const grid = document.getElementById('prod-grid');
   if (!grid) return;
 
-  grid.querySelectorAll('.pcard').forEach(c => c.remove());
+  grid.querySelectorAll('.skel, .pcard').forEach(c => c.remove());
 
   const counter = document.getElementById('prod-count');
   if (counter) counter.textContent = PRODUCTOS.length + ' piezas';

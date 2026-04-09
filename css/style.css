@@ -243,6 +243,7 @@ body::before {
 }
 .carousel-slide {
   flex:0 0 100%; width:100%; height:100%;
+  overflow:hidden;
 }
 .carousel-slide img {
   width:100%; height:100%; object-fit:cover; display:block;
@@ -273,6 +274,10 @@ body::before {
 .carousel-arrow.prev    { left:8px }
 .carousel-arrow.next    { right:8px }
 .pcard:hover .carousel-arrow.visible { opacity:1 }
+@media (hover:none) {
+  .pcard .carousel-arrow.visible { opacity:.78 }
+  .pcard .carousel-arrow:active  { opacity:1; background:#fff }
+}
 
 .carousel-dots {
   position:absolute; bottom:10px; left:0; right:0;
@@ -435,3 +440,59 @@ footer { background:var(--txt); color:rgba(255,255,255,.55); padding:64px 0 28px
   .ft-bottom   { flex-direction:column; text-align:center }
   .pedido-panel { width:100%; max-width:100% }
 }
+
+/* ── Navbar sobre hero oscuro (personalizado.html) ───────────── */
+#hdr.hdr-inv:not(.scrolled) .logo                       { color:#fff }
+#hdr.hdr-inv:not(.scrolled) .logo sup                   { color:var(--orop) }
+#hdr.hdr-inv:not(.scrolled) .logo-img                   { border-color:rgba(255,255,255,.3) }
+#hdr.hdr-inv:not(.scrolled) .nav-links > li > a         { color:rgba(255,255,255,.8) }
+#hdr.hdr-inv:not(.scrolled) .nav-links > li > a:hover   { color:#fff }
+#hdr.hdr-inv:not(.scrolled) .nav-links > li > a.activo  { color:#fff }
+#hdr.hdr-inv:not(.scrolled) .nav-r-icons a              { color:rgba(255,255,255,.75) }
+#hdr.hdr-inv:not(.scrolled) .nav-r-icons a:hover        { color:#fff }
+#hdr.hdr-inv:not(.scrolled) .ham span                   { background:#fff }
+#hdr.hdr-inv:not(.scrolled) .nav-pedido                 { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3) }
+#hdr.hdr-inv:not(.scrolled) .nav-pedido:hover           { background:rgba(255,255,255,.28) }
+
+/* ── Decoraciones florales (compartidas en todo el sitio) ───────── */
+.flor-deco {
+  position:absolute; pointer-events:none; z-index:0;
+  color:var(--v);
+}
+.flor-deco svg        { width:100%; height:100%; fill:currentColor }
+
+/* ── Volver arriba — solo móvil, al final del catálogo ───────── */
+.catalogo-volver {
+  display:none; justify-content:center; padding:44px 0 12px;
+}
+@media(max-width:768px) { .catalogo-volver { display:flex } }
+.catalogo-volver-btn {
+  background:var(--vfondo); border:1.5px solid var(--vmenta);
+  color:var(--v3); padding:13px 38px; border-radius:50px;
+  font-family:var(--fb); font-size:.88rem; font-weight:500; cursor:pointer;
+  display:flex; align-items:center; gap:9px;
+  box-shadow:0 4px 18px rgba(30,45,8,.07);
+  transition:var(--e);
+}
+.catalogo-volver-btn:hover { background:var(--vmenta); transform:translateY(-2px); box-shadow:0 8px 24px rgba(30,45,8,.12) }
+
+/* ── Decoraciones florales en tarjetas ───────────────���───────── */
+.pcard::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--vmenta), var(--oro2), var(--vmenta));
+  opacity:0; transition:opacity var(--e); z-index:5;
+}
+.pcard:hover::before { opacity:.8 }
+
+.tcard::after {
+  content:'✿'; position:absolute; bottom:18px; right:20px;
+  font-size:1rem; color:var(--vmenta); opacity:.7; pointer-events:none;
+}
+
+/* ── Transición entre páginas ─────────────────────────────────── */
+@keyframes pgFadeIn {
+  from { opacity:0 }
+  to   { opacity:1 }
+}
+body { animation: pgFadeIn .4s ease both }
+body.pg-out { opacity:0; transition: opacity .25s ease }
