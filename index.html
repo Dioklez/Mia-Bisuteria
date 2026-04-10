@@ -491,7 +491,7 @@
         <div class="hist-img">
           <div class="hist-ph">
             <picture>
-              <source media="(max-width:768px)" srcset="images/logos/mia-mobile.jpeg">
+              <source media="(max-width:768px)" srcset="images/logos/mia-mobile.jpeg" >
               <img src="images/logos/mia.jpeg" alt="Mía trabajando" loading="lazy"/>
             </picture>
             <i class="fa-regular fa-image" style="font-size:2rem;opacity:.3;color:var(--v4)"></i>
@@ -547,69 +547,7 @@
       <h2>Explora cada colección</h2>
       <p>Cinco mundos distintos, una sola pasión artesanal.</p>
     </div>
-    <div class="col-grid reveal d1">
-      <a href="catalogo.html" class="col-card" data-col-key="flores" onclick="seleccionarColeccion('flores')">
-        <img src="images/pulsera-suspiro-lila.jpeg" class="col-bg" alt="Flores" loading="lazy"/>
-        <div class="col-ph col-flores">
-          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
-        </div>
-        <div class="col-overlay"></div>
-        <div class="col-info">
-          <span class="col-nombre">🌸 Colección Flores</span>
-          <span class="col-cant">La más completa — 16 piezas</span>
-          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-      <a href="catalogo.html" class="col-card" data-col-key="mariposa" onclick="seleccionarColeccion('mariposa')">
-        <img src="images/collar-mariposa-lila-1.jpeg" class="col-bg" alt="Mariposa" loading="lazy"/>
-        <div class="col-ph col-mariposa">
-          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
-        </div>
-        <div class="col-overlay"></div>
-        <div class="col-info">
-          <span class="col-nombre">🦋 Mariposa</span>
-          <span class="col-cant">3 piezas</span>
-          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-      <a href="catalogo.html" class="col-card" data-col-key="girasol" onclick="seleccionarColeccion('girasol')">
-        <img src="images/pulsera-alma-girasol-1.jpeg" class="col-bg" alt="Girasol" loading="lazy"/>
-        <div class="col-ph col-girasol">
-          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
-        </div>
-        <div class="col-overlay"></div>
-        <div class="col-info">
-          <span class="col-nombre">🌻 Girasol</span>
-          <span class="col-cant">2 piezas</span>
-          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-      <a href="catalogo.html" class="col-card" data-col-key="cherry" onclick="seleccionarColeccion('cherry')">
-        <img src="images/pulsera-cherry-margaritas-1.jpeg" class="col-bg" alt="Cherry" loading="lazy"/>
-        <div class="col-ph col-cherry">
-          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
-        </div>
-        <div class="col-overlay"></div>
-        <div class="col-info">
-          <span class="col-nombre">🍒 Cherry</span>
-          <span class="col-cant">1 pieza</span>
-          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-      <a href="catalogo.html" class="col-card" data-col-key="caracoles" onclick="seleccionarColeccion('caracoles')">
-        <img src="images/tobillera-caracoles-1.jpeg" class="col-bg" alt="Caracoles" loading="lazy"/>
-        <div class="col-ph col-caracoles">
-          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
-        </div>
-        <div class="col-overlay"></div>
-        <div class="col-info">
-          <span class="col-nombre">🐚 Caracoles</span>
-          <span class="col-cant">1 pieza</span>
-          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-
-    </div>
+    <div class="col-grid reveal d1" id="col-grid"></div>
   </div>
 </section>
 <div class="wave-divider" style="background:var(--c)">
@@ -888,9 +826,6 @@ function renderDestacados() {
   }
 }
 
-function seleccionarColeccion(col) {
-  try { sessionStorage.setItem('mia-filtro-col', col); } catch {}
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   cargarDestacado();

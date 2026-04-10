@@ -259,8 +259,30 @@ function aplicarFiltros() {
   if (sr) sr.style.display = visible === 0 ? 'block' : 'none';
 }
 
-const TIPO_LABEL = { pulsera:'Pulsera', argolla:'Aritos', collar:'Collar', anillo:'Anillo', tobillera:'Tobillera' };
-const COL_LABEL  = { flores:'Flores', mariposa:'Mariposa', girasol:'Girasol', cherry:'Cherry', caracoles:'Caracoles' };
+let TIPO_LABEL = { pulsera:'Pulsera', argolla:'Aritos', collar:'Collar', anillo:'Anillo', tobillera:'Tobillera' };
+let COL_LABEL  = { flores:'Flores', mariposa:'Mariposa', girasol:'Girasol', cherry:'Cherry', caracoles:'Caracoles' };
+
+const TIPOS_DEFAULT = [
+  {key:'pulsera',   nombre:'Pulsera'},
+  {key:'argolla',   nombre:'Argolla / Arito'},
+  {key:'collar',    nombre:'Collar'},
+  {key:'anillo',    nombre:'Anillo'},
+  {key:'tobillera', nombre:'Tobillera'},
+];
+
+function renderFiltrosTipo(tipos) {
+  const cont = document.getElementById('filtros-tipo-container');
+  if (!cont) return;
+  cont.innerHTML = `<button class="filtro filtro-tipo activo" onclick="filtrarTipo(this,'todos')">Todos</button>`
+    + tipos.map(t => `<button class="filtro filtro-tipo" onclick="filtrarTipo(this,'${t.key}')">${t.nombre}</button>`).join('');
+}
+
+function renderFiltrosCol(colecciones) {
+  const cont = document.getElementById('filtros-col-container');
+  if (!cont) return;
+  cont.innerHTML = `<button class="filtro filtro-col activo-col" onclick="filtrarCol(this,'todas')">Todas</button>`
+    + colecciones.map(col => `<button class="filtro filtro-col" onclick="filtrarCol(this,'${col.key}')">${col.emoji} ${col.nombre}</button>`).join('');
+}
 
 function crearCarrusel(producto, idProducto) {
   const imgs = producto.imgs || (producto.img ? [producto.img] : []);
@@ -384,10 +406,12 @@ function renderCatalogo() {
   if (counter) counter.textContent = PRODUCTOS.length + ' piezas';
 
   try {
-    const colGuardada = sessionStorage.getItem('mia-filtro-col');
+    const urlParams   = new URLSearchParams(window.location.search);
+    const colParam    = urlParams.get('col');
+    const colGuardada = colParam || sessionStorage.getItem('mia-filtro-col');
     if (colGuardada) {
       filtroColActivo = colGuardada;
-      sessionStorage.removeItem('mia-filtro-col');
+      if (!colParam) sessionStorage.removeItem('mia-filtro-col');
       document.querySelectorAll('.filtro-col').forEach(btn => {
         btn.classList.remove('activo-col');
         if (btn.getAttribute('onclick')?.includes(`'${colGuardada}'`)) btn.classList.add('activo-col');
@@ -513,23 +537,37 @@ function renderTestimoniosIndex(grid, testimonios) {
   });
 }
 
+const COL_GRADIENTS = {
+  flores:    'linear-gradient(160deg,#1e2d08,#2e440f,#4a6b22)',
+  mariposa:  'linear-gradient(160deg,#2a1a3a,#4a2a6b,#7a4aa0)',
+  girasol:   'linear-gradient(160deg,#3a2800,#6b4800,#b87800)',
+  cherry:    'linear-gradient(160deg,#3d1a1a,#6b2a2a,#a85a5a)',
+  caracoles: 'linear-gradient(160deg,#1a2a3a,#2a3d52,#4a6a84)',
+};
+const COL_GRADIENT_DEFAULT = 'linear-gradient(160deg,#1e2d08,#2e3d1a,#3a5228)';
+
 function renderColeccionesIndex(colecciones) {
-  if (!colecciones || !colecciones.length) return;
-  colecciones.forEach(col => {
-    const card = document.querySelector(`[data-col-key="${col.key}"]`);
-    if (!card) return;
-    if (col.img) {
-      const img = card.querySelector('img.col-bg');
-      if (img) img.src = col.img;
-    }
-    const titulo = card.querySelector('.col-nombre');
-    if (titulo && col.nombre && col.emoji) {
-      const cant = titulo.querySelector('.col-cant-text');
-      const cantHtml = cant ? cant.outerHTML : '';
-      titulo.textContent = '';
-      titulo.textContent = `${col.emoji} Colección ${col.nombre}`;
-    }
-  });
+  const grid = document.getElementById('col-grid');
+  if (!grid || !colecciones || !colecciones.length) return;
+  grid.innerHTML = colecciones.map(col => {
+    const gradient = COL_GRADIENTS[col.key] || COL_GRADIENT_DEFAULT;
+    const imgHtml  = col.img
+      ? `<img src="${col.img}" class="col-bg" alt="${col.nombre}" loading="lazy"/>`
+      : '';
+    return `
+      <a href="catalogo.html?col=${col.key}" class="col-card" data-col-key="${col.key}">
+        ${imgHtml}
+        <div class="col-ph" style="background:${gradient}">
+          <i class="fa-regular fa-image" style="font-size:2rem;color:rgba(255,255,255,.2)"></i>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-info">
+          <span class="col-nombre">${col.emoji || ''} Colección ${col.nombre}</span>
+          <span class="col-cant">Ver piezas</span>
+          <span class="col-btn">Ver piezas <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>`;
+  }).join('');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -545,7 +583,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const testGrid = document.getElementById('test-grid');
   if (testGrid) renderTestimoniosIndex(testGrid, siteConfig.testimonios || TESTIMONIOS_DEFAULT);
 
-  renderColeccionesIndex(siteConfig.colecciones || COLECCIONES_DEFAULT);
+  const cols  = siteConfig.colecciones || COLECCIONES_DEFAULT;
+  const tipos = siteConfig.tipos       || TIPOS_DEFAULT;
+  cols.forEach(col   => { COL_LABEL[col.key]   = col.nombre; });
+  tipos.forEach(tipo => { TIPO_LABEL[tipo.key] = tipo.nombre; });
+  renderFiltrosTipo(tipos);
+  renderFiltrosCol(cols);
+  renderColeccionesIndex(cols);
 
   aplicarFiltros();
   renderCatalogo();

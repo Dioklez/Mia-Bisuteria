@@ -146,6 +146,7 @@
         <button class="admin-nav-btn activo" onclick="mostrarTab('productos',this)"><i class="fa-solid fa-box"></i> Productos</button>
         <button class="admin-nav-btn" onclick="mostrarTab('destacado',this)"><i class="fa-solid fa-star"></i> Destacado</button>
         <button class="admin-nav-btn" onclick="mostrarTab('colecciones',this)"><i class="fa-solid fa-layer-group"></i> Colecciones</button>
+        <button class="admin-nav-btn" onclick="mostrarTab('tipos',this)"><i class="fa-solid fa-tags"></i> Tipos</button>
         <button class="admin-nav-btn" onclick="mostrarTab('testimonios',this)"><i class="fa-solid fa-quote-right"></i> Testimonios</button>
         <button class="admin-nav-btn" onclick="mostrarTab('galeria',this)"><i class="fa-solid fa-images"></i> Galería</button>
         <button class="admin-nav-btn danger" onclick="confirmarReset()"><i class="fa-solid fa-rotate-left"></i> Resetear</button>
@@ -268,9 +269,61 @@
     <div class="tab" id="tab-colecciones">
       <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
       <div class="admin-section">
-        <h2><i class="fa-solid fa-layer-group"></i> Colecciones</h2>
-        <p>Editá el nombre, emoji y foto de portada de cada colección. La foto se muestra en la sección de colecciones del inicio.</p>
+        <h2><i class="fa-solid fa-plus"></i> Nueva colección</h2>
+        <p>Creá una clave única (slug), escribí el emoji a mano y el nombre. Luego podés subir la foto de portada editando la colección.</p>
+        <div class="form-grid">
+          <div class="fg">
+            <label>Clave (slug) *</label>
+            <input type="text" id="nueva-col-key" placeholder="rosas-silvestres"
+                   oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/>
+            <span class="hint">Solo letras minúsculas, números y guiones. Ej: rosas, luna-llena</span>
+          </div>
+          <div class="fg">
+            <label>Nombre *</label>
+            <input type="text" id="nueva-col-nombre" placeholder="Rosas Silvestres"/>
+          </div>
+          <div class="fg">
+            <label>Emoji</label>
+            <input type="text" id="nueva-col-emoji" placeholder="🌹"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-v" onclick="agregarColeccion()"><i class="fa-solid fa-plus"></i> Crear colección</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-layer-group"></i> Colecciones existentes</h2>
+        <p>Editá el nombre, emoji y foto de portada. La foto se muestra en la sección de colecciones del inicio.</p>
         <div class="col-admin-grid" id="col-admin-grid"></div>
+      </div>
+    </div>
+
+    <!-- TAB: TIPOS -->
+    <div class="tab" id="tab-tipos">
+      <div class="firebase-badge"><i class="fa-solid fa-bolt"></i> Cambios en tiempo real — visible para todos al instante</div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-plus"></i> Nuevo tipo</h2>
+        <p>Creá una clave única y el nombre que verán los clientes en los filtros del catálogo.</p>
+        <div class="form-grid">
+          <div class="fg">
+            <label>Clave (slug) *</label>
+            <input type="text" id="nueva-tipo-key" placeholder="gargantilla"
+                   oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')"/>
+            <span class="hint">Solo letras minúsculas, números y guiones. Ej: tobillera, anillo</span>
+          </div>
+          <div class="fg">
+            <label>Nombre *</label>
+            <input type="text" id="nueva-tipo-nombre" placeholder="Gargantilla"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-v" onclick="agregarTipo()"><i class="fa-solid fa-plus"></i> Crear tipo</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <h2><i class="fa-solid fa-tags"></i> Tipos existentes</h2>
+        <p>Editá el nombre de cada tipo o eliminá los que no uses.</p>
+        <div id="tipos-lista"></div>
       </div>
     </div>
 
@@ -425,18 +478,7 @@
     <div class="form-grid" style="margin-top:16px">
       <div class="fg"><label>Nombre</label><input type="text" id="col-nombre"/></div>
       <div class="fg"><label>Emoji</label>
-        <select id="col-emoji">
-          <option value="🌸">🌸 Flor</option>
-          <option value="🦋">🦋 Mariposa</option>
-          <option value="🌻">🌻 Girasol</option>
-          <option value="🍒">🍒 Cherry</option>
-          <option value="🐚">🐚 Caracol</option>
-          <option value="🌺">🌺 Hibisco</option>
-          <option value="🌹">🌹 Rosa</option>
-          <option value="🌼">🌼 Margarita</option>
-          <option value="🌿">🌿 Hoja</option>
-          <option value="✨">✨ Destellos</option>
-        </select>
+        <input type="text" id="col-emoji" placeholder="🌸"/>
       </div>
       <div class="fg full">
         <label>Foto de portada actual</label>
@@ -554,9 +596,17 @@ const COLECCIONES_DEFAULT = [
   {key:'caracoles', emoji:'🐚', nombre:'Caracoles', img:'images/tobillera-caracoles-1.jpeg'},
 ];
 
+const TIPOS_DEFAULT = [
+  {key:'pulsera',   nombre:'Pulsera'},
+  {key:'argolla',   nombre:'Argolla / Arito'},
+  {key:'collar',    nombre:'Collar'},
+  {key:'anillo',    nombre:'Anillo'},
+  {key:'tobillera', nombre:'Tobillera'},
+];
+
 let db, productos = [], destacado = {nombre:'',precio:'',img:''};
 let galeriaFotos = [], idParaEliminar = null, imgsNuevoProd = [];
-let testimonios = [], colecciones = [];
+let testimonios = [], colecciones = [], tipos = [];
 let editProdId = null, epImgsNuev = [], epImgsAct = [];
 let editColKey = null, colImgNueva = '';
 let editTestId = null;
@@ -594,16 +644,18 @@ async function iniciarAdmin() {
   galeriaFotos = siteData?.galeria     || [];
   testimonios  = siteData?.testimonios || JSON.parse(JSON.stringify(TESTIMONIOS_DEFAULT));
   colecciones  = siteData?.colecciones || JSON.parse(JSON.stringify(COLECCIONES_DEFAULT));
+  tipos        = siteData?.tipos       || JSON.parse(JSON.stringify(TIPOS_DEFAULT));
   const favIds = siteData?.favoritos   || [6,10,17,7];
 
   if (!prodData) {
     await fbSet('productos', { items: productos });
-    await fbSet('site', { destacado, favoritos: favIds, galeria: [], testimonios, colecciones });
+    await fbSet('site', { destacado, favoritos: favIds, galeria: [], testimonios, colecciones, tipos });
     toast('✓ Base de datos inicializada', 'exito');
   } else {
     const updates = {};
     if (!siteData?.testimonios) updates.testimonios = testimonios;
     if (!siteData?.colecciones) updates.colecciones = colecciones;
+    if (!siteData?.tipos)       updates.tipos        = tipos;
     if (Object.keys(updates).length) await fbSet('site', updates);
     toast('✓ Conectado a Firebase', 'exito');
   }
@@ -615,7 +667,10 @@ async function iniciarAdmin() {
   renderSelectGaleria();
   renderGaleriaAdmin();
   renderColecciones();
+  renderTipos();
   renderTestimonios();
+  actualizarSelectsCol();
+  actualizarSelectsTipo();
 }
 
 function mostrarTab(nombre, btn) {
@@ -625,7 +680,7 @@ function mostrarTab(nombre, btn) {
   if (btn) btn.classList.add('activo');
 }
 
-const TIPO_LBL = {pulsera:'Pulsera',argolla:'Arito',collar:'Collar',anillo:'Anillo',tobillera:'Tobillera'};
+let TIPO_LBL = {pulsera:'Pulsera',argolla:'Arito',collar:'Collar',anillo:'Anillo',tobillera:'Tobillera'};
 const COL_EMO  = {flores:'🌸',mariposa:'🦋',girasol:'🌻',cherry:'🍒',caracoles:'🐚'};
 
 function renderStats() {
@@ -980,22 +1035,70 @@ function renderColecciones() {
   grid.innerHTML = colecciones.map(col => `
     <div class="col-admin-card">
       <div class="col-admin-img-wrap">
-        <img class="col-admin-img" src="${col.img}" alt="${col.nombre}"
+        <img class="col-admin-img" src="${col.img || ''}" alt="${col.nombre}"
              onerror="this.style.opacity='.3'"/>
         <div class="col-admin-overlay">
-          <div class="col-admin-overlay-name">${col.emoji} ${col.nombre}</div>
+          <div class="col-admin-overlay-name">${col.emoji || ''} ${col.nombre}</div>
         </div>
       </div>
       <div class="col-admin-body">
         <div>
-          <div style="font-weight:500;color:var(--v);font-size:.9rem">${col.emoji} ${col.nombre}</div>
+          <div style="font-weight:500;color:var(--v);font-size:.9rem">${col.emoji || ''} ${col.nombre}</div>
           <div class="col-admin-meta">Clave: ${col.key}</div>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="abrirEditarColeccion('${col.key}')">
-          <i class="fa-solid fa-pencil"></i> Editar
-        </button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="abrirEditarColeccion('${col.key}')">
+            <i class="fa-solid fa-pencil"></i> Editar
+          </button>
+          <button class="btn btn-red btn-sm" onclick="confirmarEliminarColeccion('${col.key}')" title="Eliminar">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       </div>
     </div>`).join('');
+}
+async function agregarColeccion() {
+  const key    = document.getElementById('nueva-col-key').value.trim();
+  const nombre = document.getElementById('nueva-col-nombre').value.trim();
+  const emoji  = document.getElementById('nueva-col-emoji').value.trim();
+  if (!key)    { toast('La clave es obligatoria', 'error'); return; }
+  if (!nombre) { toast('El nombre es obligatorio', 'error'); return; }
+  if (colecciones.find(c => c.key === key)) { toast('Ya existe una colección con esa clave', 'error'); return; }
+  colecciones.push({ key, nombre, emoji, img: '' });
+  const ok = await fbSet('site', { colecciones });
+  if (ok) {
+    renderColecciones();
+    actualizarSelectsCol();
+    document.getElementById('nueva-col-key').value    = '';
+    document.getElementById('nueva-col-nombre').value = '';
+    document.getElementById('nueva-col-emoji').value  = '';
+    toast(`✓ Colección "${nombre}" creada`, 'exito');
+  } else {
+    colecciones.pop();
+    toast('Error al guardar', 'error');
+  }
+}
+function confirmarEliminarColeccion(key) {
+  const col = colecciones.find(c => c.key === key); if (!col) return;
+  document.getElementById('modal-titulo').textContent = `¿Eliminar colección "${col.emoji} ${col.nombre}"?`;
+  document.getElementById('modal-texto').textContent  = 'Los productos asignados quedarán sin colección hasta que los reasignes manualmente.';
+  idParaEliminar = null;
+  document.getElementById('modal-ok-btn').onclick = () => eliminarColeccion(key);
+  document.getElementById('modal-over').classList.add('open');
+}
+async function eliminarColeccion(key) {
+  colecciones = colecciones.filter(c => c.key !== key);
+  document.getElementById('modal-over').classList.remove('open');
+  const ok = await fbSet('site', { colecciones });
+  if (ok) { renderColecciones(); actualizarSelectsCol(); toast('Colección eliminada', 'exito'); }
+  else    { toast('Error al eliminar', 'error'); }
+}
+function actualizarSelectsCol() {
+  const opts = colecciones.map(col => `<option value="${col.key}">${col.emoji || ''} ${col.nombre}</option>`).join('');
+  const npCol = document.getElementById('np-col');
+  const epCol = document.getElementById('ep-col');
+  if (npCol) npCol.innerHTML = '<option value="">Seleccioná...</option>' + opts;
+  if (epCol) epCol.innerHTML = opts;
 }
 function abrirEditarColeccion(key) {
   const col = colecciones.find(c => c.key === key); if (!col) return;
@@ -1063,6 +1166,92 @@ async function guardarEdicionColeccion() {
   } else toast('Error al guardar', 'error');
 }
 document.getElementById('modal-col-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-col-over')) cerrarEditarColeccion(); });
+
+// ── TIPOS ─────────────────────────────────────────────────────────────────────
+function renderTipos() {
+  const lista = document.getElementById('tipos-lista');
+  if (!lista) return;
+  if (!tipos.length) {
+    lista.innerHTML = '<p style="color:var(--txt3);font-style:italic;font-size:.85rem;padding:12px 0">No hay tipos. Agregá el primero arriba.</p>';
+    return;
+  }
+  lista.innerHTML = tipos.map(t => `
+    <div class="tcard-admin" style="align-items:center">
+      <div class="tcard-admin-body" style="flex:1">
+        <div class="tcard-admin-nombre">${t.nombre}
+          <span style="font-weight:400;color:var(--txt3);font-size:.8rem"> · clave: ${t.key}</span>
+        </div>
+      </div>
+      <div class="tcard-admin-acciones">
+        <button class="btn btn-ghost btn-sm" onclick="abrirEditarTipo('${t.key}')" title="Editar nombre">
+          <i class="fa-solid fa-pencil"></i>
+        </button>
+        <button class="btn btn-red btn-sm" onclick="confirmarEliminarTipo('${t.key}')" title="Eliminar">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>`).join('');
+}
+async function agregarTipo() {
+  const key    = document.getElementById('nueva-tipo-key').value.trim();
+  const nombre = document.getElementById('nueva-tipo-nombre').value.trim();
+  if (!key)    { toast('La clave es obligatoria', 'error'); return; }
+  if (!nombre) { toast('El nombre es obligatorio', 'error'); return; }
+  if (tipos.find(t => t.key === key)) { toast('Ya existe un tipo con esa clave', 'error'); return; }
+  tipos.push({ key, nombre });
+  const ok = await fbSet('site', { tipos });
+  if (ok) {
+    TIPO_LBL[key] = nombre;
+    renderTipos();
+    actualizarSelectsTipo();
+    document.getElementById('nueva-tipo-key').value    = '';
+    document.getElementById('nueva-tipo-nombre').value = '';
+    toast(`✓ Tipo "${nombre}" creado`, 'exito');
+  } else {
+    tipos.pop();
+    toast('Error al guardar', 'error');
+  }
+}
+let editTipoKey = null;
+function abrirEditarTipo(key) {
+  const t = tipos.find(x => x.key === key); if (!t) return;
+  editTipoKey = key;
+  const nuevoNombre = prompt(`Nuevo nombre para "${t.nombre}":`, t.nombre);
+  if (!nuevoNombre || !nuevoNombre.trim()) return;
+  guardarEdicionTipo(nuevoNombre.trim());
+}
+async function guardarEdicionTipo(nombre) {
+  const idx = tipos.findIndex(t => t.key === editTipoKey); if (idx === -1) return;
+  tipos[idx] = { ...tipos[idx], nombre };
+  TIPO_LBL[editTipoKey] = nombre;
+  const ok = await fbSet('site', { tipos });
+  if (ok) { renderTipos(); actualizarSelectsTipo(); renderTabla(); toast(`✓ Tipo actualizado`, 'exito'); }
+  else    { toast('Error al guardar', 'error'); }
+  editTipoKey = null;
+}
+function confirmarEliminarTipo(key) {
+  const t = tipos.find(x => x.key === key); if (!t) return;
+  document.getElementById('modal-titulo').textContent = `¿Eliminar tipo "${t.nombre}"?`;
+  document.getElementById('modal-texto').textContent  = 'Los productos de este tipo quedarán sin tipo hasta que los reasignes manualmente.';
+  idParaEliminar = null;
+  document.getElementById('modal-ok-btn').onclick = () => eliminarTipo(key);
+  document.getElementById('modal-over').classList.add('open');
+}
+async function eliminarTipo(key) {
+  tipos = tipos.filter(t => t.key !== key);
+  document.getElementById('modal-over').classList.remove('open');
+  const ok = await fbSet('site', { tipos });
+  if (ok) { renderTipos(); actualizarSelectsTipo(); toast('Tipo eliminado', 'exito'); }
+  else    { toast('Error al eliminar', 'error'); }
+}
+function actualizarSelectsTipo() {
+  const opts = tipos.map(t => `<option value="${t.key}">${t.nombre}</option>`).join('');
+  const npTipo = document.getElementById('np-tipo');
+  const epTipo = document.getElementById('ep-tipo');
+  if (npTipo) npTipo.innerHTML = '<option value="">Seleccioná...</option>' + opts;
+  if (epTipo) epTipo.innerHTML = opts;
+  tipos.forEach(t => { TIPO_LBL[t.key] = t.nombre; });
+}
 
 // ── TESTIMONIOS ──────────────────────────────────────────────────────────────
 function renderTestimonios() {
@@ -1261,11 +1450,13 @@ function confirmarReset() {
     galeriaFotos = [];
     testimonios  = JSON.parse(JSON.stringify(TESTIMONIOS_DEFAULT));
     colecciones  = JSON.parse(JSON.stringify(COLECCIONES_DEFAULT));
+    tipos        = JSON.parse(JSON.stringify(TIPOS_DEFAULT));
     await fbSet('productos', { items: productos });
-    await fbSet('site', { destacado, favoritos:[6,10,17,7], galeria:[], testimonios, colecciones });
+    await fbSet('site', { destacado, favoritos:[6,10,17,7], galeria:[], testimonios, colecciones, tipos });
     cerrarModal();
     renderStats(); renderTabla(); renderDestacado(); renderSelectDestacado([6,10,17,7]);
-    renderSelectGaleria(); renderGaleriaAdmin(); renderColecciones(); renderTestimonios();
+    renderSelectGaleria(); renderGaleriaAdmin(); renderColecciones(); renderTipos(); renderTestimonios();
+    actualizarSelectsCol(); actualizarSelectsTipo();
     toast('Reseteado a valores originales', 'exito');
   };
   document.getElementById('modal-over').classList.add('open');

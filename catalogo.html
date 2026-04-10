@@ -145,21 +145,25 @@
   <div class="wrap filtros-inner">
     <div class="filtros-fila">
       <span class="filtros-label" style="margin-bottom:0;white-space:nowrap">Tipo:</span>
-      <button class="filtro filtro-tipo activo" onclick="filtrarTipo(this,'todos')">Todos</button>
-      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'pulsera')">Pulseras</button>
-      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'argolla')">Aritos</button>
-      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'collar')">Collares</button>
-      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'anillo')">Anillos</button>
-      <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'tobillera')">Tobilleras</button>
+      <div id="filtros-tipo-container" style="display:contents">
+        <button class="filtro filtro-tipo activo" onclick="filtrarTipo(this,'todos')">Todos</button>
+        <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'pulsera')">Pulsera</button>
+        <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'argolla')">Argolla / Arito</button>
+        <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'collar')">Collar</button>
+        <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'anillo')">Anillo</button>
+        <button class="filtro filtro-tipo" onclick="filtrarTipo(this,'tobillera')">Tobillera</button>
+      </div>
     </div>
     <div class="filtros-fila">
       <span class="filtros-label" style="margin-bottom:0;white-space:nowrap">Colección:</span>
-      <button class="filtro filtro-col activo-col" onclick="filtrarCol(this,'todas')">Todas</button>
-      <button class="filtro filtro-col" onclick="filtrarCol(this,'flores')">🌸 Flores</button>
-      <button class="filtro filtro-col" onclick="filtrarCol(this,'mariposa')">🦋 Mariposa</button>
-      <button class="filtro filtro-col" onclick="filtrarCol(this,'girasol')">🌻 Girasol</button>
-      <button class="filtro filtro-col" onclick="filtrarCol(this,'cherry')">🍒 Cherry</button>
-      <button class="filtro filtro-col" onclick="filtrarCol(this,'caracoles')">🐚 Caracoles</button>
+      <div id="filtros-col-container" style="display:contents">
+        <button class="filtro filtro-col activo-col" onclick="filtrarCol(this,'todas')">Todas</button>
+        <button class="filtro filtro-col" onclick="filtrarCol(this,'flores')">🌸 Flores</button>
+        <button class="filtro filtro-col" onclick="filtrarCol(this,'mariposa')">🦋 Mariposa</button>
+        <button class="filtro filtro-col" onclick="filtrarCol(this,'girasol')">🌻 Girasol</button>
+        <button class="filtro filtro-col" onclick="filtrarCol(this,'cherry')">🍒 Cherry</button>
+        <button class="filtro filtro-col" onclick="filtrarCol(this,'caracoles')">🐚 Caracoles</button>
+      </div>
     </div>
   </div>
 </div>
