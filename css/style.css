@@ -80,11 +80,15 @@ body::before {
 
 #hdr {
   position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(249,244,236,.82);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
   transition:background var(--e), box-shadow var(--e), padding var(--e);
 }
 #hdr.scrolled {
   background:rgba(249,244,236,.97);
   backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
   box-shadow:0 1px 0 var(--cborde);
 }
 .nav { display:flex; align-items:center; justify-content:space-between; padding:20px 0; transition:padding var(--e) }
@@ -442,6 +446,11 @@ footer { background:var(--txt); color:rgba(255,255,255,.55); padding:64px 0 28px
 }
 
 /* ── Navbar sobre hero oscuro (personalizado.html) ───────────── */
+#hdr.hdr-inv:not(.scrolled) {
+  background:rgba(0,0,0,.18);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
 #hdr.hdr-inv:not(.scrolled) .logo                       { color:#fff }
 #hdr.hdr-inv:not(.scrolled) .logo sup                   { color:var(--orop) }
 #hdr.hdr-inv:not(.scrolled) .logo-img                   { border-color:rgba(255,255,255,.3) }

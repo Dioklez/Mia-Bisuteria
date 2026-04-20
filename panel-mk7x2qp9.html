@@ -766,15 +766,44 @@ async function handleFileSelect(files) {
   btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar producto';
   setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 1500);
 }
+async function comprimirImagen(file, maxLado = 1400, calidad = 0.82) {
+  if (!file.type.startsWith('image/')) return file;
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > maxLado || h > maxLado) {
+        if (w >= h) { h = Math.round(h * maxLado / w); w = maxLado; }
+        else        { w = Math.round(w * maxLado / h); h = maxLado; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', calidad);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
 async function subirACloudinary(file) {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_PRESET);
   try {
-    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_NAME}/image/upload`, {method:'POST', body:fd});
-    const data = await res.json();
+    const comprimido = await comprimirImagen(file);
+    const fd = new FormData();
+    fd.append('file', comprimido, file.name.replace(/\.[^.]+$/, '.jpg'));
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 60000);
+    const res   = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_NAME}/image/upload`, {method:'POST', body:fd, signal:ctrl.signal});
+    clearTimeout(timer);
+    const data  = await res.json();
+    if (!data.secure_url) console.error('Cloudinary:', data.error?.message || JSON.stringify(data));
     return data.secure_url || null;
-  } catch { return null; }
+  } catch(err) {
+    console.error('Upload error:', err.name === 'AbortError' ? 'Timeout (60s)' : err);
+    return null;
+  }
 }
 function agregarThumb(url, idx) {
   const preview = document.getElementById('imgs-preview');
