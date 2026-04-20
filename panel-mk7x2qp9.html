@@ -121,8 +121,45 @@
     .tcard-admin-stars{color:var(--oro);font-size:.78rem;margin-top:3px}
     .tcard-admin-txt{font-size:.83rem;color:var(--txt2);margin-top:6px;font-style:italic;line-height:1.65;overflow:hidden;max-height:calc(1.65em * 3)}
     .tcard-admin-acciones{display:flex;gap:6px;flex-shrink:0}
-    @media(max-width:768px){.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.admin-section{padding:18px}}
+    /* ── Lista de productos (cards) ── */
+    .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:4px}
+    .prod-card{position:relative;background:var(--c);border:1.5px solid var(--cborde);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color var(--e),box-shadow var(--e)}
+    .prod-card:hover{border-color:var(--v);box-shadow:0 4px 20px rgba(30,45,8,.12)}
+    .prod-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--c2)}
+    .prod-card-no-img{width:100%;aspect-ratio:1/1;background:var(--c2);display:flex;align-items:center;justify-content:center;color:var(--cborde);font-size:2rem}
+    .prod-card-body{padding:10px 12px 12px}
+    .prod-card-nombre{font-size:.82rem;font-weight:500;color:var(--v);line-height:1.3;margin-bottom:3px}
+    .prod-card-precio{font-size:.78rem;color:var(--oro)}
+    .prod-card-del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(192,64,64,.88);border:none;color:#fff;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity var(--e);z-index:2}
+    .prod-card:hover .prod-card-del{opacity:1}
+    /* ── Drawer de edición ── */
+    .drawer-over{position:fixed;inset:0;background:rgba(20,30,8,.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s ease;backdrop-filter:blur(3px)}
+    .drawer-over.open{opacity:1;pointer-events:all}
+    #prod-drawer{position:fixed;top:0;right:0;height:100vh;width:min(760px,100vw);background:#fff;z-index:201;transform:translateX(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 48px rgba(0,0,0,.18)}
+    #prod-drawer.open{transform:translateX(0)}
+    .drawer-header{padding:16px 22px;border-bottom:1px solid var(--cborde);display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .drawer-header-title{flex:1;font-family:var(--fn);font-size:1.1rem;color:var(--v);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .drawer-body{flex:1;overflow-y:auto;display:grid;grid-template-columns:220px 1fr}
+    .drawer-preview-col{background:var(--c);border-right:1px solid var(--cborde);padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .drawer-preview-label{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--txt3);font-weight:600}
+    .drawer-form-col{padding:22px 24px;overflow-y:auto}
+    .drawer-footer{padding:14px 22px;border-top:1px solid var(--cborde);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;background:#fff}
+    /* ── Preview página de producto ── */
+    .preview-pd{width:100%;background:#fff;border:1px solid var(--cborde);border-radius:12px;overflow:hidden;font-size:.78rem}
+    .preview-pd-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--c2);display:flex;align-items:center;justify-content:center;color:var(--cborde);font-size:2.2rem}
+    .preview-pd-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .preview-pd-body{padding:12px}
+    .preview-pd-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+    .preview-pd-badge{padding:2px 8px;border-radius:50px;font-size:.58rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+    .preview-pd-badge.tipo{background:var(--vfondo);color:var(--v)}
+    .preview-pd-badge.col{background:var(--orofondo);color:var(--oro)}
+    .preview-pd-nombre{font-family:var(--fn);font-size:1rem;font-weight:700;color:var(--v);line-height:1.2;margin-bottom:6px}
+    .preview-pd-precio{font-family:var(--fn);font-size:1.1rem;color:var(--oro);font-style:italic;margin-bottom:8px}
+    .preview-pd-divider{border:none;border-top:1px solid var(--cborde);margin:8px 0}
+    .preview-pd-desc{font-family:var(--fn);font-size:.75rem;color:var(--txt2);line-height:1.6;font-style:italic;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .preview-pd-btn{width:100%;margin-top:10px;padding:9px;background:var(--v);color:#fff;border:none;border-radius:50px;font-family:var(--fb);font-size:.72rem;font-weight:500;cursor:default;display:flex;align-items:center;justify-content:center;gap:5px}
+    @media(max-width:768px){.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}.drawer-body{grid-template-columns:1fr}.drawer-preview-col{display:none}}
+    @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.admin-section{padding:18px}.prod-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}}
   </style>
 </head>
 <body>
@@ -211,17 +248,12 @@
 
       <div class="admin-section">
         <h2><i class="fa-solid fa-list"></i> Todos los productos</h2>
-        <p>Editá el precio con Enter o ✓. El lápiz abre edición completa (nombre, descripción, fotos). El rojo elimina.</p>
+        <p>Tocá cualquier tarjeta para editar. Pasá el mouse sobre la tarjeta para ver el botón de eliminar.</p>
         <div class="buscar-wrap">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="buscar-input" placeholder="Buscar por nombre..." oninput="filtrarTabla()"/>
         </div>
-        <div class="tabla-wrap">
-          <table>
-            <thead><tr><th>#</th><th>Foto</th><th>Nombre</th><th>Tipo</th><th>Col.</th><th>Precio</th><th>Acciones</th></tr></thead>
-            <tbody id="tabla-body"></tbody>
-          </table>
-        </div>
+        <div class="prod-grid" id="prod-grid"></div>
       </div>
     </div>
 
@@ -415,58 +447,85 @@
   </div>
 </div>
 
-<!-- Modal editar producto (grande) -->
-<div class="modal-over" id="modal-ep-over">
-  <div class="modal modal-large">
-    <h3><i class="fa-solid fa-pencil" style="color:var(--oro)"></i> Editar producto</h3>
-    <p>Modificá los datos y guardá. Los cambios son instantáneos en el catálogo.</p>
-    <div class="form-grid">
-      <div class="fg"><label>Nombre *</label><input type="text" id="ep-nombre"/></div>
-      <div class="fg"><label>Precio ARS *</label><input type="number" id="ep-precio" min="0"/></div>
-      <div class="fg"><label>Tipo *</label>
-        <select id="ep-tipo">
-          <option value="pulsera">Pulsera</option>
-          <option value="argolla">Argolla / Arito</option>
-          <option value="collar">Collar</option>
-          <option value="anillo">Anillo</option>
-          <option value="tobillera">Tobillera</option>
-        </select>
-      </div>
-      <div class="fg"><label>Colección *</label>
-        <select id="ep-col">
-          <option value="flores">🌸 Flores</option>
-          <option value="mariposa">🦋 Mariposa</option>
-          <option value="girasol">🌻 Girasol</option>
-          <option value="cherry">🍒 Cherry</option>
-          <option value="caracoles">🐚 Caracoles</option>
-        </select>
-      </div>
-      <div class="fg full"><label>Descripción *</label>
-        <textarea id="ep-desc" style="height:88px"></textarea>
-      </div>
-      <div class="fg full">
-        <label>Fotos actuales <span style="font-weight:400;color:var(--txt3)">(✕ para quitar)</span></label>
-        <div id="ep-fotos-act" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px"></div>
-        <label>Agregar fotos nuevas</label>
-        <div class="upload-area" id="ep-upload-area"
-             ondragover="event.preventDefault();this.classList.add('drag')"
-             ondragleave="this.classList.remove('drag')"
-             ondrop="handleEditDrop(event)">
-          <input type="file" id="ep-fotos" accept="image/*" multiple onchange="handleEditFileSelect(this.files)"/>
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem"></i>
-          <strong style="font-size:.85rem">Tocá o arrastrá fotos nuevas</strong>
-          <p>Las actuales se mantienen salvo que las quites</p>
+<!-- Drawer de edición de producto -->
+<div class="drawer-over" id="drawer-over" onclick="cerrarEditarProducto()"></div>
+<div id="prod-drawer">
+  <div class="drawer-header">
+    <button class="btn btn-ghost btn-sm" onclick="cerrarEditarProducto()"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+    <div class="drawer-header-title" id="drawer-titulo">Editar producto</div>
+    <button class="btn btn-red btn-sm" id="drawer-del-btn"><i class="fa-solid fa-trash"></i> Eliminar</button>
+  </div>
+  <div class="drawer-body">
+    <!-- Preview izquierda -->
+    <div class="drawer-preview-col">
+      <div class="drawer-preview-label">Vista previa</div>
+      <div class="preview-pd">
+        <div class="preview-pd-img" id="drawer-preview-img"><i class="fa-regular fa-image"></i></div>
+        <div class="preview-pd-body">
+          <div class="preview-pd-badges">
+            <span class="preview-pd-badge tipo" id="drawer-preview-tipo">—</span>
+            <span class="preview-pd-badge col" id="drawer-preview-col">—</span>
+          </div>
+          <div class="preview-pd-nombre" id="drawer-preview-nombre">Nombre del producto</div>
+          <div class="preview-pd-precio" id="drawer-preview-precio">$0</div>
+          <hr class="preview-pd-divider"/>
+          <div class="preview-pd-desc" id="drawer-preview-desc">La descripción del producto aparecerá aquí...</div>
+          <button class="preview-pd-btn"><i class="fa-solid fa-bag-shopping" style="font-size:.65rem"></i> Agregar al pedido</button>
         </div>
-        <div class="upload-progress" id="ep-progress"><div class="upload-progress-bar" id="ep-bar"></div></div>
-        <div class="imgs-preview" id="ep-imgs-preview"></div>
+      </div>
+      <p style="font-size:.68rem;color:var(--txt3);text-align:center;line-height:1.5;margin-top:8px">Así se verá en la página del producto</p>
+    </div>
+    <!-- Formulario derecha -->
+    <div class="drawer-form-col">
+      <div class="form-grid">
+        <div class="fg"><label>Nombre *</label><input type="text" id="ep-nombre" oninput="actualizarPreview()"/></div>
+        <div class="fg"><label>Precio ARS *</label><input type="number" id="ep-precio" min="0" oninput="actualizarPreview()"/></div>
+        <div class="fg"><label>Tipo *</label>
+          <select id="ep-tipo" onchange="actualizarPreview()">
+            <option value="pulsera">Pulsera</option>
+            <option value="argolla">Argolla / Arito</option>
+            <option value="collar">Collar</option>
+            <option value="anillo">Anillo</option>
+            <option value="tobillera">Tobillera</option>
+          </select>
+        </div>
+        <div class="fg"><label>Colección *</label>
+          <select id="ep-col" onchange="actualizarPreview()">
+            <option value="flores">🌸 Flores</option>
+            <option value="mariposa">🦋 Mariposa</option>
+            <option value="girasol">🌻 Girasol</option>
+            <option value="cherry">🍒 Cherry</option>
+            <option value="caracoles">🐚 Caracoles</option>
+          </select>
+        </div>
+        <div class="fg full"><label>Descripción *</label>
+          <textarea id="ep-desc" style="height:88px" oninput="actualizarPreview()"></textarea>
+        </div>
+        <div class="fg full">
+          <label>Fotos actuales <span style="font-weight:400;color:var(--txt3)">(✕ para quitar)</span></label>
+          <div id="ep-fotos-act" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px"></div>
+          <label>Agregar fotos nuevas</label>
+          <div class="upload-area" id="ep-upload-area"
+               ondragover="event.preventDefault();this.classList.add('drag')"
+               ondragleave="this.classList.remove('drag')"
+               ondrop="handleEditDrop(event)"
+               style="min-height:90px;padding:18px">
+            <input type="file" id="ep-fotos" accept="image/*" multiple onchange="handleEditFileSelect(this.files)"/>
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem"></i>
+            <strong style="font-size:.85rem">Tocá o arrastrá fotos nuevas</strong>
+            <p>Las actuales se mantienen salvo que las quites</p>
+          </div>
+          <div class="upload-progress" id="ep-progress"><div class="upload-progress-bar" id="ep-bar"></div></div>
+          <div class="imgs-preview" id="ep-imgs-preview"></div>
+        </div>
       </div>
     </div>
-    <div class="modal-btns" style="margin-top:20px">
-      <button class="btn btn-ghost" onclick="cerrarEditarProducto()">Cancelar</button>
-      <button class="btn btn-v" id="ep-btn-guardar" onclick="guardarEdicionProducto()">
-        <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
-      </button>
-    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" onclick="cerrarEditarProducto()">Cancelar</button>
+    <button class="btn btn-v" id="ep-btn-guardar" onclick="guardarEdicionProducto()">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+    </button>
   </div>
 </div>
 
@@ -697,31 +756,19 @@ function renderStats() {
 function renderTabla(filtro = '') {
   const lista = filtro ? productos.filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase())) : productos;
   const fi = p => (p.imgs && p.imgs[0]) || p.img || '';
-  document.getElementById('tabla-body').innerHTML = lista.map(p => `
-    <tr>
-      <td style="color:var(--txt3);font-size:.8rem">${p.id}</td>
-      <td>${fi(p) ? `<img class="td-img" src="${fi(p)}" alt="${p.nombre}"/>` : '<i class="fa-regular fa-image" style="color:var(--cborde)"></i>'}</td>
-      <td class="td-nombre">${p.nombre}${destacado.nombre===p.nombre?' <span class="badge badge-dest">★</span>':''}</td>
-      <td><span class="badge badge-tipo">${TIPO_LBL[p.tipo]||p.tipo}</span></td>
-      <td><span class="badge badge-col">${COL_EMO[p.col]||''} ${p.col}</span></td>
-      <td>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="color:var(--txt3);font-size:.8rem">$</span>
-          <input type="number" value="${p.precio}" id="precio-${p.id}"
-            style="width:90px;padding:5px 8px;border:1.5px solid var(--cborde);border-radius:8px;font-family:var(--fb);font-size:.85rem"
-            onkeydown="if(event.key==='Enter')guardarPrecio(${p.id})"/>
-          <button class="btn btn-ghost btn-sm" onclick="guardarPrecio(${p.id})"><i class="fa-solid fa-check"></i></button>
-        </div>
-      </td>
-      <td>
-        <div class="td-acciones">
-          <button class="btn btn-ghost btn-sm" onclick="abrirEditarProducto(${p.id})" title="Editar producto">
-            <i class="fa-solid fa-pencil"></i>
-          </button>
-          <button class="btn btn-red btn-sm" onclick="confirmarEliminar(${p.id})"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </td>
-    </tr>`).join('');
+  document.getElementById('prod-grid').innerHTML = lista.map(p => `
+    <div class="prod-card" onclick="abrirEditarProducto(${p.id})">
+      ${fi(p)
+        ? `<img class="prod-card-img" src="${fi(p)}" alt="${p.nombre}" loading="lazy"/>`
+        : `<div class="prod-card-no-img"><i class="fa-regular fa-image"></i></div>`}
+      <div class="prod-card-body">
+        <div class="prod-card-nombre">${p.nombre}${destacado.nombre===p.nombre?' <span class="badge badge-dest" style="font-size:.55rem">★</span>':''}</div>
+        <div class="prod-card-precio">$${p.precio.toLocaleString('es-AR')}</div>
+      </div>
+      <button class="prod-card-del" onclick="event.stopPropagation();confirmarEliminar(${p.id})" title="Eliminar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>`).join('');
 }
 function filtrarTabla() { renderTabla(document.getElementById('buscar-input').value); }
 
@@ -766,32 +813,10 @@ async function handleFileSelect(files) {
   btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar producto';
   setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 1500);
 }
-async function comprimirImagen(file, maxLado = 1400, calidad = 0.82) {
-  if (!file.type.startsWith('image/')) return file;
-  return new Promise(resolve => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxLado || h > maxLado) {
-        if (w >= h) { h = Math.round(h * maxLado / w); w = maxLado; }
-        else        { w = Math.round(w * maxLado / h); h = maxLado; }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', calidad);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
-    img.src = url;
-  });
-}
 async function subirACloudinary(file) {
   try {
-    const comprimido = await comprimirImagen(file);
     const fd = new FormData();
-    fd.append('file', comprimido, file.name.replace(/\.[^.]+$/, '.jpg'));
+    fd.append('file', file);
     fd.append('upload_preset', CLOUDINARY_PRESET);
     const ctrl  = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 60000);
@@ -883,18 +908,51 @@ function abrirEditarProducto(id) {
   document.getElementById('ep-desc').value   = p.desc || '';
   document.getElementById('ep-fotos').value  = '';
   document.getElementById('ep-imgs-preview').innerHTML = '';
+  document.getElementById('drawer-titulo').textContent = p.nombre;
+  document.getElementById('drawer-del-btn').onclick = (e) => { e.stopPropagation(); cerrarEditarProducto(); confirmarEliminar(id); };
   actualizarFotosActualesEdit();
-  document.getElementById('modal-ep-over').classList.add('open');
+  actualizarPreview();
+  document.getElementById('drawer-over').classList.add('open');
+  document.getElementById('prod-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 function cerrarEditarProducto() {
-  document.getElementById('modal-ep-over').classList.remove('open');
+  document.getElementById('drawer-over').classList.remove('open');
+  document.getElementById('prod-drawer').classList.remove('open');
+  document.body.style.overflow = '';
   editProdId = null; epImgsNuev = []; epImgsAct = [];
+}
+function actualizarPreview() {
+  const nombre   = document.getElementById('ep-nombre')?.value || 'Nombre del producto';
+  const precio   = parseInt(document.getElementById('ep-precio')?.value) || 0;
+  const tipo     = document.getElementById('ep-tipo')?.value || '';
+  const col      = document.getElementById('ep-col')?.value || '';
+  const desc     = document.getElementById('ep-desc')?.value || 'La descripción del producto aparecerá aquí...';
+  const firstImg = epImgsAct[0] || epImgsNuev[0] || '';
+  const imgWrap  = document.getElementById('drawer-preview-img');
+  if (imgWrap) {
+    if (firstImg) {
+      imgWrap.style.display = 'block';
+      imgWrap.innerHTML = `<img src="${firstImg}" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block"/>`;
+    } else {
+      imgWrap.style.cssText = 'display:flex;align-items:center;justify-content:center;color:var(--cborde);font-size:2.2rem;aspect-ratio:1/1;background:var(--c2)';
+      imgWrap.innerHTML = '<i class="fa-regular fa-image"></i>';
+    }
+  }
+  const colLabel = colecciones.find(c => c.key === col);
+  const g = el => document.getElementById(el);
+  if (g('drawer-preview-nombre')) g('drawer-preview-nombre').textContent = nombre;
+  if (g('drawer-preview-precio')) g('drawer-preview-precio').textContent = '$' + precio.toLocaleString('es-AR');
+  if (g('drawer-preview-tipo'))   g('drawer-preview-tipo').textContent   = TIPO_LBL[tipo] || tipo || '—';
+  if (g('drawer-preview-col'))    g('drawer-preview-col').textContent    = colLabel ? `${colLabel.emoji} ${colLabel.nombre}` : col || '—';
+  if (g('drawer-preview-desc'))   g('drawer-preview-desc').textContent   = desc;
 }
 function actualizarFotosActualesEdit() {
   const wrap = document.getElementById('ep-fotos-act');
   if (!wrap) return;
   if (!epImgsAct.length) {
     wrap.innerHTML = '<span style="font-size:.8rem;color:var(--txt3);font-style:italic">Sin fotos actuales</span>';
+    actualizarPreview();
     return;
   }
   wrap.innerHTML = epImgsAct.map((url, i) => `
@@ -902,6 +960,7 @@ function actualizarFotosActualesEdit() {
       <img src="${url}" alt="foto"/>
       <button class="img-thumb-rm" onclick="quitarFotoActual(${i})">✕</button>
     </div>`).join('');
+  actualizarPreview();
 }
 function quitarFotoActual(idx) {
   epImgsAct.splice(idx, 1);
@@ -934,6 +993,7 @@ async function handleEditFileSelect(files) {
       t.innerHTML = `<img src="${url}" alt="nueva"/><button class="img-thumb-rm" onclick="quitarNuevaFotoEdit(${idx})">✕</button>`;
       preview.appendChild(t);
       subidas++;
+      actualizarPreview();
     } else toast('Error al subir foto', 'error');
   }
   bar.style.width = '100%';
@@ -973,7 +1033,6 @@ async function guardarEdicionProducto() {
     toast('Error al guardar en Firebase', 'error');
   }
 }
-document.getElementById('modal-ep-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-ep-over')) cerrarEditarProducto(); });
 
 // ── DESTACADO Y FAVORITOS ────────────────────────────────────────────────────
 function renderDestacado() {

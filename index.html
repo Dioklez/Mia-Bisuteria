@@ -321,7 +321,7 @@
     @media(max-width:768px) {
       .hero-grid { grid-template-columns:1fr; gap:0 }
       .hero-img-side { display:none }
-      .hero-inner { align-items:flex-end; padding-bottom:60px }
+      .hero-inner { align-items:center; padding-bottom:20px }
       .hero-titulo { font-size:clamp(2.6rem,8vw,4rem) }
       .hero-btns { flex-direction:column; align-items:flex-start }
       .hist-grid { grid-template-columns:1fr; gap:48px }
@@ -446,7 +446,7 @@
           </a>
         </div>
         <div class="hero-stats">
-          <div><div class="hstat-n">26+</div><div class="hstat-l">Piezas únicas</div></div>
+          <div><div class="hstat-n" id="hstat-piezas">26+</div><div class="hstat-l">Piezas únicas</div></div>
           <div><div class="hstat-n">100%</div><div class="hstat-l">A mano</div></div>
           <div><div class="hstat-n">5★</div><div class="hstat-l">Calificación</div></div>
         </div>
@@ -544,7 +544,7 @@
 </section>
 <div class="wave-divider" style="background:var(--c)">
   <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
-    <path d="M0,24 C200,48 500,0 800,32 C950,44 1100,12 1200,28 L1200,48 L0,48 Z" fill="#ffffff"/>
+    <path d="M0,24 C150,48 350,0 600,28 C850,56 1050,8 1200,20 L1200,48 L0,48 Z" fill="#ffffff"/>
   </svg>
 </div>
 <section id="destacados">
@@ -556,8 +556,8 @@
       </div>
       <div>
         <p>Solo una muestra de lo que te espera en el catálogo completo.</p>
-        <a href="catalogo.html" class="btn btn-ghost" style="margin-top:12px">
-          Ver las 26 piezas <i class="fa-solid fa-arrow-right"></i>
+        <a href="catalogo.html" class="btn btn-ghost" id="btn-ver-todas" style="margin-top:12px">
+          Ver el catálogo <i class="fa-solid fa-arrow-right"></i>
         </a>
       </div>
     </div>
@@ -604,7 +604,7 @@
 </section>
 <div class="wave-divider" style="background:var(--c2)">
   <svg viewBox="0 0 1200 48" preserveAspectRatio="none" height="48">
-    <path d="M0,36 C400,0 800,44 1200,12 L1200,48 L0,48 Z" fill="var(--c)"/>
+    <path d="M0,16 C250,52 500,4 750,32 C900,48 1100,12 1200,28 L1200,48 L0,48 Z" fill="var(--c)"/>
   </svg>
 </div>
 <section id="testimonios">
@@ -708,11 +708,11 @@
       <div class="ft-col">
         <h5>Colecciones</h5>
         <ul class="ft-links">
-          <li><a href="catalogo.html">🌸 Flores</a></li>
-          <li><a href="catalogo.html">🦋 Mariposa</a></li>
-          <li><a href="catalogo.html">🌻 Girasol</a></li>
-          <li><a href="catalogo.html">🍒 Cherry</a></li>
-          <li><a href="catalogo.html">🐚 Caracoles</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','flores')">🌸 Flores</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','mariposa')">🦋 Mariposa</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','girasol')">🌻 Girasol</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','cherry')">🍒 Cherry</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','caracoles')">🐚 Caracoles</a></li>
         </ul>
       </div>
       <div class="ft-col">
@@ -730,7 +730,7 @@
       </div>
     </div>
     <div class="ft-bottom">
-      <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
+      <p>© 2026 Mía Bisutería. Todos los derechos reservados.</p>
       <p>Diseño web por <a href="https://localink-online.netlify.app" target="_blank" rel="noopener" style="color:var(--oro2);font-weight:500;text-decoration:none;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Localink</a></p>
     </div>
   </div>

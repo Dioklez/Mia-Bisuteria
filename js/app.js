@@ -188,12 +188,12 @@ function _agregar(id, qty) {
   if (window.innerWidth > 768 && window.abrirPanel) window.abrirPanel();
 }
 window.agregarAlPedido = function(btn, id) {
-  const card = btn.closest('.pcard');
-  const qty  = parseInt(card.querySelector('.qty-num').value);
+  const container = btn.closest('.pcard') || btn.closest('.pd-ctrl');
+  const qty  = parseInt(container.querySelector('.qty-num').value);
   _agregar(id, qty);
   btn.classList.add('added');
   btn.innerHTML = '<i class="fa-solid fa-check"></i> Agregado';
-  setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Agregar'; }, 1800);
+  setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Agregar al pedido'; }, 1800);
 };
 window.agregarRapido = function(id) { _agregar(id, 1); };
 window.cambiarQty = function(btn, delta) {
@@ -213,7 +213,7 @@ window.enviarPedidoWA = function() {
     lineas += `  • ${p.nombre} x${qty} — $${(p.precio * qty).toLocaleString('es-AR')}\n`;
     total += p.precio * qty;
   });
-  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(`¡Hola Mía! 🌿 Quiero hacer el siguiente pedido:\n\n${lineas}\n*Total estimado: $${total.toLocaleString('es-AR')} ARS*\n\n¿Están disponibles estas piezas? ¿Cómo coordino el pago y envío? ✨`)}`, '_blank');
+  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent('\u00a1Hola M\u00eda! \u{1F33F} Quiero hacer el siguiente pedido:\n\n'+lineas+'\n*Total estimado: $'+total.toLocaleString('es-AR')+' ARS*\n\n\u00bfEst\u00e1n disponibles estas piezas? \u00bfC\u00f3mo coordino el pago y env\u00edo? \u{2728}')}`, '_blank');
 };
 
 window.enviarPersonalizadoCompleto = function() {
@@ -227,7 +227,7 @@ window.enviarPersonalizadoCompleto = function() {
   if (!document.getElementById('f-tipo')?.value || !document.getElementById('f-ocasion')?.value || !document.getElementById('f-desc')?.value.trim()) {
     alert('Completá al menos el tipo, la ocasión y la descripción.'); return;
   }
-  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(`¡Hola Mía! 🌿 Quiero un pedido personalizado:\n\n👤 *Nombre:* ${n}\n💎 *Tipo:* ${t}\n🎉 *Ocasión:* ${o}\n💰 *Presupuesto:* ${pr}\n🎨 *Colores:* ${col}${ref?'\n🖼️ *Referencia:* '+ref:''}\n\n📝 *Mi idea:*\n${d}\n\n¡Espero tu respuesta! ✨`)}`, '_blank');
+  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent('\u00a1Hola M\u00eda! \u{1F33F} Quiero un pedido personalizado:\n\n\u{1F464} *Nombre:* '+n+'\n\u{1F48E} *Tipo:* '+t+'\n\u{1F389} *Ocasi\u00f3n:* '+o+'\n\u{1F4B0} *Presupuesto:* '+pr+'\n\u{1F3A8} *Colores:* '+col+(ref?'\n\u{1F5BC}\uFE0F *Referencia:* '+ref:'')+'\n\n\u{1F4DD} *Mi idea:*\n'+d+'\n\n\u00a1Espero tu respuesta! \u{2728}')}`, '_blank');
 };
 
 window.toggleColor = function(chip) { chip.classList.toggle('sel'); };
@@ -420,10 +420,14 @@ function renderCatalogo() {
   } catch {}
 
   const tarjetas = PRODUCTOS.map((p, idx) => {
-    const delay = ['','d1','d2','d3'][idx % 4];
+    const delay      = ['','d1','d2','d3'][idx % 4];
+    const primeraImg = (p.imgs && p.imgs.length) ? p.imgs[0] : (p.img || null);
+    const imgHtml    = primeraImg
+      ? `<img src="${primeraImg}" alt="${p.nombre}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease"/>`
+      : `<div class="carousel-placeholder"><i class="fa-regular fa-image" style="font-size:2.5rem;opacity:.3"></i><span>Sin foto</span></div>`;
     return `
-      <article class="pcard reveal ${delay}" data-id="${p.id}" data-tipo="${p.tipo}" data-col="${p.col}">
-        ${crearCarrusel(p, p.id)}
+      <article class="pcard reveal ${delay}" data-id="${p.id}" data-tipo="${p.tipo}" data-col="${p.col}" onclick="navegarProducto(event,${p.id})" style="cursor:pointer">
+        <div class="pcard-carousel">${imgHtml}</div>
         <div class="pcard-badges" style="position:absolute;top:12px;left:12px;z-index:9;display:flex;flex-direction:column;gap:5px">
           <span class="pcard-badge">${TIPO_LABEL[p.tipo] || p.tipo}</span>
           <span class="pcard-badge col">${COL_LABEL[p.col] || p.col}</span>
@@ -482,8 +486,13 @@ function renderCatalogo() {
     if (el.getBoundingClientRect().top < innerHeight) { el.classList.add('vis'); }
     else { obsCards.observe(el); }
   });
-  initCarruseles();
   aplicarFiltros();
+}
+
+function navegarProducto(e, id) {
+  if (e.target.closest('button, input, a')) return;
+  document.body.classList.add('pg-out');
+  setTimeout(() => { window.location.href = `producto.html?id=${id}`; }, 300);
 }
 
 function initReveal() {
@@ -577,6 +586,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   initReveal();
 
   await cargarDatosFirebase();
+
+  const btnVerTodas = document.getElementById('btn-ver-todas');
+  if (btnVerTodas) btnVerTodas.innerHTML = `Ver las ${PRODUCTOS.length} piezas <i class="fa-solid fa-arrow-right"></i>`;
+  const hstatPiezas = document.getElementById('hstat-piezas');
+  if (hstatPiezas) hstatPiezas.textContent = PRODUCTOS.length + '+';
 
   const siteConfig = await cargarConfigFirebase();
 

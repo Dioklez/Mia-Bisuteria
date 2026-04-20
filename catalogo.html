@@ -49,10 +49,20 @@
       .prod-grid    { grid-template-columns:repeat(2,1fr); gap:14px }
       .page-hero    { padding:120px 0 40px }
     }
-    @media(max-width:420px) { .prod-grid { grid-template-columns:1fr } }
+    @media(max-width:420px) {
+      .prod-grid { grid-template-columns:repeat(2,1fr); gap:10px }
+      .pcard-body { padding:12px 12px 14px; gap:4px }
+      .pcard-nombre { font-size:.9rem }
+      .pcard-desc { display:none }
+      .pcard-footer { flex-direction:column; align-items:flex-start; gap:8px; padding-top:10px }
+      .pcard-ctrl { width:100% }
+      .add-btn { flex:1; justify-content:center; font-size:.74rem; padding:0 10px }
+      .qty { height:30px }
+      .qty-btn { width:24px }
+    }
     /* Skeleton loader */
     .skel { border-radius:var(--r); overflow:hidden; background:var(--c2); animation:skelpulse 1.5s ease infinite }
-    .skel-img { aspect-ratio:3/4; background:var(--c3) }
+    .skel-img { aspect-ratio:1/1; background:var(--c3) }
     .skel-body { padding:16px; display:flex; flex-direction:column; gap:10px }
     .skel-line { height:11px; background:var(--c3); border-radius:6px }
     .skel-line.w70 { width:70% }
@@ -218,11 +228,11 @@
       <div class="ft-col">
         <h5>Colecciones</h5>
         <ul class="ft-links">
-          <li><a href="catalogo.html">🌸 Flores</a></li>
-          <li><a href="catalogo.html">🦋 Mariposa</a></li>
-          <li><a href="catalogo.html">🌻 Girasol</a></li>
-          <li><a href="catalogo.html">🍒 Cherry</a></li>
-          <li><a href="catalogo.html">🐚 Caracoles</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','flores')">🌸 Flores</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','mariposa')">🦋 Mariposa</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','girasol')">🌻 Girasol</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','cherry')">🍒 Cherry</a></li>
+          <li><a href="catalogo.html" onclick="sessionStorage.setItem('mia-filtro-col','caracoles')">🐚 Caracoles</a></li>
         </ul>
       </div>
       <div class="ft-col">
@@ -234,7 +244,7 @@
       </div>
     </div>
     <div class="ft-bottom">
-      <p>© 2025 Mía Bisutería. Todos los derechos reservados.</p>
+      <p>© 2026 Mía Bisutería. Todos los derechos reservados.</p>
       <p>Diseño web por <a href="https://localink-online.netlify.app" target="_blank" rel="noopener" style="color:var(--oro2);font-weight:500;text-decoration:none;transition:opacity .2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">Localink</a></p>
     </div>
   </div>
