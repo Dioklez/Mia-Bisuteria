@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:floweringaccesorios.com)"
+      "WebFetch(domain:floweringaccesorios.com)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

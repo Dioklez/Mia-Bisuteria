@@ -24,7 +24,7 @@
     .btn-login:hover{background:var(--v2)}
     #admin-app{display:none}
     .admin-header{background:var(--v);color:#fff;padding:16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.2)}
-    .admin-header-inner{width:95%;max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .admin-header-inner{width:95%;max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
     .admin-logo{font-family:var(--fn);font-size:1.4rem;color:#fff}
     .admin-logo span{color:var(--oro2);font-size:.7rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:-4px}
     .admin-nav{display:flex;gap:8px;flex-wrap:wrap}
@@ -32,6 +32,17 @@
     .admin-nav-btn:hover,.admin-nav-btn.activo{background:var(--oro);border-color:var(--oro)}
     .admin-nav-btn.danger{background:rgba(192,64,64,.3);border-color:rgba(192,64,64,.4)}
     .admin-nav-btn.danger:hover{background:var(--rojo)}
+    /* Hamburger — solo mobile */
+    .admin-hamburger{display:none;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;width:40px;height:40px;border-radius:10px;font-size:1.1rem;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;transition:var(--e)}
+    .admin-hamburger:hover{background:var(--oro);border-color:var(--oro)}
+    @media(max-width:768px){
+      .admin-hamburger{display:flex}
+      .admin-nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--v2);padding:12px 16px;flex-direction:column;gap:6px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:99}
+      .admin-nav.open{display:flex}
+      .admin-header{position:sticky}
+      .admin-header-inner{position:relative}
+      .admin-nav-btn{border-radius:10px;padding:11px 16px;font-size:.85rem;text-align:left;justify-content:flex-start}
+    }
     .admin-body{width:95%;max-width:1300px;margin:0 auto;padding:32px 0 80px}
     .tab{display:none}.tab.activo{display:block}
     .admin-section{background:#fff;border-radius:16px;padding:28px;border:1px solid var(--cborde);margin-bottom:24px}
@@ -156,7 +167,7 @@
     .preview-pd-nombre{font-family:var(--fn);font-size:1rem;font-weight:700;color:var(--v);line-height:1.2;margin-bottom:6px}
     .preview-pd-precio{font-family:var(--fn);font-size:1.1rem;color:var(--oro);font-style:italic;margin-bottom:8px}
     .preview-pd-divider{border:none;border-top:1px solid var(--cborde);margin:8px 0}
-    .preview-pd-desc{font-family:var(--fn);font-size:.75rem;color:var(--txt2);line-height:1.6;font-style:italic;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .preview-pd-desc{font-family:var(--fn);font-size:.75rem;color:var(--txt2);line-height:1.6;font-style:italic;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
     .preview-pd-btn{width:100%;margin-top:10px;padding:9px;background:var(--v);color:#fff;border:none;border-radius:50px;font-family:var(--fb);font-size:.72rem;font-weight:500;cursor:default;display:flex;align-items:center;justify-content:center;gap:5px}
     @media(max-width:768px){.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}.drawer-body{grid-template-columns:1fr}.drawer-preview-col{display:none}}
     @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.admin-section{padding:18px}.prod-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}}
@@ -179,7 +190,10 @@
   <header class="admin-header">
     <div class="admin-header-inner">
       <div class="admin-logo">Panel Admin <span>Mía Bisutería</span></div>
-      <div class="admin-nav">
+      <button class="admin-hamburger" id="admin-hamburger-btn" onclick="toggleAdminNav(this)" aria-label="Menú">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="admin-nav" id="admin-nav">
         <button class="admin-nav-btn activo" onclick="mostrarTab('productos',this)"><i class="fa-solid fa-box"></i> Productos</button>
         <button class="admin-nav-btn" onclick="mostrarTab('destacado',this)"><i class="fa-solid fa-star"></i> Destacado</button>
         <button class="admin-nav-btn" onclick="mostrarTab('colecciones',this)"><i class="fa-solid fa-layer-group"></i> Colecciones</button>
@@ -737,6 +751,17 @@ function mostrarTab(nombre, btn) {
   document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('activo'));
   document.getElementById('tab-' + nombre).classList.add('activo');
   if (btn) btn.classList.add('activo');
+  // Cerrar menú en mobile al seleccionar tab
+  const nav = document.getElementById('admin-nav');
+  const ham = document.getElementById('admin-hamburger-btn');
+  if (nav) { nav.classList.remove('open'); }
+  if (ham) { ham.innerHTML = '<i class="fa-solid fa-bars"></i>'; }
+}
+
+function toggleAdminNav(btn) {
+  const nav = document.getElementById('admin-nav');
+  const open = nav.classList.toggle('open');
+  btn.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
 }
 
 let TIPO_LBL = {pulsera:'Pulsera',argolla:'Arito',collar:'Collar',anillo:'Anillo',tobillera:'Tobillera'};
