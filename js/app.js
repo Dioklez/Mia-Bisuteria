@@ -343,7 +343,7 @@ window.irAlPaso = window.irAlPago = async function() {
     // Si el pedido no se guardó, volver al paso 1 con error
     if (!_co.pedidoId) {
       if (btnContinuar) { btnContinuar.disabled = false; btnContinuar.innerHTML = 'Continuar al pago <i class="fa-solid fa-arrow-right"></i>'; }
-      errEl.textContent = 'Error al conectar con el servidor. ¿Están corriendo los emuladores?';
+      errEl.textContent = 'Error al guardar el pedido. Revisá tu conexión e intentá de nuevo.';
       errEl.style.display = 'block';
     } else {
       document.getElementById('co-error2').textContent = 'Error al cargar el formulario de pago. Usá los botones de simulación.';

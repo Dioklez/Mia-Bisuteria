@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Pedidos: acceso abierto (admin app no usa Firebase Auth)
+    match /pedidos/{pedidoId} {
+      allow read, write: if true;
+    }
+
+    // Config: lectura pública, escritura abierta (panel de admin)
+    match /config/{docId} {
+      allow read, write: if true;
+    }
+  }
+}
