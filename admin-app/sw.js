@@ -14,10 +14,10 @@ const messaging = firebase.messaging();
 
 const CACHE_NAME = 'mia-admin-v2';
 const CACHE_URLS = [
-  'index.html',
-  'pedidos.html',
-  'pedido-detalle.html',
-  'calculadora.html',
+  'index',
+  'pedidos',
+  'pedido-detalle',
+  'calculadora',
   'css/admin.css'
 ];
 
@@ -61,14 +61,14 @@ messaging.onBackgroundMessage(payload => {
     body,
     icon: '../images/logos/flor-verde.jpg',
     badge: '../images/logos/flor-verde.jpg',
-    data: { url: '/admin-app/pedidos.html' }
+    data: { url: '/admin-app/pedidos' }
   });
 });
 
 // Click en notificación — abrir pedidos
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const url = event.notification.data?.url || '/admin-app/pedidos.html';
+  const url = event.notification.data?.url || '/admin-app/pedidos';
   event.waitUntil(
     self.clients.matchAll({ type: 'window' }).then(clients => {
       const existing = clients.find(c => c.url.includes('admin-app'));

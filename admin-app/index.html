@@ -23,7 +23,7 @@
   </div>
   <script>
     if (sessionStorage.getItem('mia-admin-auth') === 'ok') {
-      window.location.href = 'pedidos.html';
+      window.location.href = 'pedidos';
     }
 
     document.getElementById('pass-input').addEventListener('keydown', function(e) {
@@ -34,7 +34,7 @@
       const pass = document.getElementById('pass-input').value;
       if (pass === 'miabisuteria2025') {
         sessionStorage.setItem('mia-admin-auth', 'ok');
-        window.location.href = 'pedidos.html';
+        window.location.href = 'pedidos';
       } else {
         document.getElementById('login-error').style.display = 'block';
         document.getElementById('pass-input').value = '';

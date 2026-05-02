@@ -82,7 +82,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
     if (sessionStorage.getItem('mia-admin-auth') !== 'ok') {
-      window.location.href = 'index.html';
+      window.location.href = 'index';
     }
 
     const FIREBASE_CONFIG = {
@@ -201,7 +201,7 @@
           costos,
           actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
         });
-        window.location.href = `pedido-detalle.html?id=${pedidoId}`;
+        window.location.href = `pedido-detalle?id=${pedidoId}`;
       } catch (err) {
         console.error(err);
         alert('Error al guardar: ' + err.message);
@@ -210,7 +210,7 @@
 
     function cerrarSesion() {
       sessionStorage.removeItem('mia-admin-auth');
-      window.location.href = 'index.html';
+      window.location.href = 'index';
     }
 
     renderMateriales();

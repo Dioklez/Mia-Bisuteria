@@ -43,7 +43,7 @@
   <script>
     // Auth guard
     if (sessionStorage.getItem('mia-admin-auth') !== 'ok') {
-      window.location.href = 'index.html';
+      window.location.href = 'index';
     }
 
     const FIREBASE_CONFIG = {
@@ -132,7 +132,7 @@
       }
 
       container.innerHTML = filtrados.map(p => `
-        <a class="pedido-card" href="pedido-detalle.html?id=${p.id}">
+        <a class="pedido-card" href="pedido-detalle?id=${p.id}">
           <div class="pedido-card-header">
             <h3>${p.cliente?.nombre || 'Sin nombre'}</h3>
             <span class="badge badge-${p.estado}">${estadoLabel(p.estado)}</span>
@@ -198,7 +198,7 @@
 
     function cerrarSesion() {
       sessionStorage.removeItem('mia-admin-auth');
-      window.location.href = 'index.html';
+      window.location.href = 'index';
     }
 
     // Register Service Worker + suscribir a push notifications
