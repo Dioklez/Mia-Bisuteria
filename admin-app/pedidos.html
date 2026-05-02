@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedidos — Mía Admin</title>
+  <meta name="theme-color" content="#1e2d08"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" href="../images/logos/flor-verde.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+  <header class="admin-header">
+    <h1>Mía Admin</h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="../panel-mk7x2qp9.html" class="btn-logout" style="text-decoration:none"><i class="fa-solid fa-sliders"></i> Panel</a>
+      <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="activo" data-tab="nuevos">Nuevos</button>
+    <button data-tab="proceso">En proceso</button>
+    <button data-tab="listos">Listos</button>
+    <button data-tab="historial">Historial</button>
+  </nav>
+
+  <div class="pull-indicator" id="pull-indicator">
+    <i class="fa-solid fa-arrow-rotate-right"></i> Soltá para actualizar
+  </div>
+
+  <main class="pedidos-list" id="pedidos-list">
+    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando pedidos...</div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+  <script>
+    // Auth guard
+    if (sessionStorage.getItem('mia-admin-auth') !== 'ok') {
+      window.location.href = 'index.html';
+    }
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDJPxQ-L4XiWmGuNi2XYKnuEhhidnHnIhI",
+      authDomain: "mia-bisuteria.firebaseapp.com",
+      projectId: "mia-bisuteria",
+      storageBucket: "mia-bisuteria.firebasestorage.app",
+      messagingSenderId: "406918365058",
+      appId: "1:406918365058:web:b444d55e4983c1ec99999b"
+    };
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      db.useEmulator('localhost', 8080);
+      firebase.app().functions('us-central1').useEmulator('localhost', 5001);
+    }
+
+    let tabActual = 'nuevos';
+    let unsubscribe = null;
+    let pedidos = [];
+
+    // Tabs
+    document.querySelectorAll('.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.tabs .activo').classList.remove('activo');
+        btn.classList.add('activo');
+        tabActual = btn.dataset.tab;
+        renderPedidos();
+      });
+    });
+
+    // Filtrar por tab
+    function filtrarPorTab(lista) {
+      switch (tabActual) {
+        case 'nuevos':
+          return lista.filter(p => p.estado === 'pendiente_pago');
+        case 'proceso':
+          return lista.filter(p => ['pago_confirmado', 'en_fabricacion'].includes(p.estado));
+        case 'listos':
+          return lista.filter(p => p.estado === 'listo');
+        case 'historial':
+          return lista.filter(p => ['entregado', 'cancelado'].includes(p.estado));
+        default:
+          return lista;
+      }
+    }
+
+    // Tiempo transcurrido
+    function tiempoDesde(timestamp) {
+      if (!timestamp) return '';
+      const ms = Date.now() - timestamp.toDate().getTime();
+      const mins = Math.floor(ms / 60000);
+      if (mins < 60) return `hace ${mins}min`;
+      const hs = Math.floor(mins / 60);
+      if (hs < 24) return `hace ${hs}h`;
+      const dias = Math.floor(hs / 24);
+      return `hace ${dias}d`;
+    }
+
+    // Badge label
+    function estadoLabel(estado) {
+      const map = {
+        pendiente_pago: 'Pendiente',
+        pago_confirmado: 'Pagado',
+        en_fabricacion: 'Fabricando',
+        listo: 'Listo',
+        entregado: 'Entregado',
+        cancelado: 'Cancelado'
+      };
+      return map[estado] || estado;
+    }
+
+    // Render
+    function renderPedidos() {
+      const container = document.getElementById('pedidos-list');
+      const filtrados = filtrarPorTab(pedidos);
+
+      if (filtrados.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-inbox"></i>
+            <p>No hay pedidos en esta sección</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filtrados.map(p => `
+        <a class="pedido-card" href="pedido-detalle.html?id=${p.id}">
+          <div class="pedido-card-header">
+            <h3>${p.cliente?.nombre || 'Sin nombre'}</h3>
+            <span class="badge badge-${p.estado}">${estadoLabel(p.estado)}</span>
+          </div>
+          <div class="pedido-card-meta">
+            <span><i class="fa-solid fa-tag"></i> ${p.tipo === 'personalizado' ? 'Personalizado' : 'Catálogo'}</span>
+            <span><i class="fa-solid fa-box"></i> ${p.items?.length || 0} item${(p.items?.length || 0) !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="pedido-card-footer">
+            <span class="pedido-total">${p.costos?.total ? '$' + p.costos.total.toLocaleString('es-AR') : 'Sin cotizar'}</span>
+            <span class="pedido-tiempo">${tiempoDesde(p.creadoEn)}</span>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // Real-time listener
+    function escucharPedidos() {
+      unsubscribe = db.collection('pedidos')
+        .orderBy('creadoEn', 'desc')
+        .onSnapshot(snapshot => {
+          pedidos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderPedidos();
+        }, err => {
+          console.error('Error escuchando pedidos:', err);
+          document.getElementById('pedidos-list').innerHTML = `
+            <div class="empty-state">
+              <i class="fa-solid fa-exclamation-triangle"></i>
+              <p>Error al cargar pedidos</p>
+            </div>`;
+        });
+    }
+
+    escucharPedidos();
+
+    // Pull to refresh
+    let touchStartY = 0;
+    let pulling = false;
+
+    document.addEventListener('touchstart', e => {
+      if (window.scrollY === 0) touchStartY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchmove', e => {
+      if (touchStartY === 0) return;
+      const diff = e.touches[0].clientY - touchStartY;
+      if (diff > 60 && window.scrollY === 0) {
+        document.getElementById('pull-indicator').classList.add('visible');
+        pulling = true;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      if (pulling) {
+        document.getElementById('pull-indicator').classList.remove('visible');
+        pulling = false;
+        touchStartY = 0;
+        if (unsubscribe) unsubscribe();
+        escucharPedidos();
+      }
+      touchStartY = 0;
+    });
+
+    function cerrarSesion() {
+      sessionStorage.removeItem('mia-admin-auth');
+      window.location.href = 'index.html';
+    }
+
+    // Register Service Worker + suscribir a push notifications
+    const VAPID_KEY = 'BOa0Qqq5SVhfeYHVReWVPJJ61XZtdYW0VeHRX12-x3VpLBHjqD6_830aPloygxlxZenrC5nMxP9YjmvOBBSeWCs';
+
+    async function iniciarPushNotifications() {
+      if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+
+      try {
+        const reg = await navigator.serviceWorker.register('sw.js');
+        console.log('SW registrado');
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          console.log('Notificaciones denegadas');
+          return;
+        }
+
+        const messaging = firebase.messaging();
+        const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+        if (!token) return;
+
+        // Guardar token en Firestore para que las Cloud Functions puedan usarlo
+        await db.collection('config').doc('admin').set({ fcmToken: token }, { merge: true });
+        console.log('Push suscripto OK');
+
+        // Manejar mensajes en primer plano
+        messaging.onMessage(payload => {
+          const { title, body } = payload.notification || {};
+          if (title) {
+            new Notification(title, { body, icon: '../images/logos/flor-verde.jpg' });
+          }
+        });
+      } catch (err) {
+        console.warn('Error configurando push:', err.message);
+      }
+    }
+
+    iniciarPushNotifications();
+  </script>
+</body>
+</html>

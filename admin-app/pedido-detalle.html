@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalle — Mía Admin</title>
+  <meta name="theme-color" content="#1e2d08"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" href="../images/logos/flor-verde.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+  <header class="admin-header">
+    <h1>Mía Admin</h1>
+    <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+  </header>
+
+  <main class="detalle-wrap" id="detalle-wrap">
+    <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+  <script>
+    if (sessionStorage.getItem('mia-admin-auth') !== 'ok') {
+      window.location.href = 'index.html';
+    }
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDJPxQ-L4XiWmGuNi2XYKnuEhhidnHnIhI",
+      authDomain: "mia-bisuteria.firebaseapp.com",
+      projectId: "mia-bisuteria",
+      storageBucket: "mia-bisuteria.firebasestorage.app",
+      messagingSenderId: "406918365058",
+      appId: "1:406918365058:web:b444d55e4983c1ec99999b"
+    };
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+    const functions = firebase.app().functions('us-central1');
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      db.useEmulator('localhost', 8080);
+      functions.useEmulator('localhost', 5001);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const pedidoId = params.get('id');
+
+    if (!pedidoId) {
+      window.location.href = 'pedidos.html';
+    }
+
+    let pedido = null;
+
+    async function cargarPedido() {
+      try {
+        const snap = await db.collection('pedidos').doc(pedidoId).get();
+        if (!snap.exists) {
+          document.getElementById('detalle-wrap').innerHTML = `
+            <div class="empty-state">
+              <i class="fa-solid fa-exclamation-triangle"></i>
+              <p>Pedido no encontrado</p>
+            </div>
+            <a href="pedidos.html" class="btn btn-back"><i class="fa-solid fa-arrow-left"></i> Volver</a>`;
+          return;
+        }
+        pedido = { id: snap.id, ...snap.data() };
+        renderDetalle();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('detalle-wrap').innerHTML = `
+          <div class="empty-state"><p>Error al cargar</p></div>`;
+      }
+    }
+
+    function formatMonto(n) {
+      if (n == null) return '-';
+      return '$' + Number(n).toLocaleString('es-AR');
+    }
+
+    function renderDetalle() {
+      const w = document.getElementById('detalle-wrap');
+      const estadoMap = {
+        pendiente_pago: 'Pendiente de pago',
+        pago_confirmado: 'Pago confirmado',
+        en_fabricacion: 'En fabricación',
+        listo: 'Listo para entregar',
+        entregado: 'Entregado',
+        cancelado: 'Cancelado'
+      };
+
+      let html = `
+        <a href="pedidos.html" class="btn btn-back"><i class="fa-solid fa-arrow-left"></i> Volver a pedidos</a>
+
+        <div class="detalle-section">
+          <h2>Estado</h2>
+          <span class="badge badge-${pedido.estado}">${estadoMap[pedido.estado] || pedido.estado}</span>
+          ${pedido.tipo ? `<span style="margin-left:10px;font-size:.78rem;color:var(--txt3)">${pedido.tipo === 'personalizado' ? 'Personalizado' : 'Catálogo'}</span>` : ''}
+        </div>
+
+        <div class="detalle-section">
+          <h2><i class="fa-solid fa-user"></i> Cliente</h2>
+          <div class="detalle-row"><span class="label">Nombre</span><span class="value">${pedido.cliente?.nombre || '-'}</span></div>
+          <div class="detalle-row"><span class="label">Teléfono</span><span class="value">${pedido.cliente?.telefono || '-'}</span></div>
+          ${pedido.cliente?.email ? `<div class="detalle-row"><span class="label">Email</span><span class="value">${pedido.cliente.email}</span></div>` : ''}
+        </div>`;
+
+      // Items
+      if (pedido.items && pedido.items.length > 0) {
+        html += `
+          <div class="detalle-section">
+            <h2><i class="fa-solid fa-box"></i> Items</h2>
+            <ul class="detalle-items">
+              ${pedido.items.map(i => `
+                <li>
+                  <span>${i.nombre} x${i.cantidad}</span>
+                  <span>${formatMonto(i.precioUnitario)}</span>
+                </li>`).join('')}
+            </ul>
+          </div>`;
+      }
+
+      // Personalizado
+      if (pedido.personalizado && pedido.tipo === 'personalizado') {
+        const p = pedido.personalizado;
+        html += `
+          <div class="detalle-section">
+            <h2><i class="fa-solid fa-palette"></i> Personalizado</h2>
+            ${p.tipo ? `<div class="detalle-row"><span class="label">Tipo</span><span class="value">${p.tipo}</span></div>` : ''}
+            ${p.colores ? `<div class="detalle-row"><span class="label">Colores</span><span class="value">${p.colores}</span></div>` : ''}
+            ${p.descripcion ? `<div class="detalle-row"><span class="label">Descripción</span><span class="value" style="max-width:60%;text-align:right">${p.descripcion}</span></div>` : ''}
+            ${p.referencia ? `<div class="detalle-row"><span class="label">Referencia</span><span class="value"><a href="${p.referencia}" target="_blank">Ver imagen</a></span></div>` : ''}
+          </div>`;
+      }
+
+      // Costos
+      if (pedido.costos && pedido.costos.total) {
+        const c = pedido.costos;
+        html += `
+          <div class="detalle-section">
+            <h2><i class="fa-solid fa-calculator"></i> Costos</h2>
+            <div class="detalle-row"><span class="label">Materiales</span><span class="value">${formatMonto(c.materiales)}</span></div>
+            <div class="detalle-row"><span class="label">Tiempo (${c.tiempoHs}hs)</span><span class="value">incluido</span></div>
+            <div class="detalle-row"><span class="label">Margen (${c.margenPct}%)</span><span class="value">incluido</span></div>
+            <div class="detalle-row"><span class="label">Subtotal</span><span class="value">${formatMonto(c.subtotal)}</span></div>
+            <div class="detalle-row"><span class="label">Envío</span><span class="value">${formatMonto(c.envio)}</span></div>
+            <div class="detalle-row" style="font-weight:700;font-size:1.05rem;padding-top:10px;border-top:1px solid var(--c2)">
+              <span class="label">Total</span><span class="value">${formatMonto(c.total)}</span>
+            </div>
+          </div>`;
+      }
+
+      // Envío
+      if (pedido.envio && (pedido.envio.direccion || pedido.envio.tipo)) {
+        html += `
+          <div class="detalle-section">
+            <h2><i class="fa-solid fa-truck"></i> Envío</h2>
+            ${pedido.envio.tipo ? `<div class="detalle-row"><span class="label">Tipo</span><span class="value">${pedido.envio.tipo}</span></div>` : ''}
+            ${pedido.envio.direccion ? `
+              <div class="direccion-copiable" onclick="copiarDireccion(this)">
+                ${pedido.envio.direccion}
+                <span class="copy-hint"><i class="fa-solid fa-copy"></i> Tap para copiar</span>
+              </div>` : ''}
+            ${pedido.envio.nota ? `<div class="detalle-row" style="margin-top:8px"><span class="label">Nota</span><span class="value">${pedido.envio.nota}</span></div>` : ''}
+          </div>`;
+      }
+
+      // Pago info
+      if (pedido.pago && pedido.pago.linkPago) {
+        html += `
+          <div class="detalle-section">
+            <h2><i class="fa-solid fa-credit-card"></i> Pago</h2>
+            <div class="detalle-row"><span class="label">Estado</span><span class="value">${pedido.pago.estado || '-'}</span></div>
+            ${pedido.pago.paymentId ? `<div class="detalle-row"><span class="label">Payment ID</span><span class="value">${pedido.pago.paymentId}</span></div>` : ''}
+          </div>`;
+      }
+
+      // Acciones
+      html += `<div class="acciones">`;
+
+      if (pedido.estado === 'pendiente_pago') {
+        if (!pedido.costos || !pedido.costos.total) {
+          html += `<a href="calculadora.html?id=${pedidoId}" class="btn btn-primary"><i class="fa-solid fa-calculator"></i> Calcular precio</a>`;
+        } else if (!pedido.pago || !pedido.pago.linkPago) {
+          html += `<button class="btn btn-primary" onclick="generarLinkPago()"><i class="fa-solid fa-link"></i> Generar link de pago</button>`;
+        } else {
+          const msg = encodeURIComponent(`¡Hola ${pedido.cliente?.nombre || ''}! Tu pedido en Mía Bisutería está listo para pagar. Total: ${formatMonto(pedido.costos.total)}\n\nLink de pago: ${pedido.pago.linkPago}`);
+          html += `<a href="https://wa.me/${pedido.cliente?.telefono || '5491137742189'}?text=${msg}" target="_blank" class="btn btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</a>`;
+        }
+      }
+
+      if (pedido.estado === 'pago_confirmado') {
+        html += `<button class="btn btn-primary" onclick="cambiarEstado('en_fabricacion')"><i class="fa-solid fa-hammer"></i> Marcar en fabricación</button>`;
+      }
+
+      if (pedido.estado === 'en_fabricacion') {
+        html += `<button class="btn btn-success" onclick="cambiarEstado('listo')"><i class="fa-solid fa-check"></i> Marcar listo</button>`;
+      }
+
+      if (pedido.estado === 'listo') {
+        const tel = pedido.cliente?.telefono || '5491137742189';
+        const msgEntrega = encodeURIComponent(`¡Hola ${pedido.cliente?.nombre || ''}! 🌿 Tu pedido de Mía Bisutería está listo. ¿Coordinamos la entrega?`);
+        html += `
+          <a href="https://wa.me/${tel}?text=${msgEntrega}" target="_blank" class="btn btn-whatsapp">
+            <i class="fa-brands fa-whatsapp"></i> Avisar que está listo
+          </a>
+          <button class="btn btn-success" onclick="cambiarEstado('entregado')">
+            <i class="fa-solid fa-box-open"></i> Marcar como entregado
+          </button>`;
+      }
+
+      if (['pendiente_pago', 'pago_confirmado', 'en_fabricacion', 'listo'].includes(pedido.estado)) {
+        if (pedido.pago && pedido.pago.paymentId) {
+          html += `<button class="btn btn-danger" onclick="reembolsar()"><i class="fa-solid fa-rotate-left"></i> Reembolsar y cancelar</button>`;
+        } else {
+          html += `<button class="btn btn-danger" onclick="cancelarSinPago()"><i class="fa-solid fa-xmark"></i> Cancelar pedido</button>`;
+        }
+      }
+
+      html += `</div>`;
+
+      w.innerHTML = html;
+    }
+
+    function copiarDireccion(el) {
+      const texto = el.childNodes[0].textContent.trim();
+      navigator.clipboard.writeText(texto).then(() => {
+        el.querySelector('.copy-hint').innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+        setTimeout(() => {
+          el.querySelector('.copy-hint').innerHTML = '<i class="fa-solid fa-copy"></i> Tap para copiar';
+        }, 2000);
+      });
+    }
+
+    async function generarLinkPago() {
+      const btn = event.target.closest('.btn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+      btn.disabled = true;
+
+      try {
+        const crearPreferencia = functions.httpsCallable('crearPreferenciaPago');
+        const result = await crearPreferencia({ pedidoId });
+        await cargarPedido();
+      } catch (err) {
+        console.error(err);
+        btn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error - Reintentar';
+        btn.disabled = false;
+      }
+    }
+
+    async function cambiarEstado(nuevoEstado) {
+      try {
+        await db.collection('pedidos').doc(pedidoId).update({
+          estado: nuevoEstado,
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await cargarPedido();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function reembolsar() {
+      if (!confirm('¿Segura que querés reembolsar y cancelar este pedido?')) return;
+
+      try {
+        const reembolsarPedido = functions.httpsCallable('reembolsarPedido');
+        await reembolsarPedido({ pedidoId });
+        await cargarPedido();
+      } catch (err) {
+        console.error(err);
+        alert('Error al reembolsar: ' + err.message);
+      }
+    }
+
+    async function cancelarSinPago() {
+      if (!confirm('¿Cancelar este pedido?')) return;
+      try {
+        await db.collection('pedidos').doc(pedidoId).update({
+          estado: 'cancelado',
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await cargarPedido();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem('mia-admin-auth');
+      window.location.href = 'index.html';
+    }
+
+    cargarPedido();
+  </script>
+</body>
+</html>

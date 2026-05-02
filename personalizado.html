@@ -10,6 +10,17 @@
   <meta property="og:description" content="Diseña tu propio accesorio hecho a mano. Colores, materiales y estilo a tu gusto."/>
   <meta property="og:image" content="images/pulsera-alma-girasol-1.jpeg"/>
   <meta property="og:type" content="website"/>
+  <meta name="robots" content="index, follow"/>
+  <meta name="author" content="Mía Bisutería"/>
+  <meta name="language" content="es-AR"/>
+  <link rel="canonical" href="https://DOMINIO/personalizado.html"/>
+  <meta property="og:locale" content="es_AR"/>
+  <meta property="og:site_name" content="Mía Bisutería"/>
+  <meta property="og:url" content="https://DOMINIO/personalizado.html"/>
+  <!-- Google Analytics — placeholder -->
+  <!-- GA_SNIPPET_AQUI -->
+  <!-- Search Console verification — placeholder -->
+  <!-- SC_META_AQUI -->
   <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
@@ -458,8 +469,15 @@
                   onclick="enviarPersonalizadoCompleto()">
             <i class="fa-brands fa-whatsapp"></i> Enviar mi idea por WhatsApp
           </button>
+          <div id="form-error-msg" style="display:none; margin-top:12px; padding:12px 16px; background:#fce4ec; border:1px solid #ffcdd2; border-radius:10px; text-align:center; color:#c62828; font-size:.84rem;">
+            Por favor completa al menos el tipo de accesorio, la ocasion y la descripcion de tu idea.
+          </div>
+          <div id="confirmacion-pedido" style="display:none; margin-top:14px; padding:14px 20px; background:#e8f0d8; border:1px solid #c8deb0; border-radius:12px; text-align:center; color:#1e2d08; font-size:.86rem;">
+            <i class="fa-solid fa-check-circle" style="color:#4a6b22;margin-right:6px"></i>
+            ¡Recibimos tu pedido! Mia va a revisar los materiales y te va a contactar con el precio y el link de pago en las proximas horas.
+          </div>
           <p class="form-nota">
-            Al tocar el botón se abre WhatsApp con tu información lista. ¡Sin escribir nada! 🌿
+            Al tocar el boton se abre WhatsApp con tu informacion lista. ¡Sin escribir nada! 🌿
           </p>
         </div>
       </div>
@@ -596,10 +614,54 @@ function enviarPersonalizadoCompleto() {
   const ref = document.getElementById('f-ref').value.trim();
 
   if (!document.getElementById('f-tipo').value || !document.getElementById('f-ocasion').value || !document.getElementById('f-desc').value.trim()) {
-    alert('Por favor completá al menos el tipo de accesorio, la ocasión y la descripción de tu idea.');
+    const errMsg = document.getElementById('form-error-msg');
+    if (errMsg) { errMsg.style.display = 'block'; setTimeout(() => errMsg.style.display = 'none', 4000); }
     return;
   }
 
+  // Guardar en Firestore (paralelo al flujo de WhatsApp)
+  if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    const ahora = new Date();
+    firebase.firestore().collection('pedidos').add({
+      tipo: 'personalizado',
+      estado: 'pendiente_pago',
+      cliente: {
+        nombre: n,
+        telefono: '',
+        email: ''
+      },
+      items: [],
+      personalizado: {
+        descripcion: d,
+        referencia: ref || '',
+        tipo: t,
+        colores: col
+      },
+      costos: null,
+      pago: {
+        preferenceId: '',
+        paymentId: '',
+        estado: 'pendiente',
+        linkPago: '',
+        fechaPago: null
+      },
+      envio: {
+        tipo: '',
+        direccion: '',
+        nota: ''
+      },
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+      actualizadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+      expiraEn: new Date(ahora.getTime() + 48 * 60 * 60 * 1000)
+    }).then(() => {
+      const confirmMsg = document.getElementById('confirmacion-pedido');
+      if (confirmMsg) { confirmMsg.style.display = 'block'; }
+    }).catch(err => {
+      console.warn('Error guardando pedido en Firestore:', err);
+    });
+  }
+
+  // Flujo WhatsApp existente
   const refLinea = ref ? `\n🖼️ *Referencia:* ${ref}` : '';
 
   window.open(`https://wa.me/5491137742189?text=${encodeURIComponent(

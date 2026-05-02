@@ -45,6 +45,12 @@ function initFirebase() {
   try {
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
+    // Emuladores locales para desarrollo
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      db.useEmulator('localhost', 8080);
+      firebase.app().functions('us-central1').useEmulator('localhost', 5001);
+      console.log('%c[DEV] Conectado a emuladores locales', 'color:#4a6b22;font-weight:bold');
+    }
   } catch(e) {
     console.warn('Firebase no disponible, usando localStorage como fallback');
   }
@@ -121,7 +127,294 @@ function initPanel() {
     document.body.style.overflow = '';
   };
   actualizarPanel();
+
+  // Inyectar modal de checkout multi-paso si no existe
+  if (!document.getElementById('checkout-overlay')) {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="checkout-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;overflow-y:auto;padding:16px 12px;-webkit-overflow-scrolling:touch">
+        <div id="checkout-box" style="background:#fff;border-radius:20px;max-width:440px;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+
+          <!-- Header -->
+          <div style="background:var(--v);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span id="checkout-step-badge" style="background:rgba(255,255,255,.2);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700">1</span>
+              <span id="checkout-titulo" style="font-family:var(--fl);font-size:1.25rem">Tus datos</span>
+            </div>
+            <button onclick="cerrarCheckout()" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 8px"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+
+          <!-- Resumen siempre visible -->
+          <div id="checkout-resumen" style="padding:12px 20px;background:var(--vfondo);border-bottom:1px solid var(--vmenta);font-size:.82rem"></div>
+
+          <!-- PASO 1: Datos de contacto -->
+          <div id="co-paso1" style="padding:18px 20px">
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:.76rem;color:var(--txt3);margin-bottom:4px;font-family:var(--fb);font-weight:500">Tu nombre *</label>
+              <input id="checkout-nombre" type="text" placeholder="Ej: Sofía" autocomplete="given-name"
+                style="width:100%;padding:11px 14px;border:1px solid var(--cborde);border-radius:10px;font-size:.9rem;font-family:var(--fb);box-sizing:border-box"/>
+            </div>
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:.76rem;color:var(--txt3);margin-bottom:4px;font-family:var(--fb);font-weight:500">Email *</label>
+              <input id="checkout-email" type="email" placeholder="sofia@email.com" autocomplete="email"
+                style="width:100%;padding:11px 14px;border:1px solid var(--cborde);border-radius:10px;font-size:.9rem;font-family:var(--fb);box-sizing:border-box"/>
+              <span style="font-size:.7rem;color:var(--txt3)">MercadoPago envía el comprobante aquí</span>
+            </div>
+            <div style="margin-bottom:16px">
+              <label style="display:block;font-size:.76rem;color:var(--txt3);margin-bottom:4px;font-family:var(--fb);font-weight:500">WhatsApp *</label>
+              <input id="checkout-telefono" type="tel" placeholder="5491100000000" autocomplete="tel"
+                style="width:100%;padding:11px 14px;border:1px solid var(--cborde);border-radius:10px;font-size:.9rem;font-family:var(--fb);box-sizing:border-box"/>
+              <span style="font-size:.7rem;color:var(--txt3)">Con código de país, para el seguimiento</span>
+            </div>
+            <div id="co-error1" style="display:none;color:#c62828;font-size:.78rem;margin-bottom:10px;padding:10px 14px;background:#fce4ec;border-radius:8px"></div>
+            <button onclick="irAlPago()" style="width:100%;padding:14px;background:var(--v);color:#fff;border:none;border-radius:12px;font-size:.92rem;font-weight:500;cursor:pointer;font-family:var(--fb);display:flex;align-items:center;justify-content:center;gap:8px">
+              Continuar al pago <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- PASO 2: Formulario de pago (MercadoPago Bricks) -->
+          <div id="co-paso2" style="display:none;padding:18px 20px">
+            <div id="co-brick-loading" style="text-align:center;padding:30px;color:var(--txt3);font-size:.85rem">
+              <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:10px"></i><br/>Cargando formulario de pago...
+            </div>
+            <div id="cardPaymentBrick_container"></div>
+            <div id="co-error2" style="display:none;color:#c62828;font-size:.78rem;margin-top:10px;padding:10px 14px;background:#fce4ec;border-radius:8px"></div>
+            <div id="co-dev-tools" style="display:none;margin-top:16px;padding:12px;background:#fffde7;border:1px dashed #f9a825;border-radius:8px;text-align:center">
+              <p style="font-size:.7rem;color:#e65100;margin-bottom:8px;font-weight:600">🧪 Modo desarrollo — solo en localhost</p>
+              <div style="display:flex;gap:8px">
+                <button onclick="_simularPago()" style="flex:1;padding:9px;background:#388e3c;color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:var(--fb)">✅ Simular aprobado</button>
+                <button onclick="_simularPagoFallido()" style="flex:1;padding:9px;background:#c62828;color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:var(--fb)">❌ Simular rechazo</button>
+              </div>
+            </div>
+            <button onclick="volverPaso1()" style="width:100%;margin-top:10px;padding:10px;background:none;border:none;color:var(--txt3);font-size:.78rem;cursor:pointer;font-family:var(--fb)">
+              <i class="fa-solid fa-arrow-left"></i> Volver a mis datos
+            </button>
+          </div>
+
+          <!-- PASO 3: Resultado -->
+          <div id="co-paso3" style="display:none;padding:32px 20px;text-align:center">
+            <div id="co-resultado-icono" style="font-size:3rem;margin-bottom:12px"></div>
+            <div id="co-resultado-titulo" style="font-family:var(--fn);font-size:1.3rem;font-weight:700;margin-bottom:8px;color:var(--v)"></div>
+            <div id="co-resultado-msg" style="font-size:.85rem;color:var(--txt2);line-height:1.6;margin-bottom:24px"></div>
+            <button id="co-resultado-btn" onclick="cerrarCheckout()" style="padding:12px 28px;background:var(--v);color:#fff;border:none;border-radius:12px;font-size:.88rem;font-weight:500;cursor:pointer;font-family:var(--fb)">
+              Cerrar
+            </button>
+          </div>
+
+        </div>
+      </div>`);
+  }
 }
+
+// Estado del checkout entre pasos
+const _co = { items: [], total: 0, pedidoId: null, brickController: null };
+
+window.abrirCheckout = function() {
+  const ids = Object.keys(pedido).filter(k => pedido[k] > 0);
+  if (ids.length === 0) { alert('Tu pedido está vacío.'); return; }
+
+  _co.items = []; _co.total = 0;
+  let html = '';
+  ids.forEach(k => {
+    const p = PRODUCTOS.find(pr => pr.id === parseInt(k)); if (!p) return;
+    const qty = pedido[k];
+    _co.total += p.precio * qty;
+    _co.items.push({ productoId: p.id, nombre: p.nombre, cantidad: qty, precioUnitario: p.precio });
+    html += `<span style="color:var(--txt2)">${p.nombre} x${qty}</span><span style="font-weight:600;margin-left:auto;padding-left:12px">$${(p.precio*qty).toLocaleString('es-AR')}</span>`;
+    html = `<div style="display:flex;justify-content:space-between;padding:3px 0">${html.slice(html.lastIndexOf('<span'))}</div>` + (html.slice(0, html.lastIndexOf('<span')));
+  });
+  // rebuild limpio
+  html = _co.items.map(i => `
+    <div style="display:flex;justify-content:space-between;padding:3px 0">
+      <span style="color:var(--txt2)">${i.nombre} <span style="color:var(--txt3)">x${i.cantidad}</span></span>
+      <span style="font-weight:600">$${(i.precioUnitario*i.cantidad).toLocaleString('es-AR')}</span>
+    </div>`).join('');
+  html += `<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid var(--vmenta);font-weight:700;color:var(--v)">
+    <span>Total</span><span>$${_co.total.toLocaleString('es-AR')}</span>
+  </div>`;
+
+  document.getElementById('checkout-resumen').innerHTML = html;
+  _mostrarPaso(1);
+
+  const overlay = document.getElementById('checkout-overlay');
+  overlay.style.display = 'block';
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  if (window.cerrarPanel) window.cerrarPanel();
+};
+
+function _mostrarPaso(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById(`co-paso${i}`).style.display = i === n ? '' : 'none';
+  });
+  document.getElementById('checkout-step-badge').textContent = n < 3 ? n : '✓';
+  const titulos = ['Tus datos','Pago seguro',''];
+  document.getElementById('checkout-titulo').textContent = titulos[n-1];
+  // Mostrar panel de desarrollo solo en localhost al llegar al paso 2
+  if (n === 2) {
+    const devTools = document.getElementById('co-dev-tools');
+    if (devTools && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      devTools.style.display = 'block';
+    }
+  }
+}
+
+window.volverPaso1 = function() {
+  if (_co.brickController) { _co.brickController.unmount(); _co.brickController = null; }
+  _mostrarPaso(1);
+};
+
+window.irAlPaso = window.irAlPago = async function() {
+  const nombre   = document.getElementById('checkout-nombre').value.trim();
+  const email    = document.getElementById('checkout-email').value.trim();
+  const telefono = document.getElementById('checkout-telefono').value.trim().replace(/\D/g,'');
+  const errEl    = document.getElementById('co-error1');
+
+  if (!nombre) { errEl.textContent = 'Ingresá tu nombre.'; errEl.style.display = 'block'; return; }
+  if (!email || !email.includes('@')) { errEl.textContent = 'Ingresá un email válido.'; errEl.style.display = 'block'; return; }
+  if (!telefono || telefono.length < 10) { errEl.textContent = 'Ingresá tu WhatsApp con código de país (ej: 5491100000000).'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  // Mostrar spinner en el botón mientras guarda
+  const btnContinuar = document.querySelector('#co-paso1 button[onclick="irAlPago()"]');
+  if (btnContinuar) { btnContinuar.disabled = true; btnContinuar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'; }
+
+  try {
+    // Guardar pedido en Firestore
+    const ahora  = new Date();
+    const _timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
+    const docRef = await Promise.race([
+      db.collection('pedidos').add({
+        tipo: 'catalogo', estado: 'pendiente_pago',
+        cliente: { nombre, email, telefono },
+        items: _co.items,
+        personalizado: null,
+        costos: { materiales:0, tiempoHs:0, margenPct:0, subtotal:_co.total, envio:0, total:_co.total },
+        pago:  { preferenceId:'', paymentId:'', estado:'pendiente', linkPago:'', fechaPago:null },
+        envio: { tipo:'', direccion:'', nota:'' },
+        creadoEn:      firebase.firestore.FieldValue.serverTimestamp(),
+        actualizadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+        expiraEn: new Date(ahora.getTime() + 48*60*60*1000)
+      }),
+      _timeout
+    ]);
+    _co.pedidoId = docRef.id;
+    _mostrarPaso(2);
+
+    // Cargar SDK de MercadoPago si no está cargado
+    await _cargarSDKMercadoPago();
+
+    // Renderizar CardPaymentBrick
+    document.getElementById('co-brick-loading').style.display = 'block';
+    const mp = new MercadoPago('APP_USR-2699896373482253-042319-d76be0d0169eebecff0e6401569eb6af-2362763592', { locale: 'es-AR' });
+    const bricksBuilder = mp.bricks();
+
+    _co.brickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
+      initialization: { amount: _co.total, payer: { email } },
+      customization: {
+        visual: { hideFormTitle: true, style: { theme: 'default' } },
+        paymentMethods: { minInstallments: 1, maxInstallments: 1 }
+      },
+      callbacks: {
+        onReady: () => { document.getElementById('co-brick-loading').style.display = 'none'; },
+        onSubmit: async (cardFormData) => {
+          try {
+            const procesarPago = firebase.app().functions('us-central1').httpsCallable('procesarPago');
+            const result = await procesarPago({ pedidoId: _co.pedidoId, formData: cardFormData, email, nombre });
+            if (result.data.status === 'approved') {
+              pedido = {}; guardarPedido(pedido); actualizarPanel();
+              _mostrarResultado('exito', nombre);
+            } else {
+              _mostrarResultado('error', null, result.data.status);
+            }
+          } catch(err) {
+            console.error(err);
+            _mostrarResultado('error', null, err.message);
+          }
+        },
+        onError: (err) => {
+          console.error('Brick error:', err);
+          document.getElementById('co-error2').textContent = 'Error en el formulario de pago. Intentá de nuevo.';
+          document.getElementById('co-error2').style.display = 'block';
+        }
+      }
+    });
+  } catch(err) {
+    console.error(err);
+    // Si el pedido no se guardó, volver al paso 1 con error
+    if (!_co.pedidoId) {
+      if (btnContinuar) { btnContinuar.disabled = false; btnContinuar.innerHTML = 'Continuar al pago <i class="fa-solid fa-arrow-right"></i>'; }
+      errEl.textContent = 'Error al conectar con el servidor. ¿Están corriendo los emuladores?';
+      errEl.style.display = 'block';
+    } else {
+      document.getElementById('co-error2').textContent = 'Error al cargar el formulario de pago. Usá los botones de simulación.';
+      document.getElementById('co-error2').style.display = 'block';
+    }
+  }
+};
+
+function _mostrarResultado(tipo, nombre, errorMsg) {
+  if (_co.brickController) { _co.brickController.unmount(); _co.brickController = null; }
+  _mostrarPaso(3);
+  const ico   = document.getElementById('co-resultado-icono');
+  const tit   = document.getElementById('co-resultado-titulo');
+  const msg   = document.getElementById('co-resultado-msg');
+  const btn   = document.getElementById('co-resultado-btn');
+  if (tipo === 'exito') {
+    ico.textContent = '✅';
+    tit.textContent = `¡Gracias${nombre ? ', '+nombre : ''}!`;
+    tit.style.color = 'var(--v3)';
+    msg.textContent = 'Tu pago fue aprobado. Mía va a ponerse en contacto con vos para coordinar la entrega.';
+    btn.textContent = 'Cerrar';
+  } else {
+    ico.textContent = '❌';
+    tit.textContent = 'No se pudo procesar el pago';
+    tit.style.color = '#c62828';
+    const msgs = { cc_rejected_bad_filled_card_number:'Número de tarjeta incorrecto.', cc_rejected_insufficient_amount:'Fondos insuficientes.', cc_rejected_bad_filled_date:'Fecha de vencimiento incorrecta.', cc_rejected_bad_filled_security_code:'Código de seguridad incorrecto.' };
+    msg.textContent = msgs[errorMsg] || 'Revisá los datos de tu tarjeta o intentá con otra. Si el problema continúa, usá la opción de WhatsApp.';
+    btn.textContent = 'Intentar de nuevo';
+    btn.onclick = () => { _mostrarPaso(2); _co.brickController = null; irAlPago._retry = true; };
+  }
+}
+
+async function _simularPago() {
+  if (!_co.pedidoId) { alert('Primero completá tus datos y presioná "Continuar al pago".'); return; }
+  try {
+    const nombre = document.getElementById('checkout-nombre')?.value.trim() || 'Cliente';
+    await db.collection('pedidos').doc(_co.pedidoId).update({
+      estado: 'pago_confirmado',
+      'pago.paymentId': 'SIM-' + Date.now(),
+      'pago.estado': 'aprobado',
+      'pago.fechaPago': firebase.firestore.FieldValue.serverTimestamp(),
+      actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    pedido = {}; guardarPedido(pedido); actualizarPanel();
+    _mostrarResultado('exito', nombre);
+  } catch(err) {
+    alert('Error al simular pago: ' + err.message);
+  }
+}
+
+async function _simularPagoFallido() {
+  _mostrarResultado('error', null, 'cc_rejected_insufficient_amount');
+}
+
+function _cargarSDKMercadoPago() {
+  return new Promise((resolve, reject) => {
+    if (window.MercadoPago) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://sdk.mercadopago.com/js/v2';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+window.cerrarCheckout = function() {
+  if (_co.brickController) { _co.brickController.unmount(); _co.brickController = null; }
+  document.getElementById('checkout-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  // Reset para la próxima vez
+  document.getElementById('cardPaymentBrick_container').innerHTML = '';
+};
 
 function actualizarPanel() {
   const container = document.getElementById('pp-items');

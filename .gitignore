@@ -1,0 +1,24 @@
+# Claude
+.claude/
+
+# Credenciales y secretos — NUNCA subir a git
+firebase-service-account.json
+.env
+functions/.env
+
+# Logs de Firebase
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+firestore-debug.*.log
+ui-debug.log
+
+# Dependencias
+functions/node_modules/
+
+# Scripts de desarrollo (solo uso local)
+scripts/
+
+# Archivos internos de Claude Code
+.agents/
+skills-lock.json

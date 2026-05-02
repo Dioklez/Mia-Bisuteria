@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora — Mía Admin</title>
+  <meta name="theme-color" content="#1e2d08"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" href="../images/logos/flor-verde.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+  <header class="admin-header">
+    <h1>Mía Admin</h1>
+    <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+  </header>
+
+  <main class="calc-wrap">
+    <a href="javascript:history.back()" class="btn btn-back"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+
+    <div class="calc-section">
+      <h2><i class="fa-solid fa-gem"></i> Materiales</h2>
+      <div id="materiales-list"></div>
+      <button class="btn-add-material" onclick="agregarMaterial()">
+        <i class="fa-solid fa-plus"></i> Agregar material
+      </button>
+    </div>
+
+    <div class="calc-section">
+      <h2><i class="fa-solid fa-clock"></i> Tiempo de trabajo</h2>
+      <div class="form-field">
+        <label>Horas estimadas</label>
+        <input type="number" id="tiempo-hs" min="0" step="0.5" value="1" oninput="calcular()"/>
+      </div>
+      <div class="form-field">
+        <label>Valor por hora (ARS)</label>
+        <input type="number" id="valor-hora" min="0" step="100" oninput="calcular(); guardarPrefs()" />
+      </div>
+    </div>
+
+    <div class="calc-section">
+      <h2><i class="fa-solid fa-truck"></i> Envío</h2>
+      <div class="form-field">
+        <label>Costo de envío (ARS) — 0 si retira</label>
+        <input type="number" id="costo-envio" min="0" step="100" value="0" oninput="calcular()"/>
+      </div>
+    </div>
+
+    <div class="calc-section">
+      <h2><i class="fa-solid fa-percent"></i> Margen de ganancia</h2>
+      <div class="slider-wrap">
+        <label>
+          <span>Margen</span>
+          <span id="margen-label">40%</span>
+        </label>
+        <input type="range" id="margen-slider" min="10" max="100" value="40" oninput="actualizarMargen()"/>
+      </div>
+    </div>
+
+    <div class="calc-section">
+      <h2><i class="fa-solid fa-receipt"></i> Resultado</h2>
+      <div class="calc-resultado">
+        <div class="result-row"><span>Materiales</span><span id="r-materiales">$0</span></div>
+        <div class="result-row"><span>Tiempo de trabajo</span><span id="r-tiempo">$0</span></div>
+        <div class="result-row"><span>Margen de ganancia</span><span id="r-margen">$0</span></div>
+        <div class="result-row"><span>Envío</span><span id="r-envio">$0</span></div>
+        <div class="result-row total"><span>Total</span><span id="r-total">$0</span></div>
+      </div>
+    </div>
+
+    <div class="acciones" id="acciones-guardar" style="display:none">
+      <button class="btn btn-primary" onclick="guardarEnPedido()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar en pedido
+      </button>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    if (sessionStorage.getItem('mia-admin-auth') !== 'ok') {
+      window.location.href = 'index.html';
+    }
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDJPxQ-L4XiWmGuNi2XYKnuEhhidnHnIhI",
+      authDomain: "mia-bisuteria.firebaseapp.com",
+      projectId: "mia-bisuteria",
+      storageBucket: "mia-bisuteria.firebasestorage.app",
+      messagingSenderId: "406918365058",
+      appId: "1:406918365058:web:b444d55e4983c1ec99999b"
+    };
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      db.useEmulator('localhost', 8080);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const pedidoId = params.get('id');
+
+    // Mostrar botón guardar si viene de un pedido
+    if (pedidoId) {
+      document.getElementById('acciones-guardar').style.display = 'flex';
+    }
+
+    // Cargar preferencias guardadas
+    const valorHoraGuardado = localStorage.getItem('mia-valor-hora');
+    if (valorHoraGuardado) {
+      document.getElementById('valor-hora').value = valorHoraGuardado;
+    } else {
+      document.getElementById('valor-hora').value = 2000;
+    }
+
+    function guardarPrefs() {
+      localStorage.setItem('mia-valor-hora', document.getElementById('valor-hora').value);
+    }
+
+    // Materiales
+    let materiales = [{ nombre: '', costo: 0 }];
+
+    function renderMateriales() {
+      const container = document.getElementById('materiales-list');
+      container.innerHTML = materiales.map((m, i) => `
+        <div class="material-item">
+          <input type="text" placeholder="Material" value="${m.nombre}" oninput="materiales[${i}].nombre=this.value"/>
+          <input type="number" placeholder="$" min="0" step="50" value="${m.costo || ''}" oninput="materiales[${i}].costo=Number(this.value); calcular()"/>
+          ${materiales.length > 1 ? `<button class="btn-remove" onclick="quitarMaterial(${i})">×</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function agregarMaterial() {
+      materiales.push({ nombre: '', costo: 0 });
+      renderMateriales();
+    }
+
+    function quitarMaterial(i) {
+      materiales.splice(i, 1);
+      renderMateriales();
+      calcular();
+    }
+
+    // Cálculo
+    function actualizarMargen() {
+      const v = document.getElementById('margen-slider').value;
+      document.getElementById('margen-label').textContent = v + '%';
+      calcular();
+    }
+
+    function calcular() {
+      const totalMateriales = materiales.reduce((sum, m) => sum + (m.costo || 0), 0);
+      const tiempoHs = parseFloat(document.getElementById('tiempo-hs').value) || 0;
+      const valorHora = parseFloat(document.getElementById('valor-hora').value) || 0;
+      const costoEnvio = parseFloat(document.getElementById('costo-envio').value) || 0;
+      const margenPct = parseInt(document.getElementById('margen-slider').value) || 40;
+
+      const costoTiempo = tiempoHs * valorHora;
+      const subtotalBase = totalMateriales + costoTiempo;
+      const margen = subtotalBase * (margenPct / 100);
+      const subtotal = subtotalBase + margen;
+      const total = Math.ceil((subtotal + costoEnvio) / 100) * 100;
+
+      document.getElementById('r-materiales').textContent = '$' + totalMateriales.toLocaleString('es-AR');
+      document.getElementById('r-tiempo').textContent = '$' + costoTiempo.toLocaleString('es-AR');
+      document.getElementById('r-margen').textContent = '$' + Math.round(margen).toLocaleString('es-AR');
+      document.getElementById('r-envio').textContent = '$' + costoEnvio.toLocaleString('es-AR');
+      document.getElementById('r-total').textContent = '$' + total.toLocaleString('es-AR');
+    }
+
+    async function guardarEnPedido() {
+      if (!pedidoId) return;
+
+      const totalMateriales = materiales.reduce((sum, m) => sum + (m.costo || 0), 0);
+      const tiempoHs = parseFloat(document.getElementById('tiempo-hs').value) || 0;
+      const valorHora = parseFloat(document.getElementById('valor-hora').value) || 0;
+      const costoEnvio = parseFloat(document.getElementById('costo-envio').value) || 0;
+      const margenPct = parseInt(document.getElementById('margen-slider').value) || 40;
+
+      const costoTiempo = tiempoHs * valorHora;
+      const subtotalBase = totalMateriales + costoTiempo;
+      const margen = subtotalBase * (margenPct / 100);
+      const subtotal = subtotalBase + margen;
+      const total = Math.ceil((subtotal + costoEnvio) / 100) * 100;
+
+      const costos = {
+        materiales: totalMateriales,
+        tiempoHs,
+        margenPct,
+        subtotal: Math.round(subtotal),
+        envio: costoEnvio,
+        total
+      };
+
+      try {
+        await db.collection('pedidos').doc(pedidoId).update({
+          costos,
+          actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        window.location.href = `pedido-detalle.html?id=${pedidoId}`;
+      } catch (err) {
+        console.error(err);
+        alert('Error al guardar: ' + err.message);
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem('mia-admin-auth');
+      window.location.href = 'index.html';
+    }
+
+    renderMateriales();
+    calcular();
+  </script>
+</body>
+</html>

@@ -77,6 +77,10 @@ body::before {
 .btn-ghost:hover { background:var(--v); color:#fff }
 .btn-wa   { background:#25a35a; color:#fff }
 .btn-wa:hover { background:#1a7d42; transform:translateY(-2px); box-shadow:0 10px 28px rgba(37,163,90,.35) }
+.btn-mp   { width:100%; font-size:.95rem; padding:15px; background:var(--v); color:#fff; border:none; border-radius:12px; cursor:pointer; font-family:var(--fb); font-weight:500; transition:var(--e); display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px }
+.btn-mp:hover { background:var(--v2); transform:translateY(-2px); box-shadow:0 10px 28px rgba(30,45,8,.3) }
+.btn-wa-sec { width:100%; font-size:.82rem; padding:11px; background:transparent; color:#25a35a; border:1.5px solid #25a35a; border-radius:12px; cursor:pointer; font-family:var(--fb); transition:var(--e); display:flex; align-items:center; justify-content:center; gap:6px }
+.btn-wa-sec:hover { background:#f0fff6 }
 
 #hdr {
   position:fixed; top:0; left:0; right:0; z-index:100;

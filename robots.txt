@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /panel-mk7x2qp9.html
+Disallow: /admin-app/
+Sitemap: https://DOMINIO/sitemap.xml

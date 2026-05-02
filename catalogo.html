@@ -10,6 +10,17 @@
   <meta property="og:description" content="Más de 26 piezas únicas hechas a mano. Pedidos por WhatsApp."/>
   <meta property="og:image" content="images/pulsera-alma-girasol-1.jpeg"/>
   <meta property="og:type" content="website"/>
+  <meta name="robots" content="index, follow"/>
+  <meta name="author" content="Mía Bisutería"/>
+  <meta name="language" content="es-AR"/>
+  <link rel="canonical" href="https://DOMINIO/catalogo.html"/>
+  <meta property="og:locale" content="es_AR"/>
+  <meta property="og:site_name" content="Mía Bisutería"/>
+  <meta property="og:url" content="https://DOMINIO/catalogo.html"/>
+  <!-- Google Analytics — placeholder -->
+  <!-- GA_SNIPPET_AQUI -->
+  <!-- Search Console verification — placeholder -->
+  <!-- SC_META_AQUI -->
   <link rel="icon" href="images/logos/flor-verde.jpg" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
@@ -69,6 +80,17 @@
     .skel-line.w45 { width:45% }
     @keyframes skelpulse { 0%,100%{opacity:1} 50%{opacity:.5} }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Catálogo Mía Bisutería",
+    "description": "Catálogo completo de accesorios artesanales hechos a mano.",
+    "url": "https://DOMINIO/catalogo.html",
+    "numberOfItems": 26,
+    "itemListElement": []
+  }
+  </script>
 </head>
 <body>
 
@@ -127,10 +149,13 @@
       <span class="pp-total-lbl">Total estimado</span>
       <span class="pp-total-val" id="pp-total">$0</span>
     </div>
-    <button class="btn btn-wa" style="width:100%;font-size:.95rem;padding:15px" onclick="enviarPedidoWA()">
-      <i class="fa-brands fa-whatsapp"></i> Enviar pedido por WhatsApp
+    <button class="btn btn-mp" onclick="abrirCheckout()">
+      <i class="fa-solid fa-credit-card"></i> Pagar con MercadoPago
     </button>
-    <p class="pp-nota">Los precios son orientativos. Mía confirmará disponibilidad y total exacto. <strong>Respuesta en menos de 24 h.</strong></p>
+    <button class="btn btn-wa btn-wa-sec" onclick="enviarPedidoWA()">
+      <i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp
+    </button>
+    <p class="pp-nota">Pagá de forma segura por MercadoPago o consultá disponibilidad por WhatsApp.</p>
   </div>
 </aside>
 
@@ -257,6 +282,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
 <script src="js/app.js"></script>
 <script>
 document.addEventListener('click', e => {

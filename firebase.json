@@ -1,0 +1,38 @@
+{
+  "functions": [
+    {
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "source": "functions"
+    }
+  ],
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "CLAUDE.md",
+      "skills-lock.json",
+      "firebase-service-account.json",
+      ".env",
+      "*.log",
+      "**/.*",
+      "**/node_modules/**",
+      "scripts/**",
+      ".agents/**"
+    ]
+  },
+  "emulators": {
+    "functions": { "port": 5001 },
+    "firestore": { "port": 8080 },
+    "hosting":   { "port": 5000 },
+    "ui":        { "enabled": true, "port": 4000 }
+  }
+}

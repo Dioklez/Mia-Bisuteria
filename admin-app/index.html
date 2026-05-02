@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mía Admin — Login</title>
+  <meta name="theme-color" content="#1e2d08"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" href="../images/logos/flor-verde.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-box">
+      <h1>Mía Admin</h1>
+      <p>Panel de gestión de pedidos</p>
+      <div class="login-error" id="login-error">Contraseña incorrecta</div>
+      <input type="password" id="pass-input" placeholder="Contraseña" autocomplete="current-password"/>
+      <button class="btn-login" onclick="intentarLogin()">Ingresar</button>
+    </div>
+  </div>
+  <script>
+    if (sessionStorage.getItem('mia-admin-auth') === 'ok') {
+      window.location.href = 'pedidos.html';
+    }
+
+    document.getElementById('pass-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') intentarLogin();
+    });
+
+    function intentarLogin() {
+      const pass = document.getElementById('pass-input').value;
+      if (pass === 'miabisuteria2025') {
+        sessionStorage.setItem('mia-admin-auth', 'ok');
+        window.location.href = 'pedidos.html';
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+        document.getElementById('pass-input').value = '';
+        document.getElementById('pass-input').focus();
+      }
+    }
+  </script>
+</body>
+</html>
