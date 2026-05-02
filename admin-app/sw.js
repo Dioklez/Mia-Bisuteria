@@ -12,16 +12,12 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-const CACHE_NAME = 'mia-admin-v2';
+const CACHE_NAME = 'mia-admin-v4';
 const CACHE_URLS = [
-  'index',
-  'pedidos',
-  'pedido-detalle',
-  'calculadora',
   'css/admin.css'
 ];
 
-// Install — cache static assets
+// Install — cache solo CSS
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(CACHE_URLS))
