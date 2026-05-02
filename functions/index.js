@@ -88,36 +88,66 @@ exports.webhookMercadoPago = onRequest(async (req, res) => {
       const paymentData = await payment.get({ id: data.id });
       const pedidoId = paymentData.external_reference;
 
-      if (!pedidoId) {
-        res.status(200).send("OK");
-        return;
-      }
-
-      const pedidoRef = db.collection("pedidos").doc(pedidoId);
-      const pedidoSnap = await pedidoRef.get();
-
       if (paymentData.status === "approved") {
-        await pedidoRef.update({
-          estado: "pago_confirmado",
-          "pago.paymentId": String(data.id),
-          "pago.estado": "aprobado",
-          "pago.fechaPago": FieldValue.serverTimestamp(),
-          actualizadoEn: FieldValue.serverTimestamp(),
-        });
-
-        // Enviar push notification a Mía
-        const pedido = pedidoSnap.data();
-        await enviarPushAdmin(
-          "💳 Pago confirmado",
-          `${pedido.cliente?.nombre || "Cliente"} pagó $${pedido.costos?.total?.toLocaleString("es-AR") || ""}`
-        );
-      } else if (paymentData.status === "rejected" || paymentData.status === "cancelled") {
-        await pedidoRef.update({
-          estado: "cancelado",
-          "pago.paymentId": String(data.id),
-          "pago.estado": "rechazado",
-          actualizadoEn: FieldValue.serverTimestamp(),
-        });
+        if (pedidoId) {
+          // Pedido personalizado — ya existe en Firestore, solo actualizamos
+          const pedidoRef = db.collection("pedidos").doc(pedidoId);
+          const pedidoSnap = await pedidoRef.get();
+          if (pedidoSnap.exists) {
+            await pedidoRef.update({
+              estado: "pago_confirmado",
+              "pago.paymentId": String(data.id),
+              "pago.estado": "aprobado",
+              "pago.fechaPago": FieldValue.serverTimestamp(),
+              actualizadoEn: FieldValue.serverTimestamp(),
+            });
+            const pedido = pedidoSnap.data();
+            await enviarPushAdmin(
+              "💳 Pago confirmado",
+              `${pedido.cliente?.nombre || "Cliente"} pagó $${pedido.costos?.total?.toLocaleString("es-AR") || ""}`
+            );
+          }
+        } else if (paymentData.metadata) {
+          // Pago por wallet desde catálogo — creamos el pedido ahora
+          const { items, total, cliente } = paymentData.metadata;
+          if (cliente && total) {
+            await db.collection("pedidos").add({
+              tipo: "catalogo",
+              estado: "pago_confirmado",
+              cliente,
+              items: items || [],
+              personalizado: null,
+              costos: { materiales: 0, tiempoHs: 0, margenPct: 0, subtotal: total, envio: 0, total },
+              pago: {
+                preferenceId: "",
+                paymentId:    String(data.id),
+                estado:       "aprobado",
+                linkPago:     "",
+                fechaPago:    FieldValue.serverTimestamp(),
+              },
+              envio: { tipo: "", direccion: "", nota: "" },
+              creadoEn:      FieldValue.serverTimestamp(),
+              actualizadoEn: FieldValue.serverTimestamp(),
+              expiraEn:      null,
+            });
+            await enviarPushAdmin(
+              "💳 Pago confirmado (wallet)",
+              `${cliente.nombre} pagó $${Number(total).toLocaleString("es-AR")}`
+            );
+          }
+        }
+      } else if (pedidoId && (paymentData.status === "rejected" || paymentData.status === "cancelled")) {
+        // Solo cancelamos si el pedido ya existía (personalizados)
+        const pedidoRef = db.collection("pedidos").doc(pedidoId);
+        const pedidoSnap = await pedidoRef.get();
+        if (pedidoSnap.exists) {
+          await pedidoRef.update({
+            estado: "cancelado",
+            "pago.paymentId": String(data.id),
+            "pago.estado": "rechazado",
+            actualizadoEn: FieldValue.serverTimestamp(),
+          });
+        }
       }
     }
   } catch (err) {
@@ -186,56 +216,93 @@ exports.reembolsarPedido = onCall(async (request) => {
 });
 
 // ============================================================
+// crearPreferenciaCheckout — HTTPS Callable
+// Crea preferencia sin pedidoId para habilitar wallet y todos los métodos
+// ============================================================
+exports.crearPreferenciaCheckout = onCall(async (request) => {
+  const { items, total, cliente } = request.data;
+  if (!total || !cliente) throw new HttpsError("invalid-argument", "Datos incompletos");
+
+  const preference = new Preference(mpClient);
+  const result = await preference.create({
+    body: {
+      items: [{
+        title: `Pedido Mía Bisutería - ${cliente.nombre}`,
+        quantity: 1,
+        unit_price: total,
+        currency_id: "ARS",
+      }],
+      back_urls: {
+        success: "https://miabisuteria.com/pago-exitoso",
+        failure: "https://miabisuteria.com/pago-fallido",
+        pending: "https://miabisuteria.com/pago-exitoso",
+      },
+      auto_return: "approved",
+      notification_url: "https://us-central1-mia-bisuteria.cloudfunctions.net/webhookMercadoPago",
+      metadata: { items, total, cliente },
+    },
+  });
+
+  return { preferenceId: result.id };
+});
+
+// ============================================================
 // procesarPago — HTTPS Callable
-// Recibe el token del CardPaymentBrick y cobra directamente
+// Recibe datos del brick, cobra y crea el pedido solo si se aprueba
 // ============================================================
 exports.procesarPago = onCall(async (request) => {
-  const { pedidoId, formData, email, nombre } = request.data;
-  if (!pedidoId || !formData) throw new HttpsError("invalid-argument", "Datos incompletos");
-
-  const pedidoRef = db.collection("pedidos").doc(pedidoId);
-  const snap = await pedidoRef.get();
-  if (!snap.exists) throw new HttpsError("not-found", "Pedido no encontrado");
-  const pedido = snap.data();
+  const { formData, items, total, cliente } = request.data;
+  if (!formData || !total || !cliente) throw new HttpsError("invalid-argument", "Datos incompletos");
 
   const payment = new Payment(mpClient);
   const result = await payment.create({
     body: {
-      transaction_amount: pedido.costos.total,
-      token:              formData.token,
-      installments:       formData.installments || 1,
-      payment_method_id:  formData.payment_method_id,
-      issuer_id:          formData.issuer_id,
+      transaction_amount: total,
+      token:             formData.token,
+      installments:      formData.installments || 1,
+      payment_method_id: formData.payment_method_id,
+      issuer_id:         formData.issuer_id,
       payer: {
-        email: email || "cliente@miabisuteria.ar",
-        first_name: nombre || "",
+        email:      cliente.email || "cliente@miabisuteria.ar",
+        first_name: cliente.nombre || "",
       },
-      external_reference: pedidoId,
-      notification_url: "https://jacqueline-uncoaxial-chaffingly.ngrok-free.dev/mia-bisuteria/us-central1/webhookMercadoPago",
-      description: `Pedido Mía Bisutería - ${nombre || pedido.cliente.nombre}`,
+      notification_url: "https://us-central1-mia-bisuteria.cloudfunctions.net/webhookMercadoPago",
+      description: `Pedido Mía Bisutería - ${cliente.nombre}`,
+      metadata: { items, total, cliente },
     },
   });
 
   if (result.status === "approved") {
-    await pedidoRef.update({
+    // Crear pedido en Firestore solo si el pago se aprobó
+    const docRef = await db.collection("pedidos").add({
+      tipo: "catalogo",
       estado: "pago_confirmado",
-      "pago.paymentId": String(result.id),
-      "pago.estado":    "aprobado",
-      "pago.fechaPago": FieldValue.serverTimestamp(),
-      actualizadoEn:    FieldValue.serverTimestamp(),
+      cliente,
+      items,
+      personalizado: null,
+      costos: { materiales: 0, tiempoHs: 0, margenPct: 0, subtotal: total, envio: 0, total },
+      pago: {
+        preferenceId: "",
+        paymentId:    String(result.id),
+        estado:       "aprobado",
+        linkPago:     "",
+        fechaPago:    FieldValue.serverTimestamp(),
+      },
+      envio: { tipo: "", direccion: "", nota: "" },
+      creadoEn:      FieldValue.serverTimestamp(),
+      actualizadoEn: FieldValue.serverTimestamp(),
+      expiraEn:      null,
     });
+
     await enviarPushAdmin(
       "💳 Pago confirmado",
-      `${pedido.cliente.nombre} pagó $${pedido.costos.total.toLocaleString("es-AR")}`
+      `${cliente.nombre} pagó $${Number(total).toLocaleString("es-AR")}`
     );
-  } else {
-    await pedidoRef.update({
-      "pago.estado":  result.status,
-      actualizadoEn: FieldValue.serverTimestamp(),
-    });
+
+    return { status: "approved", pedidoId: docRef.id };
   }
 
-  return { status: result.status, paymentId: result.id };
+  return { status: result.status };
 });
 
 // ============================================================

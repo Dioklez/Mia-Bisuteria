@@ -131,8 +131,8 @@ function initPanel() {
   // Inyectar modal de checkout multi-paso si no existe
   if (!document.getElementById('checkout-overlay')) {
     document.body.insertAdjacentHTML('beforeend', `
-      <div id="checkout-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;overflow-y:auto;padding:12px 8px;-webkit-overflow-scrolling:touch">
-        <div id="checkout-box" style="background:#fff;border-radius:20px;max-width:540px;width:100%;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div id="checkout-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;overflow-y:auto;-webkit-overflow-scrolling:touch">
+        <div id="checkout-box" style="background:#fff;min-height:100vh;width:100%;max-width:600px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.3)">
 
           <!-- Header -->
           <div style="background:var(--v);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
@@ -274,41 +274,23 @@ window.irAlPaso = window.irAlPago = async function() {
   if (!telefono || telefono.length < 10) { errEl.textContent = 'Ingresá tu WhatsApp con código de país (ej: 5491100000000).'; errEl.style.display = 'block'; return; }
   errEl.style.display = 'none';
 
-  // Mostrar spinner en el botón mientras guarda
+  // Guardar datos del cliente en _co para usarlos al confirmar el pago
+  _co.cliente = { nombre, email, telefono };
+
   const btnContinuar = document.querySelector('#co-paso1 button[onclick="irAlPago()"]');
-  if (btnContinuar) { btnContinuar.disabled = true; btnContinuar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'; }
+  if (btnContinuar) { btnContinuar.disabled = true; btnContinuar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...'; }
+
+  _mostrarPaso(2);
 
   try {
-    // Guardar pedido en Firestore
-    const ahora  = new Date();
-    const _timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
-    const docRef = await Promise.race([
-      db.collection('pedidos').add({
-        tipo: 'catalogo', estado: 'pendiente_pago',
-        cliente: { nombre, email, telefono },
-        items: _co.items,
-        personalizado: null,
-        costos: { materiales:0, tiempoHs:0, margenPct:0, subtotal:_co.total, envio:0, total:_co.total },
-        pago:  { preferenceId:'', paymentId:'', estado:'pendiente', linkPago:'', fechaPago:null },
-        envio: { tipo:'', direccion:'', nota:'' },
-        creadoEn:      firebase.firestore.FieldValue.serverTimestamp(),
-        actualizadoEn: firebase.firestore.FieldValue.serverTimestamp(),
-        expiraEn: new Date(ahora.getTime() + 48*60*60*1000)
-      }),
-      _timeout
-    ]);
-    _co.pedidoId = docRef.id;
-    _mostrarPaso(2);
-
-    // Crear preferencia para habilitar todos los métodos de pago (wallet, transferencia, etc.)
-    const crearPreferencia = firebase.app().functions('us-central1').httpsCallable('crearPreferenciaPago');
-    const prefResult = await crearPreferencia({ pedidoId: _co.pedidoId });
+    // Crear preferencia sin pedidoId — solo para habilitar wallet y otros métodos
+    const crearPref = firebase.app().functions('us-central1').httpsCallable('crearPreferenciaCheckout');
+    const prefResult = await crearPref({ items: _co.items, total: _co.total, cliente: _co.cliente });
     const preferenceId = prefResult.data.preferenceId;
 
     // Cargar SDK de MercadoPago si no está cargado
     await _cargarSDKMercadoPago();
 
-    // Renderizar Payment Brick (todos los métodos de pago)
     document.getElementById('co-brick-loading').style.display = 'block';
     const mp = new MercadoPago('APP_USR-7444a133-062f-42a1-82a4-96df4749e247', { locale: 'es-MX' });
     const bricksBuilder = mp.bricks();
@@ -322,11 +304,16 @@ window.irAlPaso = window.irAlPago = async function() {
       callbacks: {
         onReady: () => { document.getElementById('co-brick-loading').style.display = 'none'; },
         onSubmit: async ({ selectedPaymentMethod, formData }) => {
-          // Wallet MP — el brick maneja el redirect internamente
+          // Wallet — el brick redirige a MP, el webhook crea el pedido al confirmar
           if (selectedPaymentMethod === 'wallet_purchase') return Promise.resolve();
           try {
             const procesarPago = firebase.app().functions('us-central1').httpsCallable('procesarPago');
-            const result = await procesarPago({ pedidoId: _co.pedidoId, formData, email, nombre });
+            const result = await procesarPago({
+              formData,
+              items:   _co.items,
+              total:   _co.total,
+              cliente: _co.cliente
+            });
             if (result.data.status === 'approved') {
               pedido = {}; guardarPedido(pedido); actualizarPanel();
               _mostrarResultado('exito', nombre);
@@ -347,15 +334,10 @@ window.irAlPaso = window.irAlPago = async function() {
     });
   } catch(err) {
     console.error(err);
-    // Si el pedido no se guardó, volver al paso 1 con error
-    if (!_co.pedidoId) {
-      if (btnContinuar) { btnContinuar.disabled = false; btnContinuar.innerHTML = 'Continuar al pago <i class="fa-solid fa-arrow-right"></i>'; }
-      errEl.textContent = 'Error al guardar el pedido. Revisá tu conexión e intentá de nuevo.';
-      errEl.style.display = 'block';
-    } else {
-      document.getElementById('co-error2').textContent = 'Error al cargar el formulario de pago. Usá los botones de simulación.';
-      document.getElementById('co-error2').style.display = 'block';
-    }
+    if (btnContinuar) { btnContinuar.disabled = false; btnContinuar.innerHTML = 'Continuar al pago <i class="fa-solid fa-arrow-right"></i>'; }
+    _mostrarPaso(1);
+    errEl.textContent = 'Error al cargar el formulario de pago. Revisá tu conexión.';
+    errEl.style.display = 'block';
   }
 };
 
