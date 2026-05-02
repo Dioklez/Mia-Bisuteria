@@ -67,7 +67,7 @@ exports.crearPreferenciaPago = onCall(async (request) => {
     actualizadoEn: FieldValue.serverTimestamp(),
   });
 
-  return { linkPago: result.init_point };
+  return { linkPago: result.init_point, preferenceId: result.id };
 });
 
 // ============================================================

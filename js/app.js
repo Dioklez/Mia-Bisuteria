@@ -131,8 +131,8 @@ function initPanel() {
   // Inyectar modal de checkout multi-paso si no existe
   if (!document.getElementById('checkout-overlay')) {
     document.body.insertAdjacentHTML('beforeend', `
-      <div id="checkout-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;overflow-y:auto;padding:16px 12px;-webkit-overflow-scrolling:touch">
-        <div id="checkout-box" style="background:#fff;border-radius:20px;max-width:440px;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+      <div id="checkout-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;overflow-y:auto;padding:12px 8px;-webkit-overflow-scrolling:touch">
+        <div id="checkout-box" style="background:#fff;border-radius:20px;max-width:540px;width:100%;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
 
           <!-- Header -->
           <div style="background:var(--v);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
@@ -176,7 +176,7 @@ function initPanel() {
             <div id="co-brick-loading" style="text-align:center;padding:30px;color:var(--txt3);font-size:.85rem">
               <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:10px"></i><br/>Cargando formulario de pago...
             </div>
-            <div id="cardPaymentBrick_container"></div>
+            <div id="paymentBrick_container"></div>
             <div id="co-error2" style="display:none;color:#c62828;font-size:.78rem;margin-top:10px;padding:10px 14px;background:#fce4ec;border-radius:8px"></div>
             <div id="co-dev-tools" style="display:none;margin-top:16px;padding:12px;background:#fffde7;border:1px dashed #f9a825;border-radius:8px;text-align:center">
               <p style="font-size:.7rem;color:#e65100;margin-bottom:8px;font-weight:600">🧪 Modo desarrollo — solo en localhost</p>
@@ -300,26 +300,33 @@ window.irAlPaso = window.irAlPago = async function() {
     _co.pedidoId = docRef.id;
     _mostrarPaso(2);
 
+    // Crear preferencia para habilitar todos los métodos de pago (wallet, transferencia, etc.)
+    const crearPreferencia = firebase.app().functions('us-central1').httpsCallable('crearPreferenciaPago');
+    const prefResult = await crearPreferencia({ pedidoId: _co.pedidoId });
+    const preferenceId = prefResult.data.preferenceId;
+
     // Cargar SDK de MercadoPago si no está cargado
     await _cargarSDKMercadoPago();
 
-    // Renderizar CardPaymentBrick
+    // Renderizar Payment Brick (todos los métodos de pago)
     document.getElementById('co-brick-loading').style.display = 'block';
     const mp = new MercadoPago('APP_USR-7444a133-062f-42a1-82a4-96df4749e247', { locale: 'es-MX' });
     const bricksBuilder = mp.bricks();
 
-    _co.brickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
-      initialization: { amount: _co.total, payer: { email } },
+    _co.brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
+      initialization: { amount: _co.total, preferenceId, payer: { email } },
       customization: {
-        visual: { hideFormTitle: true, style: { theme: 'default' } },
+        visual: { style: { theme: 'default' } },
         paymentMethods: { minInstallments: 1, maxInstallments: 1 }
       },
       callbacks: {
         onReady: () => { document.getElementById('co-brick-loading').style.display = 'none'; },
-        onSubmit: async (cardFormData) => {
+        onSubmit: async ({ selectedPaymentMethod, formData }) => {
+          // Wallet MP — el brick maneja el redirect internamente
+          if (selectedPaymentMethod === 'wallet_purchase') return Promise.resolve();
           try {
             const procesarPago = firebase.app().functions('us-central1').httpsCallable('procesarPago');
-            const result = await procesarPago({ pedidoId: _co.pedidoId, formData: cardFormData, email, nombre });
+            const result = await procesarPago({ pedidoId: _co.pedidoId, formData, email, nombre });
             if (result.data.status === 'approved') {
               pedido = {}; guardarPedido(pedido); actualizarPanel();
               _mostrarResultado('exito', nombre);
