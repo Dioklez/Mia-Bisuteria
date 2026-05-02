@@ -305,7 +305,7 @@ window.irAlPaso = window.irAlPago = async function() {
 
     // Renderizar CardPaymentBrick
     document.getElementById('co-brick-loading').style.display = 'block';
-    const mp = new MercadoPago('APP_USR-2699896373482253-042319-d76be0d0169eebecff0e6401569eb6af-2362763592', { locale: 'es-AR' });
+    const mp = new MercadoPago('APP_USR-7444a133-062f-42a1-82a4-96df4749e247', { locale: 'es-MX' });
     const bricksBuilder = mp.bricks();
 
     _co.brickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
