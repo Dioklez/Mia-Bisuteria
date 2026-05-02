@@ -9,7 +9,7 @@
   <link rel="icon" href="../images/logos/flor-verde.jpg" type="image/jpeg"/>
   <link rel="manifest" href="manifest.json"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/admin.css"/>
+  <link rel="stylesheet" href="/admin-app/css/admin.css"/>
 </head>
 <body>
   <div class="login-wrap">
@@ -23,7 +23,7 @@
   </div>
   <script>
     if (sessionStorage.getItem('mia-admin-auth') === 'ok') {
-      window.location.href = 'pedidos';
+      window.location.href = '/admin-app/pedidos';
     }
 
     document.getElementById('pass-input').addEventListener('keydown', function(e) {
@@ -34,7 +34,7 @@
       const pass = document.getElementById('pass-input').value;
       if (pass === 'miabisuteria2025') {
         sessionStorage.setItem('mia-admin-auth', 'ok');
-        window.location.href = 'pedidos';
+        window.location.href = '/admin-app/pedidos';
       } else {
         document.getElementById('login-error').style.display = 'block';
         document.getElementById('pass-input').value = '';
