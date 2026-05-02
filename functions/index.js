@@ -7,7 +7,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
-const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
+const { MercadoPagoConfig, Preference, Payment, Refund } = require("mercadopago");
 
 initializeApp();
 setGlobalOptions({ maxInstances: 10, region: "us-central1" });
@@ -172,8 +172,8 @@ exports.reembolsarPedido = onCall(async (request) => {
     throw new HttpsError("failed-precondition", "El pedido no tiene un pago asociado");
   }
 
-  const payment = new Payment(mpClient);
-  await payment.refund({ id: Number(pedido.pago.paymentId) });
+  const refund = new Refund(mpClient);
+  await refund.create({ payment_id: Number(pedido.pago.paymentId) });
 
   await pedidoRef.update({
     estado: "cancelado",
