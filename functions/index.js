@@ -229,8 +229,7 @@ exports.crearPreferenciaCheckout = onCall(async (request) => {
       items: [{
         title: `Pedido Mía Bisutería - ${cliente.nombre}`,
         quantity: 1,
-        unit_price: total,
-        currency_id: "ARS",
+        unit_price: Number(total),
       }],
       back_urls: {
         success: "https://miabisuteria.com/pago-exitoso",
