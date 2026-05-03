@@ -292,7 +292,7 @@ window.irAlPaso = window.irAlPago = async function() {
     await _cargarSDKMercadoPago();
 
     document.getElementById('co-brick-loading').style.display = 'block';
-    const mp = new MercadoPago('APP_USR-824ba1fd-64a8-42c8-ab49-2e157c21a2ee', { locale: 'es-AR' });
+    const mp = new MercadoPago('APP_USR-c32fed7f-33b6-44b2-95f2-16f9459af1ef', { locale: 'es-AR' });
     const bricksBuilder = mp.bricks();
 
     _co.brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
