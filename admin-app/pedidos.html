@@ -42,8 +42,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
   <script>
-    // Auth guard
-    if (!MIA_AUTH.guard()) { throw new Error('no auth'); }
+    if (!MIA_AUTH.guard()) { /* redirige a login, nada más corre */ } else {
 
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyDJPxQ-L4XiWmGuNi2XYKnuEhhidnHnIhI",
@@ -237,6 +236,8 @@
     }
 
     iniciarPushNotifications();
+
+    } // end auth guard
   </script>
 </body>
 </html>

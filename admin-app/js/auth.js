@@ -88,12 +88,8 @@ const MIA_AUTH = (() => {
 
     _keepAlive() {
       this.refresh();
-      // Refrescar cada 30s mientras la página esté visible
-      setInterval(() => { if (document.visibilityState === 'visible') this.refresh(); }, 30000);
-      // Refrescar en cualquier interacción del usuario
-      ['click', 'touchstart', 'keydown'].forEach(ev =>
-        document.addEventListener(ev, () => this.refresh(), { passive: true })
-      );
+      // Refrescar cada 60s mientras la página esté visible
+      setInterval(() => { if (document.visibilityState === 'visible') this.refresh(); }, 60000);
     }
   };
 })();
