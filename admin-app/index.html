@@ -3,44 +3,680 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mía Admin — Login</title>
+  <title>Mía Admin</title>
   <meta name="theme-color" content="#1e2d08"/>
   <meta name="robots" content="noindex, nofollow"/>
   <link rel="icon" href="../images/logos/flor-verde.jpg" type="image/jpeg"/>
   <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-mobile-web-app-capable" content="yes"/>
+  <link rel="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Jost:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/admin-app/css/admin.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="js/auth.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --v: #1e2d08; --v2: #2e440f; --v3: #4a6b22; --v4: #7a9c52;
+      --vmenta: #c8deb0; --vfondo: #e8f0d8;
+      --c: #f9f4ec; --c2: #f2e8d4; --cborde: #d8c9aa;
+      --txt: #1c1408; --txt2: #5a4228; --txt3: #8a7060;
+      --fn: 'Playfair Display', serif;
+      --fb: 'Jost', sans-serif;
+      --fl: 'Dancing Script', cursive;
+      --e: 0.32s cubic-bezier(.4,0,.2,1);
+    }
+    body {
+      font-family: var(--fb);
+      min-height: 100vh; min-height: 100dvh;
+      background: linear-gradient(160deg, #1a2706 0%, #2e440f 55%, #1e2d08 100%);
+      color: #fff;
+      -webkit-tap-highlight-color: transparent;
+      overflow: hidden;
+    }
+
+    /* ── PANTALLAS ──────────────────────────────────── */
+    .auth-screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 28px 40px;
+      transition: opacity var(--e), transform var(--e);
+    }
+    .auth-screen.oculta {
+      opacity: 0; pointer-events: none;
+      transform: translateY(16px);
+    }
+
+    /* ── MARCA ──────────────────────────────────────── */
+    .auth-brand { text-align: center; margin-bottom: 44px; }
+    .auth-logo {
+      font-family: var(--fl);
+      font-size: 2.6rem; font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 16px rgba(0,0,0,.3);
+    }
+    .auth-subtitle {
+      font-size: .76rem; font-weight: 400;
+      color: rgba(255,255,255,.45);
+      margin-top: 5px; letter-spacing: .08em;
+    }
+
+    /* ── BOTÓN BIOMÉTRICO ───────────────────────────── */
+    .btn-biometric {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      color: #fff; font-size: 2.5rem;
+      cursor: pointer;
+      transition: background var(--e), transform .12s;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .btn-biometric:active { transform: scale(.91); background: rgba(255,255,255,.18); }
+    .btn-biometric.pulsando { animation: bio-pulse 1.6s ease-in-out infinite; }
+    @keyframes bio-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(200,222,176,.35); }
+      50%      { box-shadow: 0 0 0 18px rgba(200,222,176,.0); }
+    }
+    .bio-label {
+      font-size: .76rem; color: rgba(255,255,255,.5);
+      text-align: center; margin-bottom: 28px;
+    }
+    .bio-error {
+      font-size: .75rem; color: #ff8a80;
+      text-align: center; margin-bottom: 12px;
+      min-height: 18px;
+    }
+
+    /* ── PIN DOTS ───────────────────────────────────── */
+    .pin-dots {
+      display: flex; gap: 18px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .pin-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.4);
+      background: transparent;
+      transition: background .14s, border-color .14s, transform .14s;
+    }
+    .pin-dot.lleno { background: #fff; border-color: #fff; transform: scale(1.1); }
+    .pin-dot.error { background: #ff5252; border-color: #ff5252; animation: shake .38s ease; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)}
+    }
+    .pin-error-msg {
+      font-size: .74rem; color: #ff8a80;
+      text-align: center; min-height: 18px; margin-bottom: 14px;
+    }
+
+    /* ── PIN PAD ────────────────────────────────────── */
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      width: 100%; max-width: 270px;
+    }
+    .pin-key {
+      height: 66px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-family: var(--fb);
+      font-size: 1.5rem; font-weight: 300;
+      cursor: pointer;
+      transition: background .12s, transform .1s;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; -webkit-user-select: none;
+    }
+    .pin-key:active { background: rgba(255,255,255,.25); transform: scale(.91); }
+    .pin-key.vacia  { background: transparent; pointer-events: none; }
+    .pin-key.borrar { font-size: 1.15rem; }
+
+    /* ── LINKS ──────────────────────────────────────── */
+    .auth-links {
+      margin-top: 28px;
+      display: flex; flex-direction: column; gap: 4px;
+      align-items: center;
+    }
+    .link-btn {
+      background: none; border: none;
+      color: rgba(255,255,255,.45);
+      font-family: var(--fb); font-size: .78rem;
+      cursor: pointer; padding: 9px 18px;
+      border-radius: 8px;
+      transition: color var(--e), background var(--e);
+    }
+    .link-btn:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,.05); }
+
+    /* ── PANTALLA CONTRASEÑA ────────────────────────── */
+    .pass-box {
+      width: 100%; max-width: 310px;
+      text-align: center;
+    }
+    .pass-error {
+      font-size: .76rem; color: #ff8a80;
+      min-height: 20px; margin-bottom: 6px;
+    }
+    .pass-input {
+      width: 100%; padding: 14px 18px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 12px;
+      color: #fff; font-size: 1rem;
+      font-family: var(--fb);
+      text-align: center;
+      letter-spacing: .18em;
+      margin-bottom: 12px;
+      outline: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: border-color var(--e);
+    }
+    .pass-input::placeholder { color: rgba(255,255,255,.3); letter-spacing: 0; }
+    .pass-input:focus { border-color: rgba(255,255,255,.5); }
+    .pass-submit {
+      width: 100%; padding: 14px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      color: #fff; font-family: var(--fb);
+      font-size: .88rem; font-weight: 500;
+      cursor: pointer; transition: var(--e);
+    }
+    .pass-submit:hover { background: rgba(255,255,255,.24); }
+
+    /* ── MODAL SETUP (bottom sheet) ─────────────────── */
+    #setup-modal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.55);
+      display: flex; align-items: flex-end;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--e);
+    }
+    #setup-modal.visible { opacity: 1; pointer-events: all; }
+    .setup-sheet {
+      width: 100%; max-width: 480px; margin: 0 auto;
+      background: var(--c);
+      border-radius: 24px 24px 0 0;
+      padding: 20px 22px 44px;
+      transform: translateY(100%);
+      transition: transform .38s cubic-bezier(.32,0,.2,1);
+      color: var(--txt);
+    }
+    #setup-modal.visible .setup-sheet { transform: translateY(0); }
+    .setup-handle {
+      width: 36px; height: 4px;
+      background: rgba(0,0,0,.12); border-radius: 2px;
+      margin: 0 auto 22px;
+    }
+    .setup-title {
+      font-family: var(--fn);
+      font-size: 1.15rem; font-weight: 600;
+      color: var(--v); text-align: center; margin-bottom: 4px;
+    }
+    .setup-sub {
+      font-size: .78rem; color: var(--txt3);
+      text-align: center; margin-bottom: 22px;
+    }
+    .setup-options { display: flex; flex-direction: column; gap: 10px; }
+    .setup-option {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 15px;
+      border: 1.5px solid var(--cborde);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer; transition: background var(--e), border-color var(--e);
+      font-family: var(--fb);
+    }
+    .setup-option:active { background: var(--vfondo); border-color: var(--v4); }
+    .setup-option-icon {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--vfondo);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--v3);
+      flex-shrink: 0;
+    }
+    .setup-option-text strong { display: block; font-size: .88rem; color: var(--txt); font-weight: 600; }
+    .setup-option-text span   { font-size: .74rem; color: var(--txt3); }
+    .setup-skip {
+      margin-top: 14px; width: 100%;
+      background: none; border: none;
+      font-family: var(--fb); font-size: .8rem;
+      color: var(--txt3); cursor: pointer; padding: 10px;
+    }
+
+    /* ── SETUP PIN (dentro del modal) ───────────────── */
+    .setup-pin-dots {
+      display: flex; gap: 16px; justify-content: center; margin: 18px 0 8px;
+    }
+    .setup-pin-dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid var(--cborde);
+      background: transparent; transition: background .14s, border-color .14s;
+    }
+    .setup-pin-dot.lleno { background: var(--v); border-color: var(--v); }
+    .setup-pin-hint {
+      font-size: .76rem; color: var(--txt3); text-align: center;
+      margin-bottom: 16px; min-height: 18px;
+    }
+    .setup-pin-pad {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      max-width: 240px; margin: 0 auto 4px;
+    }
+    .setup-pin-key {
+      height: 54px; border-radius: 50%;
+      border: 1px solid var(--cborde);
+      background: #fff; color: var(--txt);
+      font-family: var(--fb); font-size: 1.25rem;
+      cursor: pointer; transition: background var(--e), transform .1s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .setup-pin-key:active { background: var(--vfondo); transform: scale(.92); }
+    .setup-pin-key.vacia  { background: transparent; border: none; pointer-events: none; }
+    .setup-pin-key.borrar { font-size: .95rem; color: var(--txt3); }
+    .setup-back-btn {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 12px; background: none; border: none;
+      font-family: var(--fb); font-size: .78rem;
+      color: var(--txt3); cursor: pointer; padding: 8px; width: 100%; justify-content: center;
+    }
+  </style>
 </head>
 <body>
-  <div class="login-wrap">
-    <div class="login-box">
-      <h1>Mía Admin</h1>
-      <p>Panel de gestión de pedidos</p>
-      <div class="login-error" id="login-error">Contraseña incorrecta</div>
-      <input type="password" id="pass-input" placeholder="Contraseña" autocomplete="current-password"/>
-      <button class="btn-login" onclick="intentarLogin()">Ingresar</button>
+
+  <!-- Pantalla 1: Bloqueo (biometría / PIN) -->
+  <div class="auth-screen oculta" id="s-lock">
+    <div class="auth-brand">
+      <div class="auth-logo">Mía Admin</div>
+      <div class="auth-subtitle" id="lock-subtitle">Desbloqueá para continuar</div>
+    </div>
+
+    <!-- Sección biometría -->
+    <div id="bio-wrap">
+      <button class="btn-biometric" id="btn-bio" onclick="tryBiometric()">
+        <i class="fa-solid fa-fingerprint"></i>
+      </button>
+      <div class="bio-label">Toca para usar biometría</div>
+      <div class="bio-error" id="bio-error"></div>
+    </div>
+
+    <!-- Sección PIN -->
+    <div id="pin-wrap" style="display:none">
+      <div class="pin-dots">
+        <span class="pin-dot" id="pd0"></span>
+        <span class="pin-dot" id="pd1"></span>
+        <span class="pin-dot" id="pd2"></span>
+        <span class="pin-dot" id="pd3"></span>
+      </div>
+      <div class="pin-error-msg" id="pin-error"></div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key vacia"></button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key borrar" onclick="pinDel()"><i class="fa-solid fa-delete-left"></i></button>
+      </div>
+    </div>
+
+    <div class="auth-links">
+      <button class="link-btn" id="btn-usar-pin"   style="display:none" onclick="mostrarModoPin()"><i class="fa-solid fa-hashtag"></i> Usar PIN</button>
+      <button class="link-btn" id="btn-usar-bio"   style="display:none" onclick="mostrarModoBio()"><i class="fa-solid fa-fingerprint"></i> Usar biometría</button>
+      <button class="link-btn" onclick="mostrarPantalla('password')">Usar contraseña</button>
     </div>
   </div>
-  <script>
-    if (sessionStorage.getItem('mia-admin-auth') === 'ok') {
-      window.location.href = '/admin-app/pedidos';
+
+  <!-- Pantalla 2: Contraseña -->
+  <div class="auth-screen oculta" id="s-password">
+    <div class="auth-brand">
+      <div class="auth-logo">Mía Admin</div>
+      <div class="auth-subtitle" id="pass-subtitle">Panel de gestión</div>
+    </div>
+    <div class="pass-box">
+      <div class="pass-error" id="pass-error"></div>
+      <input type="password" class="pass-input" id="pass-input"
+             placeholder="Contraseña" autocomplete="current-password"/>
+      <button class="pass-submit" onclick="tryPassword()">
+        <i class="fa-solid fa-arrow-right"></i> Ingresar
+      </button>
+    </div>
+    <div class="auth-links">
+      <button class="link-btn" id="btn-volver-lock" style="display:none" onclick="mostrarPantalla('lock')">
+        <i class="fa-solid fa-arrow-left"></i> Volver
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal setup (bottom sheet) -->
+  <div id="setup-modal">
+    <div class="setup-sheet">
+      <div class="setup-handle"></div>
+
+      <!-- Paso 1: elegir método -->
+      <div id="setup-elegir">
+        <div class="setup-title">Activá desbloqueo rápido</div>
+        <div class="setup-sub">La próxima vez vas a poder entrar sin tipear la contraseña</div>
+        <div class="setup-options" id="setup-opciones"></div>
+        <button class="setup-skip" onclick="setupSaltear()">Ahora no</button>
+      </div>
+
+      <!-- Paso 2: configurar PIN -->
+      <div id="setup-pin-pasos" style="display:none">
+        <div class="setup-title" id="setup-pin-titulo">Elegí tu PIN</div>
+        <div class="setup-pin-hint" id="setup-pin-hint">Ingresá 4 dígitos</div>
+        <div class="setup-pin-dots">
+          <span class="setup-pin-dot" id="spd0"></span>
+          <span class="setup-pin-dot" id="spd1"></span>
+          <span class="setup-pin-dot" id="spd2"></span>
+          <span class="setup-pin-dot" id="spd3"></span>
+        </div>
+        <div class="setup-pin-pad">
+          <button class="setup-pin-key" onclick="setupPinKey('1')">1</button>
+          <button class="setup-pin-key" onclick="setupPinKey('2')">2</button>
+          <button class="setup-pin-key" onclick="setupPinKey('3')">3</button>
+          <button class="setup-pin-key" onclick="setupPinKey('4')">4</button>
+          <button class="setup-pin-key" onclick="setupPinKey('5')">5</button>
+          <button class="setup-pin-key" onclick="setupPinKey('6')">6</button>
+          <button class="setup-pin-key" onclick="setupPinKey('7')">7</button>
+          <button class="setup-pin-key" onclick="setupPinKey('8')">8</button>
+          <button class="setup-pin-key" onclick="setupPinKey('9')">9</button>
+          <button class="setup-pin-key vacia"></button>
+          <button class="setup-pin-key" onclick="setupPinKey('0')">0</button>
+          <button class="setup-pin-key borrar" onclick="setupPinDel()"><i class="fa-solid fa-delete-left"></i></button>
+        </div>
+        <button class="setup-back-btn" onclick="setupPinCancelar()">
+          <i class="fa-solid fa-arrow-left"></i> Volver
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ── ESTADO ────────────────────────────────────────
+  let pinBuffer     = '';
+  let setupPinBuf   = '';
+  let setupPinFirst = '';
+
+  // ── INICIO ────────────────────────────────────────
+  (function init() {
+    if (MIA_AUTH.isValid()) {
+      location.replace('/admin-app/pedidos');
+      return;
     }
 
-    document.getElementById('pass-input').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') intentarLogin();
-    });
+    const hasBio  = MIA_AUTH.hasCredential();
+    const hasPin  = MIA_AUTH.hasPin();
+    const firstTime = MIA_AUTH.isFirstTime();
 
-    function intentarLogin() {
-      const pass = document.getElementById('pass-input').value;
-      if (pass === 'miabisuteria2025') {
-        sessionStorage.setItem('mia-admin-auth', 'ok');
-        window.location.href = '/admin-app/pedidos';
-      } else {
-        document.getElementById('login-error').style.display = 'block';
-        document.getElementById('pass-input').value = '';
-        document.getElementById('pass-input').focus();
+    if (firstTime) {
+      document.getElementById('pass-subtitle').textContent = 'Primera vez en este dispositivo';
+      mostrarPantalla('password');
+    } else if (hasBio || hasPin) {
+      mostrarPantalla('lock');
+      configurarModoBloqueo(hasBio, hasPin);
+      if (hasBio) setTimeout(tryBiometric, 450);
+    } else {
+      mostrarPantalla('password');
+    }
+  })();
+
+  function configurarModoBloqueo(hasBio, hasPin) {
+    if (hasBio && hasPin) {
+      mostrarModoBio();
+      document.getElementById('btn-usar-pin').style.display = '';
+    } else if (hasBio) {
+      mostrarModoBio();
+    } else {
+      mostrarModoPin();
+    }
+  }
+
+  // ── NAVEGACIÓN ENTRE PANTALLAS ────────────────────
+  function mostrarPantalla(nombre) {
+    document.getElementById('s-lock').classList.add('oculta');
+    document.getElementById('s-password').classList.add('oculta');
+
+    if (nombre === 'lock') {
+      document.getElementById('s-lock').classList.remove('oculta');
+    } else if (nombre === 'password') {
+      document.getElementById('s-password').classList.remove('oculta');
+      if (MIA_AUTH.hasCredential() || MIA_AUTH.hasPin()) {
+        document.getElementById('btn-volver-lock').style.display = '';
+      }
+      setTimeout(() => document.getElementById('pass-input').focus(), 320);
+    }
+  }
+
+  // ── BIOMETRÍA ─────────────────────────────────────
+  function mostrarModoBio() {
+    document.getElementById('bio-wrap').style.display = '';
+    document.getElementById('pin-wrap').style.display = 'none';
+    document.getElementById('btn-usar-bio').style.display = 'none';
+    if (MIA_AUTH.hasPin()) document.getElementById('btn-usar-pin').style.display = '';
+  }
+
+  function mostrarModoPin() {
+    document.getElementById('pin-wrap').style.display = '';
+    document.getElementById('bio-wrap').style.display = 'none';
+    document.getElementById('btn-usar-pin').style.display = 'none';
+    if (MIA_AUTH.hasCredential()) document.getElementById('btn-usar-bio').style.display = '';
+    pinBuffer = '';
+    actualizarPuntos();
+  }
+
+  async function tryBiometric() {
+    const btn = document.getElementById('btn-bio');
+    btn.classList.add('pulsando');
+    document.getElementById('bio-error').textContent = '';
+    try {
+      const ok = await MIA_AUTH.verifyCredential();
+      if (ok) onAuthOk();
+    } catch (e) {
+      btn.classList.remove('pulsando');
+      if (e.name !== 'NotAllowedError') {
+        document.getElementById('bio-error').textContent = 'No se pudo verificar — intentá de nuevo';
       }
     }
-  </script>
+    btn.classList.remove('pulsando');
+  }
+
+  // ── PIN ───────────────────────────────────────────
+  function actualizarPuntos(error = false) {
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('pd' + i);
+      d.className = 'pin-dot';
+      if (error) d.classList.add('error');
+      else if (i < pinBuffer.length) d.classList.add('lleno');
+    }
+  }
+
+  function pinKey(d) {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += d;
+    actualizarPuntos();
+    if (pinBuffer.length === 4) setTimeout(verificarPin, 80);
+  }
+
+  function pinDel() {
+    pinBuffer = pinBuffer.slice(0, -1);
+    actualizarPuntos();
+    document.getElementById('pin-error').textContent = '';
+  }
+
+  async function verificarPin() {
+    const ok = await MIA_AUTH.checkPin(pinBuffer);
+    if (ok) {
+      onAuthOk();
+    } else {
+      actualizarPuntos(true);
+      document.getElementById('pin-error').textContent = 'PIN incorrecto';
+      setTimeout(() => {
+        pinBuffer = '';
+        actualizarPuntos();
+        document.getElementById('pin-error').textContent = '';
+      }, 1100);
+    }
+  }
+
+  // ── CONTRASEÑA ────────────────────────────────────
+  document.getElementById('pass-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryPassword();
+  });
+
+  async function tryPassword() {
+    const pass = document.getElementById('pass-input').value;
+    if (!pass) return;
+    const ok = await MIA_AUTH.checkPassword(pass);
+    if (ok) {
+      if (MIA_AUTH.isFirstTime()) await MIA_AUTH.savePassword(pass);
+      onAuthOk();
+    } else {
+      document.getElementById('pass-error').textContent = 'Contraseña incorrecta';
+      document.getElementById('pass-input').value = '';
+      document.getElementById('pass-input').focus();
+      setTimeout(() => { document.getElementById('pass-error').textContent = ''; }, 2200);
+    }
+  }
+
+  // ── AUTH OK ───────────────────────────────────────
+  function onAuthOk() {
+    MIA_AUTH.refresh();
+    // Mostrar setup si no tiene ningún método rápido configurado
+    if (!MIA_AUTH.hasPin() && !MIA_AUTH.hasCredential()) {
+      mostrarSetupModal();
+    } else {
+      irAApp();
+    }
+  }
+
+  function irAApp() {
+    const ret = sessionStorage.getItem('mia-return');
+    sessionStorage.removeItem('mia-return');
+    location.replace(ret || '/admin-app/pedidos');
+  }
+
+  // ── MODAL SETUP ───────────────────────────────────
+  function mostrarSetupModal() {
+    const lista = document.getElementById('setup-opciones');
+    lista.innerHTML = '';
+
+    if (MIA_AUTH.isWebAuthnSupported()) {
+      lista.innerHTML += `
+        <div class="setup-option" onclick="setupBiometria()">
+          <div class="setup-option-icon"><i class="fa-solid fa-fingerprint"></i></div>
+          <div class="setup-option-text">
+            <strong>Biometría</strong>
+            <span>Huella dactilar o Face ID del dispositivo</span>
+          </div>
+        </div>`;
+    }
+
+    lista.innerHTML += `
+      <div class="setup-option" onclick="iniciarSetupPin()">
+        <div class="setup-option-icon"><i class="fa-solid fa-hashtag"></i></div>
+        <div class="setup-option-text">
+          <strong>PIN de 4 dígitos</strong>
+          <span>Rápido, sin necesidad de biometría</span>
+        </div>
+      </div>`;
+
+    document.getElementById('setup-modal').classList.add('visible');
+  }
+
+  function ocultarSetupModal() {
+    document.getElementById('setup-modal').classList.remove('visible');
+  }
+
+  function setupSaltear() {
+    ocultarSetupModal();
+    irAApp();
+  }
+
+  async function setupBiometria() {
+    try {
+      await MIA_AUTH.registerCredential();
+      ocultarSetupModal();
+      irAApp();
+    } catch (e) {
+      // Si falla (ej. usuario canceló), seguir en el modal para elegir otra opción
+      console.warn('Biometric registration failed:', e.message);
+    }
+  }
+
+  function iniciarSetupPin() {
+    document.getElementById('setup-elegir').style.display = 'none';
+    document.getElementById('setup-pin-pasos').style.display = '';
+    setupPinBuf   = '';
+    setupPinFirst = '';
+    document.getElementById('setup-pin-titulo').textContent = 'Elegí tu PIN';
+    document.getElementById('setup-pin-hint').textContent   = 'Ingresá 4 dígitos';
+    actualizarPuntosSetup();
+  }
+
+  function actualizarPuntosSetup() {
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('spd' + i).classList.toggle('lleno', i < setupPinBuf.length);
+    }
+  }
+
+  function setupPinKey(d) {
+    if (setupPinBuf.length >= 4) return;
+    setupPinBuf += d;
+    actualizarPuntosSetup();
+    if (setupPinBuf.length === 4) setTimeout(avanzarSetupPin, 110);
+  }
+
+  function setupPinDel() {
+    setupPinBuf = setupPinBuf.slice(0, -1);
+    actualizarPuntosSetup();
+  }
+
+  async function avanzarSetupPin() {
+    if (!setupPinFirst) {
+      setupPinFirst = setupPinBuf;
+      setupPinBuf   = '';
+      actualizarPuntosSetup();
+      document.getElementById('setup-pin-titulo').textContent = 'Confirmá tu PIN';
+      document.getElementById('setup-pin-hint').textContent   = 'Ingresá el mismo PIN';
+    } else {
+      if (setupPinBuf === setupPinFirst) {
+        await MIA_AUTH.savePin(setupPinBuf);
+        ocultarSetupModal();
+        irAApp();
+      } else {
+        document.getElementById('setup-pin-hint').textContent = 'Los PINs no coinciden — empezá de nuevo';
+        setupPinFirst = '';
+        setupPinBuf   = '';
+        actualizarPuntosSetup();
+        document.getElementById('setup-pin-titulo').textContent = 'Elegí tu PIN';
+        setTimeout(() => {
+          document.getElementById('setup-pin-hint').textContent = 'Ingresá 4 dígitos';
+        }, 1800);
+      }
+    }
+  }
+
+  function setupPinCancelar() {
+    document.getElementById('setup-pin-pasos').style.display = 'none';
+    document.getElementById('setup-elegir').style.display    = '';
+    setupPinBuf   = '';
+    setupPinFirst = '';
+  }
+</script>
 </body>
 </html>

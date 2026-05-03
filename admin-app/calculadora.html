@@ -78,12 +78,11 @@
     </div>
   </main>
 
+  <script src="js/auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-    if (sessionStorage.getItem('mia-admin-auth') !== 'ok') {
-      window.location.href = 'index';
-    }
+    if (!MIA_AUTH.guard()) { throw new Error('no auth'); }
 
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyDJPxQ-L4XiWmGuNi2XYKnuEhhidnHnIhI",
@@ -209,8 +208,8 @@
     }
 
     function cerrarSesion() {
-      sessionStorage.removeItem('mia-admin-auth');
-      window.location.href = 'index';
+      MIA_AUTH.revoke();
+      window.location.href = '/admin-app/';
     }
 
     renderMateriales();

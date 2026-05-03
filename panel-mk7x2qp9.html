@@ -8,21 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="/admin-app/js/auth.js"></script>
   <style>
     :root{--v:#1e2d08;--v2:#2e440f;--vmenta:#c8deb0;--vfondo:#e8f0d8;--c:#f9f4ec;--c2:#f2e8d4;--cborde:#d8c9aa;--oro:#b8862e;--oro2:#d4a84a;--orofondo:#faf3de;--txt:#1c1408;--txt2:#5a4228;--txt3:#8a7060;--rojo:#c04040;--verde:#25a35a;--fn:'Playfair Display',serif;--fb:'Jost',sans-serif;--e:0.28s cubic-bezier(.4,0,.2,1)}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{background:var(--c);color:var(--txt);font-family:var(--fb);line-height:1.6;min-height:100vh}
-    #login-screen{position:fixed;inset:0;z-index:999;background:var(--v);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px}
-    #login-screen h1{font-family:var(--fn);color:#fff;font-size:2rem;text-align:center}
-    #login-screen p{color:rgba(255,255,255,.55);font-size:.9rem}
-    .login-box{background:#fff;border-radius:20px;padding:36px 32px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
-    .login-box label{display:block;font-size:.72rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:8px}
-    .login-box input{width:100%;background:var(--c);border:1.5px solid var(--cborde);border-radius:10px;padding:12px 15px;font-family:var(--fb);font-size:.95rem;color:var(--txt);outline:none;transition:border-color var(--e)}
-    .login-box input:focus{border-color:var(--v)}
-    .login-error{color:var(--rojo);font-size:.82rem;margin-top:8px;display:none}
-    .btn-login{width:100%;margin-top:18px;padding:13px;background:var(--v);color:#fff;border:none;border-radius:50px;font-family:var(--fb);font-size:.9rem;font-weight:500;cursor:pointer;transition:var(--e)}
-    .btn-login:hover{background:var(--v2)}
-    #admin-app{display:none}
     .admin-header{background:var(--v);color:#fff;padding:16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.2)}
     .admin-header-inner{width:95%;max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
     .admin-logo{font-family:var(--fn);font-size:1.4rem;color:#fff}
@@ -174,17 +164,6 @@
   </style>
 </head>
 <body>
-
-<div id="login-screen">
-  <h1>Mía Bisutería</h1>
-  <p>Panel de administración</p>
-  <div class="login-box">
-    <label for="pass-input">Contraseña</label>
-    <input type="password" id="pass-input" placeholder="••••••••"/>
-    <p class="login-error" id="login-error"><i class="fa-solid fa-circle-exclamation"></i> Contraseña incorrecta</p>
-    <button class="btn-login" onclick="verificarPass()"><i class="fa-solid fa-lock-open"></i> Ingresar</button>
-  </div>
-</div>
 
 <div id="admin-app">
   <header class="admin-header">
@@ -613,7 +592,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
-const PASS_ADMIN        = 'miabisuteria2025';
+// Verificar sesión — redirigir al admin-app si expiró
+if (!MIA_AUTH.isValid()) { location.replace('/admin-app/'); }
+else { MIA_AUTH._keepAlive(); }
+
 const CLOUDINARY_NAME   = 'dygllvybq';
 const CLOUDINARY_PRESET = 'Mia Bisuteria';
 
@@ -695,19 +677,6 @@ async function fbSet(doc, data) {
   try { await db.collection('config').doc(doc).set(data, { merge: true }); return true; }
   catch(e) { console.error('Firebase write error:', e); return false; }
 }
-
-function verificarPass() {
-  if (document.getElementById('pass-input').value === PASS_ADMIN) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-app').style.display = 'block';
-    iniciarAdmin();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('pass-input').value = '';
-    document.getElementById('pass-input').focus();
-  }
-}
-document.getElementById('pass-input').addEventListener('keydown', e => { if (e.key === 'Enter') verificarPass(); });
 
 async function iniciarAdmin() {
   toast('Conectando con Firebase...', '');
@@ -1580,6 +1549,8 @@ function cerrarModal() { document.getElementById('modal-over').classList.remove(
 document.getElementById('modal-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-over')) cerrarModal(); });
 let toastTimer;
 function toast(msg, tipo='') { const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+tipo; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='',2800); }
+
+iniciarAdmin();
 </script>
 </body>
 </html>
