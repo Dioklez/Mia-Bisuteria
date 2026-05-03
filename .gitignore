@@ -6,6 +6,9 @@ firebase-service-account.json
 .env
 functions/.env
 
+# Cache interno de Firebase CLI
+.firebase/
+
 # Logs de Firebase
 firebase-debug.log
 firebase-debug.*.log

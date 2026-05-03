@@ -299,7 +299,14 @@ window.irAlPaso = window.irAlPago = async function() {
       initialization: { amount: _co.total, preferenceId, payer: { email, entityType: 'individual' } },
       customization: {
         visual: { style: { theme: 'default' } },
-        paymentMethods: { minInstallments: 1, maxInstallments: 1 }
+        paymentMethods: {
+          creditCard: 'all',
+          debitCard: 'all',
+          ticket: 'all',
+          bankTransfer: 'all',
+          mercadoPago: 'all',
+          maxInstallments: 12
+        }
       },
       callbacks: {
         onReady: () => { document.getElementById('co-brick-loading').style.display = 'none'; },
