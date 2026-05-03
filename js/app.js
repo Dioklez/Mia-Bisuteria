@@ -296,7 +296,7 @@ window.irAlPaso = window.irAlPago = async function() {
     const bricksBuilder = mp.bricks();
 
     _co.brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
-      initialization: { amount: _co.total, preferenceId, payer: { email } },
+      initialization: { amount: _co.total, preferenceId, payer: { email, entityType: 'individual' } },
       customization: {
         visual: { style: { theme: 'default' } },
         paymentMethods: { minInstallments: 1, maxInstallments: 1 }
