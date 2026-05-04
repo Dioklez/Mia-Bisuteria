@@ -117,12 +117,13 @@
     /* ── PIN PAD ────────────────────────────────────── */
     .pin-pad {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, 72px);
       gap: 14px;
-      width: 100%; max-width: 270px;
+      justify-content: center;
     }
     .pin-key {
-      height: 66px;
+      width: 72px;
+      aspect-ratio: 1;
       border-radius: 50%;
       border: none;
       background: rgba(255,255,255,.1);
@@ -269,11 +270,13 @@
       margin-bottom: 16px; min-height: 18px;
     }
     .setup-pin-pad {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-      max-width: 240px; margin: 0 auto 4px;
+      display: grid; grid-template-columns: repeat(3, 62px); gap: 10px;
+      justify-content: center; margin: 0 auto 4px;
     }
     .setup-pin-key {
-      height: 54px; border-radius: 50%;
+      width: 62px;
+      aspect-ratio: 1;
+      border-radius: 50%;
       border: 1px solid var(--cborde);
       background: #fff; color: var(--txt);
       font-family: var(--fb); font-size: 1.25rem;

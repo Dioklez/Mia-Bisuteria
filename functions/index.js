@@ -305,20 +305,55 @@ exports.procesarPago = onCall(async (request) => {
 });
 
 // ============================================================
-// Helper: enviar push a Mía usando token guardado en Firestore
+// Helper: enviar push a todos los dispositivos registrados
 // ============================================================
 async function enviarPushAdmin(title, body) {
   try {
     const configSnap = await db.collection("config").doc("admin").get();
-    const fcmToken = configSnap.exists ? configSnap.data().fcmToken : null;
-    if (!fcmToken) { logger.warn("No hay FCM token guardado para admin"); return; }
+    if (!configSnap.exists) { logger.warn("No existe config/admin"); return; }
 
-    await getMessaging().send({
-      token: fcmToken,
+    const data = configSnap.data();
+
+    // Recolectar todos los tokens (mapa de dispositivos + token legacy)
+    const tokensMap = data.fcmTokens || {};
+    const tokens = Object.values(tokensMap).filter(Boolean);
+    if (data.fcmToken && !tokens.includes(data.fcmToken)) tokens.push(data.fcmToken);
+
+    if (tokens.length === 0) { logger.warn("No hay FCM tokens guardados"); return; }
+
+    const msg = {
       notification: { title, body },
-      webpush: { fcmOptions: { link: "/admin-app/pedidos.html" } },
+      webpush: { fcmOptions: { link: "/admin-app/pedidos" } },
+    };
+
+    const results = await Promise.allSettled(
+      tokens.map(token => getMessaging().send({ ...msg, token }))
+    );
+
+    // Limpiar tokens inválidos de Firestore
+    const invalidos = [];
+    results.forEach((r, i) => {
+      if (r.status === "rejected") {
+        const code = r.reason?.errorInfo?.code || "";
+        if (code.includes("invalid-registration-token") || code.includes("registration-token-not-registered")) {
+          invalidos.push(tokens[i]);
+        }
+      }
     });
-    logger.info(`Push enviado: ${title}`);
+
+    if (invalidos.length > 0) {
+      const updates = {};
+      Object.entries(tokensMap).forEach(([deviceId, token]) => {
+        if (invalidos.includes(token)) updates[`fcmTokens.${deviceId}`] = FieldValue.delete();
+      });
+      if (Object.keys(updates).length > 0) {
+        await db.collection("config").doc("admin").update(updates);
+        logger.info(`Tokens inválidos eliminados: ${invalidos.length}`);
+      }
+    }
+
+    const ok = results.filter(r => r.status === "fulfilled").length;
+    logger.info(`Push enviado a ${ok}/${tokens.length} dispositivos: ${title}`);
   } catch (err) {
     logger.warn("Error enviando push:", err.message);
   }
