@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mía Admin</string>
+    <string name="login_title">Mía Bisutería</string>
+    <string name="login_subtitle">Panel de administración</string>
+    <string name="enter_password">Ingresar contraseña</string>
+    <string name="enter_pin">Ingresar PIN</string>
+    <string name="use_biometric">Usar huella / Face ID</string>
+    <string name="biometric_prompt_title">Verificar identidad</string>
+    <string name="biometric_prompt_subtitle">Para acceder al panel de administración</string>
+    <string name="session_expired">Sesión expirada. Ingresá de nuevo.</string>
+    <string name="update_available">Nueva versión disponible</string>
+    <string name="update_now">Actualizar ahora</string>
+    <string name="later">Más tarde</string>
+    <string name="channel_orders_name">Pedidos nuevos</string>
+    <string name="channel_orders_desc">Notificaciones de nuevos pedidos</string>
+</resources>

@@ -25,3 +25,13 @@ scripts/
 # Archivos internos de Claude Code
 .agents/
 skills-lock.json
+
+# Android
+android/.gradle/
+android/local.properties
+android/*.jks
+android/*.keystore
+android/app/build/
+android/app/google-services.json
+android/keystore.jks
+android/build/
