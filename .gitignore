@@ -28,10 +28,13 @@ skills-lock.json
 
 # Android
 android/.gradle/
+android/.idea/
 android/local.properties
 android/*.jks
 android/*.keystore
+android/mia-admin
 android/app/build/
+android/app/release/
 android/app/google-services.json
 android/keystore.jks
 android/build/
