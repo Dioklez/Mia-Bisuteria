@@ -179,7 +179,6 @@
         <button class="admin-nav-btn" onclick="mostrarTab('tipos',this)"><i class="fa-solid fa-tags"></i> Tipos</button>
         <button class="admin-nav-btn" onclick="mostrarTab('testimonios',this)"><i class="fa-solid fa-quote-right"></i> Testimonios</button>
         <button class="admin-nav-btn" onclick="mostrarTab('galeria',this)"><i class="fa-solid fa-images"></i> Galería</button>
-        <button class="admin-nav-btn danger" onclick="confirmarReset()"><i class="fa-solid fa-rotate-left"></i> Resetear</button>
         <a href="index.html" target="_blank" class="admin-nav-btn" style="text-decoration:none"><i class="fa-solid fa-eye"></i> Ver sitio</a>
       </div>
     </div>
@@ -285,7 +284,6 @@
         </div>
         <div class="form-actions">
           <button class="btn btn-v" onclick="guardarFavoritos()"><i class="fa-solid fa-floppy-disk"></i> Guardar favoritos</button>
-          <button class="btn btn-ghost" onclick="resetearFavoritos()"><i class="fa-solid fa-rotate-left"></i> Restaurar por defecto</button>
         </div>
       </div>
     </div>
@@ -433,6 +431,11 @@
 <div class="modal-over" id="modal-over">
   <div class="modal">
     <h3 id="modal-titulo"></h3><p id="modal-texto"></p>
+    <div id="modal-pass-wrap" style="display:none; margin: 12px 0 4px;">
+      <input type="password" id="modal-pass-input" placeholder="Ingresá tu contraseña"
+             style="width:100%; padding:8px 12px; border:1px solid var(--cborde); border-radius:6px; font-family:var(--fb); font-size:.95rem; box-sizing:border-box;">
+      <p id="modal-pass-error" style="color:#c0392b; font-size:.85rem; margin:4px 0 0; display:none;">Contraseña incorrecta</p>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
       <button class="btn btn-red" id="modal-ok-btn">Confirmar</button>
@@ -874,19 +877,31 @@ function limpiarFormulario() {
   document.getElementById('np-fotos').value = '';
 }
 
+function _confirmarConPass(titulo, texto, accion) {
+  document.getElementById('modal-titulo').textContent = titulo;
+  document.getElementById('modal-texto').textContent  = texto;
+  document.getElementById('modal-pass-wrap').style.display = 'block';
+  document.getElementById('modal-pass-input').value = '';
+  document.getElementById('modal-pass-error').style.display = 'none';
+  document.getElementById('modal-ok-btn').onclick = async () => {
+    const pass = document.getElementById('modal-pass-input').value;
+    const ok = await MIA_AUTH.checkPassword(pass);
+    if (!ok) { document.getElementById('modal-pass-error').style.display = 'block'; return; }
+    cerrarModal();
+    accion();
+  };
+  document.getElementById('modal-over').classList.add('open');
+}
+
 function confirmarEliminar(id) {
   const p = productos.find(pr => pr.id === id); if (!p) return;
   idParaEliminar = id;
-  document.getElementById('modal-titulo').textContent = 'Eliminar producto';
-  document.getElementById('modal-texto').textContent  = `¿Eliminar "${p.nombre}"? Esta acción no se puede deshacer.`;
-  document.getElementById('modal-ok-btn').onclick = async () => {
+  _confirmarConPass('Eliminar producto', `¿Eliminar "${p.nombre}"? Esta acción no se puede deshacer.`, async () => {
     productos = productos.filter(p => p.id !== idParaEliminar);
     const ok = await fbSet('productos', { items: productos });
     if (ok) { renderStats(); renderTabla(); renderSelectDestacado(); renderSelectGaleria(); toast('Eliminado', 'exito'); }
     else    { toast('Error al eliminar', 'error'); }
-    cerrarModal();
-  };
-  document.getElementById('modal-over').classList.add('open');
+  });
 }
 
 // ── EDITAR PRODUCTO COMPLETO ─────────────────────────────────────────────────
@@ -1100,16 +1115,6 @@ async function guardarFavoritos() {
   if (ok) toast('✓ Favoritos guardados', 'exito');
   else    toast('Error al guardar', 'error');
 }
-async function resetearFavoritos() {
-  const defaults = [6,10,17,7];
-  const ok = await fbSet('site', { favoritos: defaults });
-  if (ok) {
-    defaults.forEach((id, i) => { const sel = document.getElementById('fav-' + i); if (sel) sel.value = id; });
-    previsualizarFavoritos();
-    toast('Favoritos restaurados', 'exito');
-  } else toast('Error al guardar', 'error');
-}
-
 // ── COLECCIONES ──────────────────────────────────────────────────────────────
 function renderColecciones() {
   const grid = document.getElementById('col-admin-grid');
@@ -1162,11 +1167,11 @@ async function agregarColeccion() {
 }
 function confirmarEliminarColeccion(key) {
   const col = colecciones.find(c => c.key === key); if (!col) return;
-  document.getElementById('modal-titulo').textContent = `¿Eliminar colección "${col.emoji} ${col.nombre}"?`;
-  document.getElementById('modal-texto').textContent  = 'Los productos asignados quedarán sin colección hasta que los reasignes manualmente.';
-  idParaEliminar = null;
-  document.getElementById('modal-ok-btn').onclick = () => eliminarColeccion(key);
-  document.getElementById('modal-over').classList.add('open');
+  _confirmarConPass(
+    `¿Eliminar colección "${col.emoji} ${col.nombre}"?`,
+    'Los productos asignados quedarán sin colección hasta que los reasignes manualmente.',
+    () => eliminarColeccion(key)
+  );
 }
 async function eliminarColeccion(key) {
   colecciones = colecciones.filter(c => c.key !== key);
@@ -1313,11 +1318,11 @@ async function guardarEdicionTipo(nombre) {
 }
 function confirmarEliminarTipo(key) {
   const t = tipos.find(x => x.key === key); if (!t) return;
-  document.getElementById('modal-titulo').textContent = `¿Eliminar tipo "${t.nombre}"?`;
-  document.getElementById('modal-texto').textContent  = 'Los productos de este tipo quedarán sin tipo hasta que los reasignes manualmente.';
-  idParaEliminar = null;
-  document.getElementById('modal-ok-btn').onclick = () => eliminarTipo(key);
-  document.getElementById('modal-over').classList.add('open');
+  _confirmarConPass(
+    `¿Eliminar tipo "${t.nombre}"?`,
+    'Los productos de este tipo quedarán sin tipo hasta que los reasignes manualmente.',
+    () => eliminarTipo(key)
+  );
 }
 async function eliminarTipo(key) {
   tipos = tipos.filter(t => t.key !== key);
@@ -1522,30 +1527,14 @@ async function handleGaleriaFileSelect(files) {
   if (!ok) toast('Error al guardar en Firebase', 'error');
 }
 
-// ── RESETEAR ─────────────────────────────────────────────────────────────────
-function confirmarReset() {
-  document.getElementById('modal-titulo').textContent = 'Resetear todo';
-  document.getElementById('modal-texto').textContent  = 'Borra todos los cambios en Firebase y vuelve al catálogo original, incluyendo testimonios y colecciones.';
-  document.getElementById('modal-ok-btn').onclick = async () => {
-    productos    = JSON.parse(JSON.stringify(PRODUCTOS_DEFAULT));
-    destacado    = {nombre:'',precio:'',img:''};
-    galeriaFotos = [];
-    testimonios  = JSON.parse(JSON.stringify(TESTIMONIOS_DEFAULT));
-    colecciones  = JSON.parse(JSON.stringify(COLECCIONES_DEFAULT));
-    tipos        = JSON.parse(JSON.stringify(TIPOS_DEFAULT));
-    await fbSet('productos', { items: productos });
-    await fbSet('site', { destacado, favoritos:[6,10,17,7], galeria:[], testimonios, colecciones, tipos });
-    cerrarModal();
-    renderStats(); renderTabla(); renderDestacado(); renderSelectDestacado([6,10,17,7]);
-    renderSelectGaleria(); renderGaleriaAdmin(); renderColecciones(); renderTipos(); renderTestimonios();
-    actualizarSelectsCol(); actualizarSelectsTipo();
-    toast('Reseteado a valores originales', 'exito');
-  };
-  document.getElementById('modal-over').classList.add('open');
-}
-
 // ── UTILIDADES ───────────────────────────────────────────────────────────────
-function cerrarModal() { document.getElementById('modal-over').classList.remove('open'); idParaEliminar = null; }
+function cerrarModal() {
+  document.getElementById('modal-over').classList.remove('open');
+  idParaEliminar = null;
+  document.getElementById('modal-pass-wrap').style.display = 'none';
+  document.getElementById('modal-pass-input').value = '';
+  document.getElementById('modal-pass-error').style.display = 'none';
+}
 document.getElementById('modal-over').addEventListener('click', e => { if (e.target === document.getElementById('modal-over')) cerrarModal(); });
 let toastTimer;
 function toast(msg, tipo='') { const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+tipo; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='',2800); }
