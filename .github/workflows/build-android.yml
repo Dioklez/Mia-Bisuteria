@@ -52,21 +52,23 @@ jobs:
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           cat android/local.properties
 
-      - name: List Gradle tasks
+      - name: Diagnose project
         working-directory: android
-        run: ./gradlew tasks --all 2>&1 | grep -i "assemble\|release\|debug" || echo "No assembly tasks found - plugin not loading"
-
-      - name: Build debug APK (sanity check)
-        working-directory: android
-        run: ./gradlew :app:assembleDebug
-
-      - name: Check debug APK exists
         run: |
-          find android/app/build -name "*.apk" || echo "No APKs - el proyecto no compila"
+          echo "=== google-services.json ==="
+          wc -c app/google-services.json && head -2 app/google-services.json
+          echo "=== local.properties ==="
+          cat local.properties
+          echo "=== SDK platforms installed ==="
+          ls $ANDROID_SDK_ROOT/platforms/ 2>/dev/null || echo "No platforms dir"
+          echo "=== Gradle projects ==="
+          ./gradlew projects 2>&1 | tail -20
+          echo "=== Gradle tasks (first 60 lines) ==="
+          ./gradlew tasks 2>&1 | head -60
 
       - name: Build release APK
         working-directory: android
-        run: ./gradlew :app:assembleRelease --stacktrace
+        run: ./gradlew :app:assembleRelease
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/android/keystore.jks
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
