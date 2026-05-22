@@ -40,9 +40,14 @@ jobs:
       - name: Verify keystore
         run: keytool -list -keystore android/keystore.jks -storepass "${{ secrets.ANDROID_STORE_PASS }}" -alias "${{ secrets.ANDROID_KEY_ALIAS }}" -noprompt
 
+      - name: Check SDK path
+        run: |
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          cat android/local.properties
+
       - name: Build release APK
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --stacktrace
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/android/keystore.jks
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -51,13 +56,13 @@ jobs:
 
       - name: Find and rename APK
         run: |
-          APK=$(find android/app/build/outputs -name "*.apk" | head -1)
+          APK=$(find . -name "*.apk" 2>/dev/null | head -1)
           if [ -z "$APK" ]; then
-            echo "ERROR: No APK encontrado. Contenido de build:"
-            find android/app/build -type f | head -30
+            echo "ERROR: No APK encontrado en ninguna ruta"
             exit 1
           fi
           echo "APK encontrado: $APK"
+          mkdir -p android/app/build/outputs/apk/release/
           cp "$APK" "android/app/build/outputs/apk/release/MiaBisuteriaAdmin-${{ github.ref_name }}.apk"
 
       - name: Create GitHub Release
