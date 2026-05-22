@@ -186,10 +186,9 @@ private fun OrderCard(pedido: Pedido, onClick: () -> Unit) {
 }
 
 private fun EstadoPedido.toColor(): Color = when (this) {
-    EstadoPedido.PENDIENTE_PAGO -> EstadoNuevo
-    EstadoPedido.PAGO_CONFIRMADO -> EstadoNuevo
-    EstadoPedido.EN_PROCESO -> EstadoEnProceso
-    EstadoPedido.LISTO -> EstadoListo
+    EstadoPedido.PENDIENTE_PAGO, EstadoPedido.PAGO_CONFIRMADO -> EstadoNuevo
+    EstadoPedido.EN_FABRICACION, EstadoPedido.EN_PROCESO -> EstadoEnProceso
+    EstadoPedido.LISTO, EstadoPedido.ENTREGADO -> EstadoListo
     EstadoPedido.CANCELADO -> EstadoCancelado
 }
 
