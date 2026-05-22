@@ -46,6 +46,9 @@ jobs:
           KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
           STORE_PASS: ${{ secrets.ANDROID_STORE_PASS }}
 
+      - name: List build outputs
+        run: find android/app/build/outputs -type f 2>/dev/null || echo "No se encontraron outputs"
+
       - name: Rename APK with version
         run: |
           VERSION="${{ github.ref_name }}"
