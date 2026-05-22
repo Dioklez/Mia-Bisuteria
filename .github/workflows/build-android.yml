@@ -3,8 +3,8 @@ name: Build Android APK
 on:
   push:
     tags:
-      - 'v*.*.*'          # Trigger on version tags like v1.0.0
-  workflow_dispatch:       # Allow manual trigger from GitHub UI
+      - 'v*.*.*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -28,17 +28,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
-      - name: Decode keystore from secret
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 --decode > android/keystore.jks
-        env:
-          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
 
       - name: Write google-services.json
         run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
 
-      - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+      - name: Decode keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 --decode > android/keystore.jks
+
+      - name: Verify keystore
+        run: keytool -list -keystore android/keystore.jks -storepass "${{ secrets.ANDROID_STORE_PASS }}" -alias "${{ secrets.ANDROID_KEY_ALIAS }}" -noprompt
 
       - name: Build release APK
         working-directory: android
@@ -49,15 +49,16 @@ jobs:
           KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
           STORE_PASS: ${{ secrets.ANDROID_STORE_PASS }}
 
-      - name: List build outputs
-        run: find android/app/build/outputs -type f 2>/dev/null || echo "No se encontraron outputs"
-
-      - name: Rename APK with version
+      - name: Find and rename APK
         run: |
-          VERSION="${{ github.ref_name }}"
-          APK=$(find android/app/build/outputs/apk/release/ -name "*.apk" | head -1)
+          APK=$(find android/app/build/outputs -name "*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "ERROR: No APK encontrado. Contenido de build:"
+            find android/app/build -type f | head -30
+            exit 1
+          fi
           echo "APK encontrado: $APK"
-          cp "$APK" android/app/build/outputs/apk/release/MiaBisuteriaAdmin-${VERSION}.apk
+          cp "$APK" "android/app/build/outputs/apk/release/MiaBisuteriaAdmin-${{ github.ref_name }}.apk"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -68,6 +69,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Clean up keystore
+      - name: Clean up secrets
         if: always()
-        run: rm -f android/keystore.jks
+        run: |
+          rm -f android/keystore.jks
+          rm -f android/app/google-services.json
