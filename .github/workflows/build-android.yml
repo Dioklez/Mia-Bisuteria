@@ -45,12 +45,17 @@ jobs:
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           cat android/local.properties
 
+      - name: Build debug APK (sanity check)
+        working-directory: android
+        run: ./gradlew :app:assembleDebug
+
+      - name: Check debug APK exists
+        run: |
+          find android/app/build -name "*.apk" || echo "No APKs - el proyecto no compila"
+
       - name: Build release APK
         working-directory: android
-        run: |
-          ./gradlew :app:assembleRelease --stacktrace
-          echo "=== Verificando outputs ==="
-          find app/build -name "*.apk" 2>/dev/null || echo "ADVERTENCIA: No se encontraron APKs"
+        run: ./gradlew :app:assembleRelease --stacktrace
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/android/keystore.jks
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
