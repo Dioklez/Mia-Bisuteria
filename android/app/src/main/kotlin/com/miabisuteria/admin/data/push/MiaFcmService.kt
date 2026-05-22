@@ -2,13 +2,16 @@ package com.miabisuteri.admin.data.push
 
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.miabisuteri.admin.MainActivity
 import com.miabisuteri.admin.MiaAdminApp
 import com.miabisuteri.admin.R
+import java.util.UUID
 
 class MiaFcmService : FirebaseMessagingService() {
 
@@ -26,9 +29,7 @@ class MiaFcmService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        // Token refresh — in a production app you'd save this to Firestore
-        // so the web panel can send targeted pushes to this device.
-        // For now, topic-based messaging handles delivery.
+        saveTokenToFirestore(this, token)
     }
 
     private fun showNotification(title: String, body: String) {
@@ -51,5 +52,18 @@ class MiaFcmService : FirebaseMessagingService() {
 
         val nm = getSystemService(NotificationManager::class.java)
         nm.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    companion object {
+        fun saveTokenToFirestore(context: Context, token: String) {
+            val prefs = context.getSharedPreferences("mia_prefs", Context.MODE_PRIVATE)
+            val deviceId = prefs.getString("device_id", null)
+                ?: UUID.randomUUID().toString().also { id ->
+                    prefs.edit().putString("device_id", id).apply()
+                }
+            FirebaseFirestore.getInstance()
+                .collection("config").document("admin")
+                .update("fcmTokens.$deviceId", token)
+        }
     }
 }

@@ -64,8 +64,10 @@ data class Pedido(
 enum class EstadoPedido(val key: String, val display: String) {
     PENDIENTE_PAGO("pendiente_pago", "Pendiente pago"),
     PAGO_CONFIRMADO("pago_confirmado", "Pago confirmado"),
+    EN_FABRICACION("en_fabricacion", "En fabricación"),
     EN_PROCESO("en_proceso", "En proceso"),
     LISTO("listo", "Listo para entregar"),
+    ENTREGADO("entregado", "Entregado"),
     CANCELADO("cancelado", "Cancelado");
 
     companion object {

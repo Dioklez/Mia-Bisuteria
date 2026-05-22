@@ -9,6 +9,7 @@ import coil.ImageLoader
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.google.firebase.messaging.FirebaseMessaging
+import com.miabisuteri.admin.data.push.MiaFcmService
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -19,6 +20,7 @@ class MiaAdminApp : Application() {
         setupCoil()
         createNotificationChannels()
         subscribeFcmTopics()
+        registerFcmToken()
     }
 
     private fun setupCoil() {
@@ -42,6 +44,14 @@ class MiaAdminApp : Application() {
     private fun subscribeFcmTopics() {
         // Receive a push whenever a new order lands in Firestore
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_ORDERS)
+    }
+
+    private fun registerFcmToken() {
+        // Ensure the current token is saved to Firestore even if onNewToken wasn't called
+        // (e.g., after a fresh install where the token already exists)
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            MiaFcmService.saveTokenToFirestore(this, token)
+        }
     }
 
     private fun createNotificationChannels() {

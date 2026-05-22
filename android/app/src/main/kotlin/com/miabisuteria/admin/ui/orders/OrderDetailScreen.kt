@@ -1,7 +1,11 @@
 package com.miabisuteri.admin.ui.orders
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -256,6 +260,78 @@ fun OrderDetailScreen(
                 }
             }
 
+            // Generar link de pago
+            val linkActual = state.linkPago ?: pedido.pago?.linkPago?.takeIf { it.isNotBlank() }
+            if (pedido.costos != null) {
+                if (linkActual != null) {
+                    // Link ya generado — mostrar opciones
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("Link de pago", linkActual))
+                                Toast.makeText(context, "Link copiado", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Oro),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(
+                                brush = androidx.compose.ui.graphics.SolidColor(Oro)
+                            )
+                        ) {
+                            Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Copiar link")
+                        }
+                        if (pedido.cliente.telefono.isNotBlank()) {
+                            Button(
+                                onClick = {
+                                    val phone = pedido.cliente.telefono.filter { it.isDigit() }
+                                    val msg = "Hola ${pedido.cliente.nombre}! Te mando el link para abonar tu pedido de Mía Bisutería: $linkActual"
+                                    context.startActivity(Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://wa.me/$phone?text=${Uri.encode(msg)}")
+                                    ))
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.buttonColors(containerColor = Oro)
+                            ) {
+                                Icon(Icons.Default.Chat, null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("Enviar link", color = AdminBackground)
+                            }
+                        }
+                    }
+                } else {
+                    // Sin link — botón para generarlo
+                    Button(
+                        onClick = { viewModel.generarLinkPago(orderId) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isGeneratingLink,
+                        colors = ButtonDefaults.buttonColors(containerColor = Oro)
+                    ) {
+                        if (state.isGeneratingLink) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = AdminBackground, strokeWidth = 2.dp)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Generando link...", color = AdminBackground)
+                        } else {
+                            Icon(Icons.Default.Link, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Generar link de pago", color = AdminBackground)
+                        }
+                    }
+                }
+            }
+
+            // Error
+            state.error?.let { err ->
+                Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.errorContainer) {
+                    Text(err, modifier = Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onErrorContainer)
+                }
+            }
+
             Spacer(Modifier.height(32.dp))
         }
     }
@@ -317,8 +393,8 @@ private fun EstadoPickerDialog(
 
 private fun EstadoPedido.toColor(): Color = when (this) {
     EstadoPedido.PENDIENTE_PAGO, EstadoPedido.PAGO_CONFIRMADO -> EstadoNuevo
-    EstadoPedido.EN_PROCESO -> EstadoEnProceso
-    EstadoPedido.LISTO -> EstadoListo
+    EstadoPedido.EN_FABRICACION, EstadoPedido.EN_PROCESO -> EstadoEnProceso
+    EstadoPedido.LISTO, EstadoPedido.ENTREGADO -> EstadoListo
     EstadoPedido.CANCELADO -> EstadoCancelado
 }
 

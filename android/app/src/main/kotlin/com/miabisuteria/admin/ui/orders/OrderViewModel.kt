@@ -20,7 +20,9 @@ data class OrderDetailState(
     val pedido: Pedido? = null,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val linkPago: String? = null,
+    val isGeneratingLink: Boolean = false
 )
 
 @HiltViewModel
@@ -80,11 +82,28 @@ class OrderViewModel @Inject constructor(
     }
 
     fun pedidosEnProceso(pedidos: List<Pedido>) =
-        pedidos.filter { it.estado == EstadoPedido.EN_PROCESO }
+        pedidos.filter {
+            it.estado == EstadoPedido.EN_FABRICACION || it.estado == EstadoPedido.EN_PROCESO
+        }
 
     fun pedidosListos(pedidos: List<Pedido>) =
         pedidos.filter { it.estado == EstadoPedido.LISTO }
 
     fun pedidosHistorial(pedidos: List<Pedido>) =
-        pedidos.filter { it.estado == EstadoPedido.CANCELADO }
+        pedidos.filter {
+            it.estado == EstadoPedido.CANCELADO || it.estado == EstadoPedido.ENTREGADO
+        }
+
+    fun generarLinkPago(orderId: String) {
+        viewModelScope.launch {
+            _detailState.update { it.copy(isGeneratingLink = true, error = null) }
+            runCatching { repo.generarLinkPago(orderId) }
+                .onSuccess { link ->
+                    _detailState.update { it.copy(linkPago = link, isGeneratingLink = false) }
+                }
+                .onFailure { e ->
+                    _detailState.update { it.copy(error = e.message, isGeneratingLink = false) }
+                }
+        }
+    }
 }

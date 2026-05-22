@@ -124,6 +124,21 @@
       const container = document.getElementById('pedidos-list');
       const filtrados = filtrarPorTab(pedidos);
 
+      // Botón exportar (solo historial)
+      let exportBtn = document.getElementById('btn-exportar');
+      if (tabActual === 'historial') {
+        if (!exportBtn) {
+          exportBtn = document.createElement('button');
+          exportBtn.id = 'btn-exportar';
+          exportBtn.style.cssText = 'display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:10px;background:transparent;border:1.5px solid #7a9c52;color:#4a6b22;border-radius:8px;font-size:.88rem;cursor:pointer;font-family:inherit;';
+          exportBtn.innerHTML = '<i class="fa-solid fa-file-export"></i> Exportar historial';
+          exportBtn.addEventListener('click', exportarHistorial);
+          container.parentElement.insertBefore(exportBtn, container);
+        }
+      } else if (exportBtn) {
+        exportBtn.remove();
+      }
+
       if (filtrados.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
@@ -133,22 +148,58 @@
         return;
       }
 
-      container.innerHTML = filtrados.map(p => `
-        <a class="pedido-card" href="pedido-detalle?id=${p.id}">
-          <div class="pedido-card-header">
-            <h3>${p.cliente?.nombre || 'Sin nombre'}</h3>
-            <span class="badge badge-${p.estado}">${estadoLabel(p.estado)}</span>
-          </div>
-          <div class="pedido-card-meta">
-            <span><i class="fa-solid fa-tag"></i> ${p.tipo === 'personalizado' ? 'Personalizado' : 'Catálogo'}</span>
-            <span><i class="fa-solid fa-box"></i> ${p.items?.length || 0} item${(p.items?.length || 0) !== 1 ? 's' : ''}</span>
-          </div>
-          <div class="pedido-card-footer">
-            <span class="pedido-total">${p.costos?.total ? '$' + p.costos.total.toLocaleString('es-AR') : 'Sin cotizar'}</span>
-            <span class="pedido-tiempo">${tiempoDesde(p.creadoEn)}</span>
-          </div>
-        </a>
-      `).join('');
+      container.innerHTML = filtrados.map(p => {
+        const esHistorial = tabActual === 'historial';
+        return `
+        <div class="pedido-card-wrap" style="position:relative;">
+          <a class="pedido-card" href="pedido-detalle?id=${p.id}">
+            <div class="pedido-card-header">
+              <h3>${p.cliente?.nombre || 'Sin nombre'}</h3>
+              <span class="badge badge-${p.estado}">${estadoLabel(p.estado)}</span>
+            </div>
+            <div class="pedido-card-meta">
+              <span><i class="fa-solid fa-tag"></i> ${p.tipo === 'personalizado' ? 'Personalizado' : 'Catálogo'}</span>
+              <span><i class="fa-solid fa-box"></i> ${p.items?.length || 0} item${(p.items?.length || 0) !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="pedido-card-footer">
+              <span class="pedido-total">${p.costos?.total ? '$' + p.costos.total.toLocaleString('es-AR') : 'Sin cotizar'}</span>
+              <span class="pedido-tiempo">${tiempoDesde(p.creadoEn)}</span>
+            </div>
+          </a>
+          ${esHistorial ? `<button onclick="borrarPedido('${p.id}', event)" style="position:absolute;top:10px;right:10px;background:#c0392b;border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;line-height:28px;text-align:center;z-index:2;">×</button>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function borrarPedido(id, e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!confirm('¿Eliminar este pedido del historial? Esta acción no se puede deshacer.')) return;
+      db.collection('pedidos').doc(id).delete().catch(err => {
+        alert('Error al eliminar: ' + err.message);
+      });
+    }
+
+    function exportarHistorial() {
+      const filtrados = filtrarPorTab(pedidos);
+      if (filtrados.length === 0) return;
+      const lines = filtrados.map(p => {
+        const fecha = p.creadoEn ? p.creadoEn.toDate().toLocaleDateString('es-AR') : '—';
+        const total = p.costos?.total ? '$' + p.costos.total.toLocaleString('es-AR') : 'Sin cotizar';
+        const tipo = p.tipo === 'personalizado' ? 'Personalizado' : 'Catálogo';
+        return `• ${p.cliente?.nombre || 'Sin nombre'} | ${tipo} | ${estadoLabel(p.estado)} | ${total} | ${fecha}`;
+      });
+      const texto = `Historial de pedidos — Mía Bisutería\n${new Date().toLocaleDateString('es-AR')}\n\n${lines.join('\n')}`;
+      navigator.clipboard.writeText(texto).then(() => {
+        const btn = document.getElementById('btn-exportar');
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+          btn.style.borderColor = '#1e2d08';
+          btn.style.color = '#1e2d08';
+          setTimeout(() => { btn.innerHTML = orig; btn.style.borderColor = '#7a9c52'; btn.style.color = '#4a6b22'; }, 2000);
+        }
+      }).catch(() => alert('No se pudo copiar al portapapeles'));
     }
 
     let loadingTimer = null;

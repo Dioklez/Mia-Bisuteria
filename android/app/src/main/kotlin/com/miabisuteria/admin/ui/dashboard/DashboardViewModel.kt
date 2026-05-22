@@ -57,7 +57,7 @@ class DashboardViewModel @Inject constructor(
                     val startOfMonth = getStartOfMonthMs(now)
                     val ingresosMes = pedidos
                         .filter { p ->
-                            (p.estado == EstadoPedido.LISTO || p.estado == EstadoPedido.EN_PROCESO)
+                            (p.estado == EstadoPedido.LISTO || p.estado == EstadoPedido.EN_PROCESO || p.estado == EstadoPedido.EN_FABRICACION)
                             && (p.creadoEn?.toDate()?.time ?: 0L) >= startOfMonth
                         }
                         .sumOf { it.costos?.total ?: 0L }
