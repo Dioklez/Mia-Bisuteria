@@ -18,6 +18,8 @@ data class DashboardUiState(
     val pedidosEnProceso: Int = 0,
     val ingresosMes: Long = 0L,
     val updateAvailable: GitHubRelease? = null,
+    val isDownloading: Boolean = false,
+    val downloadId: Long? = null,
     val isLoading: Boolean = true
 )
 
@@ -84,6 +86,15 @@ class DashboardViewModel @Inject constructor(
 
     fun dismissUpdate() {
         _uiState.update { it.copy(updateAvailable = null) }
+    }
+
+    fun onDownloadStarted(downloadId: Long) {
+        // Keeps updateAvailable so the dialog stays visible showing download progress
+        _uiState.update { it.copy(isDownloading = true, downloadId = downloadId) }
+    }
+
+    fun onDownloadComplete() {
+        _uiState.update { it.copy(isDownloading = false, downloadId = null) }
     }
 
     private fun getStartOfMonthMs(nowMs: Long): Long {

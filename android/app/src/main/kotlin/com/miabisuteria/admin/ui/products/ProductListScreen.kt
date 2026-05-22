@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 import com.miabisuteri.admin.domain.model.TIPOS_PRODUCTO
 import com.miabisuteri.admin.domain.model.Producto
 import com.miabisuteri.admin.ui.theme.*
@@ -200,9 +202,15 @@ private fun ProductCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Thumbnail
-            if (producto.imgs.isNotEmpty()) {
+            val firstImg = producto.imgs.firstOrNull()
+            if (firstImg != null && firstImg.startsWith("http")) {
+                val context = LocalContext.current
                 AsyncImage(
-                    model = producto.imgs.first(),
+                    model = ImageRequest.Builder(context)
+                        .data(firstImg)
+                        .size(128, 128)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = producto.nombre,
                     modifier = Modifier
                         .size(64.dp)

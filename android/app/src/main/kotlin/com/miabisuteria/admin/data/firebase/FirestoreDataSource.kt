@@ -21,6 +21,7 @@ class FirestoreDataSource @Inject constructor(
     suspend fun getProductos(): List<Producto> {
         val snap = db.collection("config").document("productos").get().await()
         val items = snap.get("items") as? List<Map<String, Any>> ?: emptyList()
+        if (items.isEmpty()) return PRODUCTOS_DEFAULT
         return items.map { it.toProducto() }
     }
 

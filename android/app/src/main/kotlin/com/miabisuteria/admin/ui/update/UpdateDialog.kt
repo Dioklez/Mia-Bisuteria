@@ -14,11 +14,12 @@ import com.miabisuteri.admin.ui.theme.*
 @Composable
 fun UpdateDialog(
     release: GitHubRelease,
+    isDownloading: Boolean = false,
     onDismiss: () -> Unit,
     onUpdate: (apkUrl: String) -> Unit
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!isDownloading) onDismiss() },
         icon = {
             Icon(Icons.Default.SystemUpdate, null, tint = VerdeClaro)
         },
@@ -44,18 +45,37 @@ fun UpdateDialog(
                         color = VerdeMenta
                     )
                 }
+                if (isDownloading) {
+                    HorizontalDivider(color = AdminBorder)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = VerdeClaro,
+                            strokeWidth = 2.dp
+                        )
+                        Text(
+                            "Descargando...",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = VerdeMenta
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = { onUpdate(release.apkUrl) },
+                enabled = !isDownloading,
                 colors = ButtonDefaults.buttonColors(containerColor = VerdeAcento)
             ) {
                 Text("Actualizar ahora", color = VerdeMenta)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss, enabled = !isDownloading) {
                 Text("Más tarde", color = VerdeClaro)
             }
         },

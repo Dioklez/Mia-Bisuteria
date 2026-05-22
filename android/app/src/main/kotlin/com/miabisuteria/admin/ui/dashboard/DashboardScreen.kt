@@ -1,7 +1,14 @@
 package com.miabisuteri.admin.ui.dashboard
 
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +23,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miabisuteri.admin.domain.model.GitHubRelease
@@ -37,13 +45,62 @@ fun DashboardScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    // BroadcastReceiver: dispara el instalador cuando el APK termina de descargarse
+    DisposableEffect(state.downloadId) {
+        val downloadId = state.downloadId ?: return@DisposableEffect onDispose {}
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
+                if (id == downloadId) {
+                    val dm = ctx.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                    val uri = dm.getUriForDownloadedFile(id)
+                    if (uri != null) {
+                        val install = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                            data = uri
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        ctx.startActivity(install)
+                    }
+                    viewModel.onDownloadComplete()
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            context, receiver,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+            ContextCompat.RECEIVER_EXPORTED
+        )
+        onDispose { context.unregisterReceiver(receiver) }
+    }
+
     state.updateAvailable?.let { release ->
         UpdateDialog(
             release = release,
+            isDownloading = state.isDownloading,
             onDismiss = viewModel::dismissUpdate,
             onUpdate = { apkUrl ->
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl))
-                context.startActivity(intent)
+                // Verificar permiso de instalación (Android 8+)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                    !context.packageManager.canRequestPackageInstalls()
+                ) {
+                    context.startActivity(Intent(
+                        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:${context.packageName}")
+                    ))
+                    return@UpdateDialog
+                }
+                // Encolar descarga en background
+                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                val request = DownloadManager.Request(Uri.parse(apkUrl))
+                    .setTitle("Mía Admin")
+                    .setDescription("Descargando actualización...")
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+                    .setDestinationInExternalFilesDir(
+                        context, Environment.DIRECTORY_DOWNLOADS, "MiaAdmin-update.apk"
+                    )
+                    .setMimeType("application/vnd.android.package-archive")
+                val id = dm.enqueue(request)
+                viewModel.onDownloadStarted(id)
             }
         )
     }

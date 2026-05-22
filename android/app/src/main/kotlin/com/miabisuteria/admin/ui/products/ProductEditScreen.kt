@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 import com.miabisuteri.admin.domain.model.COLECCIONES_PRODUCTO
 import com.miabisuteri.admin.domain.model.TIPOS_PRODUCTO
 import com.miabisuteri.admin.ui.theme.*
@@ -92,16 +94,36 @@ fun ProductEditScreen(
                         modifier = Modifier.horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        val context = LocalContext.current
                         p.imgs.forEach { url ->
                             Box {
-                                AsyncImage(
-                                    model = url,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(90.dp)
-                                        .clip(RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
+                                if (url.startsWith("http")) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(context)
+                                            .data(url)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(90.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Surface(
+                                        modifier = Modifier
+                                            .size(90.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        color = AdminSurface2
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Icon(Icons.Default.Image, null, tint = AdminBorder, modifier = Modifier.size(24.dp))
+                                                Text("Sin foto", style = MaterialTheme.typography.labelSmall, color = TextoSecundario)
+                                            }
+                                        }
+                                    }
+                                }
                                 IconButton(
                                     onClick = { viewModel.removeImage(url) },
                                     modifier = Modifier
