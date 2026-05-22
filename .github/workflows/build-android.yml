@@ -49,8 +49,9 @@ jobs:
       - name: Rename APK with version
         run: |
           VERSION="${{ github.ref_name }}"
-          cp android/app/build/outputs/apk/release/app-release.apk \
-             android/app/build/outputs/apk/release/MiaBisuteriaAdmin-${VERSION}.apk
+          APK=$(find android/app/build/outputs/apk/release/ -name "*.apk" | head -1)
+          echo "APK encontrado: $APK"
+          cp "$APK" android/app/build/outputs/apk/release/MiaBisuteriaAdmin-${VERSION}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
