@@ -37,9 +37,14 @@ jobs:
       - name: Write google-services.json
         run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
 
+      - name: Verify keystore exists
+        run: |
+          ls -la android/keystore.jks
+          echo "KEYSTORE_FILE=${{ github.workspace }}/android/keystore.jks"
+
       - name: Build release APK
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --stacktrace --info 2>&1 | tail -100
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/android/keystore.jks
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
