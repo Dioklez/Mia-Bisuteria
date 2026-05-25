@@ -95,8 +95,7 @@ fun LoginScreen(
                             password = uiState.password,
                             onPasswordChange = viewModel::onPasswordChange,
                             onSubmit = viewModel::onPasswordSubmit,
-                            error = uiState.error,
-                            isFirstSetup = uiState.isFirstSetup
+                            error = uiState.error
                         )
                     } else {
                         PinForm(
@@ -134,24 +133,15 @@ private fun PasswordForm(
     password: String,
     onPasswordChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    error: String?,
-    isFirstSetup: Boolean
+    error: String?
 ) {
     var visible by remember { mutableStateOf(false) }
 
     Text(
-        text = if (isFirstSetup) "Crear contraseña" else "Ingresar contraseña",
+        text = "Ingresar contraseña",
         style = MaterialTheme.typography.titleMedium,
         color = TextoPrimario
     )
-
-    if (isFirstSetup) {
-        Text(
-            text = "Primera vez: creá tu contraseña de acceso.",
-            style = MaterialTheme.typography.bodySmall,
-            color = TextoSecundario
-        )
-    }
 
     OutlinedTextField(
         value = password,
@@ -194,7 +184,7 @@ private fun PasswordForm(
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = VerdeClaro)
     ) {
-        Text(if (isFirstSetup) "Crear y entrar" else "Entrar", color = AdminBackground)
+        Text("Entrar", color = AdminBackground)
     }
 }
 
