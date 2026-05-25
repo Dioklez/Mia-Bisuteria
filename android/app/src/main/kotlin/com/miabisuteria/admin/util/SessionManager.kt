@@ -66,17 +66,10 @@ class SessionManager @Inject constructor(
         _isLoggedIn.value = false
     }
 
-    // Password management
-    fun isPasswordSet(): Boolean = prefs.getString(KEY_PASSWORD_HASH, null) != null
+    // La contraseña es fija — no se puede crear ni cambiar desde la app
+    fun isPasswordSet(): Boolean = true
 
-    fun setPassword(password: String) {
-        prefs.edit().putString(KEY_PASSWORD_HASH, hash(password)).apply()
-    }
-
-    fun checkPassword(password: String): Boolean {
-        val stored = prefs.getString(KEY_PASSWORD_HASH, null) ?: return false
-        return stored == hash(password)
-    }
+    fun checkPassword(password: String): Boolean = hash(password) == PASSWORD_HASH
 
     // PIN management
     fun isPinSet(): Boolean = prefs.getString(KEY_PIN_HASH, null) != null
@@ -102,7 +95,7 @@ class SessionManager @Inject constructor(
     }
 
     companion object {
-        private const val KEY_PASSWORD_HASH = "password_hash"
+        private const val PASSWORD_HASH = "9c49c166fa6ef6aa6fe7c1239acbda30e1bb5c6d96f45837f45f9a501d47a7ad"
         private const val KEY_PIN_HASH = "pin_hash"
         private const val KEY_BIOMETRIC = "biometric_enabled"
         private const val KEY_LAST_ACTIVITY = "last_activity_ms"
