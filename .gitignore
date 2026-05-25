@@ -38,3 +38,9 @@ android/app/release/
 android/app/google-services.json
 android/keystore.jks
 android/build/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
