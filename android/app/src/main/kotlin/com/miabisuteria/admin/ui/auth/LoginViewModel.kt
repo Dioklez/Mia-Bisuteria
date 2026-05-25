@@ -16,8 +16,7 @@ data class LoginUiState(
     val pin: String = "",
     val showPin: Boolean = false,
     val error: String? = null,
-    val loginSuccess: Boolean = false,
-    val isFirstSetup: Boolean = false
+    val loginSuccess: Boolean = false
 )
 
 @HiltViewModel
@@ -26,8 +25,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState(
-        isFirstSetup = !sessionManager.isPasswordSet(),
-        showPin = sessionManager.isPinSet() && sessionManager.isPasswordSet()
+        showPin = sessionManager.isPinSet()
     ))
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
@@ -45,22 +43,11 @@ class LoginViewModel @Inject constructor(
             _uiState.update { it.copy(error = "Ingresá una contraseña") }
             return
         }
-
-        if (_uiState.value.isFirstSetup) {
-            if (password.length < 4) {
-                _uiState.update { it.copy(error = "Mínimo 4 caracteres") }
-                return
-            }
-            sessionManager.setPassword(password)
+        if (sessionManager.checkPassword(password)) {
             sessionManager.login()
             _uiState.update { it.copy(loginSuccess = true) }
         } else {
-            if (sessionManager.checkPassword(password)) {
-                sessionManager.login()
-                _uiState.update { it.copy(loginSuccess = true) }
-            } else {
-                _uiState.update { it.copy(error = "Contraseña incorrecta", password = "") }
-            }
+            _uiState.update { it.copy(error = "Contraseña incorrecta", password = "") }
         }
     }
 
