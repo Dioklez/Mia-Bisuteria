@@ -26,13 +26,13 @@ android {
         applicationId = "com.miabisuteri.admin"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.2.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // GitHub repo for auto-update checks
-        buildConfigField("String", "GITHUB_OWNER", "\"AaronRosas\"")
-        buildConfigField("String", "GITHUB_REPO", "\"Mia-Bisuteria-Deploy\"")
+        buildConfigField("String", "GITHUB_OWNER", "\"Dioklez\"")
+        buildConfigField("String", "GITHUB_REPO", "\"Mia-Bisuteria\"")
     }
 
     signingConfigs {
